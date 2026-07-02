@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "findai",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "backgroundColor": "#000000",
     "ios": {
       "supportsTablet": true,
@@ -48,7 +47,8 @@
             "./assets/fonts/Inter-Medium.ttf"
           ]
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

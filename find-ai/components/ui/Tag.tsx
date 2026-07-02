@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, TextStyle } from 'react-native';
 import { Colors } from '@/constants/colors';
 import { AppText } from './AppText';
 
 interface TagProps {
   children: string;
   color?: string;
-  style?: ViewStyle;
+  style?: TextStyle;
 }
 
 /** Uppercase section label, e.g. "DAILY CHALLENGE" */
