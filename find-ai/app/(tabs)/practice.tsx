@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ChevronRight } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -69,7 +69,7 @@ export default function PracticeScreen() {
                   <AppText size="xs" color={Colors.accent}>
                     Review — +{REVIEW_XP} XP
                   </AppText>
-                  <ChevronRight size={16} color={Colors.textMuted} />
+                  <Feather name="chevron-right" size={16} color={Colors.textMuted} />
                 </Pressable>
               );
             })}

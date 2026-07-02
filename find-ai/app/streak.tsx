@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { X } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,7 +31,7 @@ export default function StreakScreen() {
             router.back();
           }}
         >
-          <X size={24} color={Colors.textSecondary} />
+          <Feather name="x" size={24} color={Colors.textSecondary} />
         </Pressable>
       </View>
 

@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Colors } from '@/constants/colors';
@@ -44,9 +44,9 @@ export function OptionButton({ text, state, onPress }: OptionButtonProps) {
         {text}
       </AppText>
       {state === 'selected-correct' || state === 'revealed-correct' ? (
-        <Check size={20} color={Colors.accent} />
+        <Feather name="check" size={20} color={Colors.accent} />
       ) : state === 'selected-wrong' ? (
-        <X size={20} color={Colors.danger} />
+        <Feather name="x" size={20} color={Colors.danger} />
       ) : null}
     </Pressable>
   );

@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { BookOpen, Brain, Gamepad2, Lock } from 'lucide-react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -68,7 +68,7 @@ function PathwayRow({ icon, title, xp, status, score, locked, divider, onPress }
         <AppText size="xs" color={Colors.accent}>
           +{xp} XP
         </AppText>
-        {locked ? <Lock size={16} color={Colors.textFaint} /> : <StatusChip status={status} score={score} />}
+        {locked ? <Feather name="lock" size={16} color={Colors.textFaint} /> : <StatusChip status={status} score={score} />}
       </View>
     </Pressable>
   );
@@ -117,7 +117,7 @@ export default function ConceptDetailScreen() {
         <Card padding="none" style={styles.pathway}>
           {lesson ? (
             <PathwayRow
-              icon={<BookOpen size={20} color={iconColor(false)} />}
+              icon={<Feather name="book-open" size={20} color={iconColor(false)} />}
               title="Lesson"
               xp={lesson.xp_reward}
               status={cp.lessonStatus}
@@ -128,7 +128,7 @@ export default function ConceptDetailScreen() {
           ) : null}
           {quiz ? (
             <PathwayRow
-              icon={<Brain size={20} color={iconColor(quizLocked)} />}
+              icon={<MaterialCommunityIcons name="brain" size={20} color={iconColor(quizLocked)} />}
               title="Quiz"
               xp={quiz.xp_reward}
               status={cp.quizStatus}
@@ -140,7 +140,7 @@ export default function ConceptDetailScreen() {
           ) : null}
           {simulation ? (
             <PathwayRow
-              icon={<Gamepad2 size={20} color={iconColor(simLocked)} />}
+              icon={<MaterialCommunityIcons name="gamepad-variant" size={20} color={iconColor(simLocked)} />}
               title="Simulation"
               xp={simulation.xp_reward}
               status={cp.simulationStatus}

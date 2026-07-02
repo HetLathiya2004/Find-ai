@@ -1,4 +1,4 @@
-import { ChevronLeft } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
@@ -28,7 +28,7 @@ export function BackRow({ label = 'Back', onPress, style }: BackRowProps) {
         else router.back();
       }}
     >
-      <ChevronLeft size={18} color={Colors.textSecondary} />
+      <Feather name="chevron-left" size={18} color={Colors.textSecondary} />
       <AppText size="sm" color={Colors.textSecondary}>
         {label}
       </AppText>

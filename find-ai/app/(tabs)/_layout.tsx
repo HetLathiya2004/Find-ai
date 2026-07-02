@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { BookOpen, Dumbbell, Home, Newspaper, User } from 'lucide-react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Platform, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,35 +50,35 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Home size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="home" size={ICON_SIZE} color={color} />,
         }}
       />
       <Tabs.Screen
         name="learn"
         options={{
           title: 'Learn',
-          tabBarIcon: ({ color }) => <BookOpen size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="book-open" size={ICON_SIZE} color={color} />,
         }}
       />
       <Tabs.Screen
         name="practice"
         options={{
           title: 'Practice',
-          tabBarIcon: ({ color }) => <Dumbbell size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="dumbbell" size={ICON_SIZE} color={color} />,
         }}
       />
       <Tabs.Screen
         name="news"
         options={{
           title: 'News',
-          tabBarIcon: ({ color }) => <Newspaper size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="file-text" size={ICON_SIZE} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <User size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="user" size={ICON_SIZE} color={color} />,
         }}
       />
     </Tabs>

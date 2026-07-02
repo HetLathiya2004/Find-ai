@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, {
@@ -41,10 +41,10 @@ function AnimatedHeart({ full, size }: { full: boolean; size: number }) {
     <View style={{ width: size, height: size }}>
       {/* Lost-heart outline underneath */}
       <View style={StyleSheet.absoluteFill}>
-        <Heart size={size} color={Colors.textFaint} fill="transparent" />
+        <MaterialCommunityIcons name="heart-outline" size={size} color={Colors.textFaint} />
       </View>
       <Animated.View style={[StyleSheet.absoluteFill, filledStyle]}>
-        <Heart size={size} color={Colors.danger} fill={Colors.danger} />
+        <MaterialCommunityIcons name="heart" size={size} color={Colors.danger} />
       </Animated.View>
     </View>
   );

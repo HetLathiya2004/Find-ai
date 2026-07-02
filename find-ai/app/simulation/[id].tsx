@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { X } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -79,7 +79,7 @@ export default function SimulationPlayerScreen() {
             else setShowExitModal(true);
           }}
         >
-          <X size={24} color={Colors.textSecondary} />
+          <Feather name="x" size={24} color={Colors.textSecondary} />
         </Pressable>
         <View style={styles.topBarSpacer} />
         <AppText size="xs" weight="medium" color={Colors.accent}>

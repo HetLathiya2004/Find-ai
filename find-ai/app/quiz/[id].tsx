@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { X } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -171,7 +171,7 @@ export default function QuizPlayerScreen() {
             setShowExitModal(true);
           }}
         >
-          <X size={24} color={Colors.textSecondary} />
+          <Feather name="x" size={24} color={Colors.textSecondary} />
         </Pressable>
         <SegmentBar total={quiz.questions.length} completed={questionIndex + 1} style={styles.segments} />
         <HeartDisplay hearts={hearts} size={18} />
