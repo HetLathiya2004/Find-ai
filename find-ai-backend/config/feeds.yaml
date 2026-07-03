@@ -1,0 +1,75 @@
+feeds:
+  finance:
+    name: "Finance & Markets"
+    url: "https://news.google.com/rss/search"
+    handler: "google_news"
+    function: "fetch_and_parse"
+    params:
+      q: "India finance stock market economy banking RBI SEBI"
+      hl: "en-IN"
+      gl: "IN"
+      ceid: "IN:en"
+    max_articles: 20
+    trusted_domains:
+      - moneycontrol.com
+      - economictimes.indiatimes.com
+      - livemint.com
+      - ndtvprofit.com
+      - business-standard.com
+      - financialexpress.com
+      - reuters.com
+      - bloomberg.com
+      - cnbc.com
+      - cnbctv18.com
+      - thehindu.com
+
+  startups:
+    name: "Startups & Funding"
+    url: "https://news.google.com/rss/search"
+    handler: "google_news"
+    function: "fetch_and_parse"
+    params:
+      q: "India startup funding venture capital unicorn"
+      hl: "en-IN"
+      gl: "IN"
+      ceid: "IN:en"
+    max_articles: 15
+    trusted_domains:
+      - inc42.com
+      - yourstory.com
+      - entrackr.com
+      - economictimes.indiatimes.com
+      - livemint.com
+      - moneycontrol.com
+      - reuters.com
+      - bloomberg.com
+
+  global:
+    name: "Global Markets"
+    url: "https://news.google.com/rss/search"
+    handler: "google_news"
+    function: "fetch_and_parse"
+    params:
+      q: "global stock market wall street nasdaq S&P 500 dow jones international economy"
+      hl: "en-IN"
+      gl: "IN"
+      ceid: "IN:en"
+    max_articles: 15
+    trusted_domains:
+      - reuters.com
+      - bloomberg.com
+      - cnbc.com
+      - financialexpress.com
+      - livemint.com
+      - moneycontrol.com
+      - economictimes.indiatimes.com
+
+# Example: adding a future feed (no core changes needed)
+# techcrunch:
+#   name: "TechCrunch Startups"
+#   url: "https://techcrunch.com/feed/"
+#   handler: "generic_rss"
+#   function: "fetch_and_parse"
+#   params: {}
+#   max_articles: 10
+#   trusted_domains: []
