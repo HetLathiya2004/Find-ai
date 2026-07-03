@@ -1,10 +1,11 @@
-"""Find.ai News Backend — Phase 2.1.0 (FastAPI entry point)."""
+"""Find.ai News Backend — Phase 2.1.x (FastAPI entry point). Python 3.9 compatible."""
+from __future__ import annotations
 
 import asyncio
 import logging
 import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -25,12 +26,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger("find-ai-backend")
 
+# Each page shifts the fetch window one day into the past; cap how far back
+# infinite scroll can go.
+MAX_PAGES = 30
+
 # Fail fast at import time if config or handlers are broken.
 registry.load_config()
 registry.validate_handlers()
 load_concepts()
 
-app = FastAPI(title="Find.ai News API", version="2.1.0")
+app = FastAPI(title="Find.ai News API", version="2.1.1")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,8 +44,8 @@ app.add_middleware(
 )
 
 
-async def _fetch_category(category: str) -> tuple[str, list[NewsArticle]]:
-    """Fetch one category and return ("ok" | "error", articles)."""
+async def _fetch_category(category: str, page: int) -> "tuple[str, list[NewsArticle]]":
+    """Fetch one page of one category; returns ("ok" | "error", articles)."""
     start = time.perf_counter()
     handler, feed = registry.get_handler(category)
     try:
@@ -49,6 +54,7 @@ async def _fetch_category(category: str) -> tuple[str, list[NewsArticle]]:
             params=feed.get("params") or {},
             max_articles=feed.get("max_articles", 20),
             trusted_domains=feed.get("trusted_domains") or [],
+            page=page,
         )
     except Exception:
         logger.exception("Handler '%s' crashed for category '%s'", feed["handler"], category)
@@ -61,8 +67,8 @@ async def _fetch_category(category: str) -> tuple[str, list[NewsArticle]]:
 
     elapsed_ms = (time.perf_counter() - start) * 1000
     logger.info(
-        "category=%s handler=%s articles=%d time=%.0fms",
-        category, feed["handler"], len(articles), elapsed_ms,
+        "category=%s handler=%s page=%d articles=%d time=%.0fms",
+        category, feed["handler"], page, len(articles), elapsed_ms,
     )
     return "ok", articles
 
@@ -78,13 +84,17 @@ async def get_categories():
 
 
 @app.get("/api/v1/news", response_model=NewsFeedResponse)
-async def get_all_news():
+async def get_all_news(
+    page: int = Query(1, ge=1, le=MAX_PAGES),
+    limit: int = Query(20, ge=1, le=100),
+):
     categories = [c["id"] for c in registry.list_categories()]
-    results = await asyncio.gather(*[_fetch_category(c) for c in categories])
+    results = await asyncio.gather(*[_fetch_category(c, page) for c in categories])
 
     # Dedupe by article id (hash of URL), keeping first occurrence
     combined = list({a.id: a for _, articles in results for a in articles}.values())
     combined.sort(key=lambda a: a.published_at, reverse=True)
+    combined = combined[:limit]
 
     status = "ok" if any(s == "ok" for s, _ in results) else "error"
     return NewsFeedResponse(
@@ -92,12 +102,18 @@ async def get_all_news():
         category="all",
         category_name="All News",
         count=len(combined),
+        page=page,
+        has_more=page < MAX_PAGES and len(combined) > 0,
         articles=combined,
     )
 
 
 @app.get("/api/v1/news/{category}", response_model=NewsFeedResponse)
-async def get_news(category: str):
+async def get_news(
+    category: str,
+    page: int = Query(1, ge=1, le=MAX_PAGES),
+    limit: int = Query(20, ge=1, le=100),
+):
     try:
         _, feed = registry.get_handler(category)
     except KeyError:
@@ -110,12 +126,15 @@ async def get_news(category: str):
             ).model_dump(),
         )
 
-    status, articles = await _fetch_category(category)
+    status, articles = await _fetch_category(category, page)
     articles.sort(key=lambda a: a.published_at, reverse=True)
+    articles = articles[:limit]
     return NewsFeedResponse(
         status=status,
         category=category,
         category_name=feed["name"],
         count=len(articles),
+        page=page,
+        has_more=page < MAX_PAGES and len(articles) > 0,
         articles=articles,
     )

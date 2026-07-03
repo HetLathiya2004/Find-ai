@@ -66,6 +66,32 @@ App wiring:
 Note: plain HTTP — fine in Expo Go/dev; production builds need ATS/cleartext
 exceptions or HTTPS on the server.
 
+## Infinite scroll / pagination (added 2026-07-03)
+
+Backend (`?page=1&limit=20` on both news endpoints):
+
+- Each page shifts the fetch window one day into the past. Page 1 =
+  `after:yesterday before:tomorrow` (original behavior); page N shifts both
+  bounds back by N-1 days. `google_news` passes the window in the query;
+  `generic_rss` filters parsed items locally (upper bound exclusive to match
+  Google's `before:` semantics).
+- Response now includes `page` and `has_more`. `has_more` is true while the
+  page returned articles and `page < MAX_PAGES` (30). Adjacent windows
+  overlap by design; dedupe happens server-side per response and client-side
+  across pages.
+- All files carry `from __future__ import annotations` and use
+  `typing.Optional` instead of `X | Y` — the server runs Python 3.9.
+
+App:
+
+- `useNews` tracks `page`/`hasMore`/`loadingMore` in refs+state, exposes
+  `loadMore()`, appends deduped-by-id articles. Mock fallback still applies
+  on page-1 failure only (then `hasMore` stays false so no dead requests).
+- `news.tsx` FlatList: `onEndReached={loadMore}` with threshold 0.5 and an
+  ActivityIndicator footer while fetching.
+
+Deploy note: server layout changed to nginx :80 → uvicorn :8000.
+
 ## Phase 2.2 swap points
 
 - `core/enricher.py` → LLM summary + why_it_matters

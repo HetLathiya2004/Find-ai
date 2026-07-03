@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
@@ -70,7 +70,7 @@ function ArticleCard({ article }: { article: MockNewsArticle }) {
 }
 
 export default function NewsScreen() {
-  const { articles, loading } = useNews('all');
+  const { articles, loading, loadingMore, hasMore, loadMore } = useNews('all');
 
   if (loading) {
     return (
@@ -87,10 +87,19 @@ export default function NewsScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        onEndReached={hasMore ? loadMore : undefined}
+        onEndReachedThreshold={0.5}
         ListHeaderComponent={
           <AppText size="2xl" weight="medium" style={styles.title}>
             News
           </AppText>
+        }
+        ListFooterComponent={
+          loadingMore ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator size="small" color={Colors.textMuted} />
+            </View>
+          ) : null
         }
         ItemSeparatorComponent={() => <View style={{ height: Spacing.gap.md }} />}
         renderItem={({ item }) => <ArticleCard article={item} />}
@@ -128,5 +137,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: Spacing.gap.lg,
+  },
+  footerLoader: {
+    paddingVertical: Spacing.gap.xl,
+    alignItems: 'center',
   },
 });

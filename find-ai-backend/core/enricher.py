@@ -1,4 +1,6 @@
 """Dummy enrichment — Phase 2.2 will replace this with LLM-generated content."""
+from __future__ import annotations
+
 import hashlib
 
 from models.schemas import NewsArticle, RawArticle

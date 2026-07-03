@@ -1,9 +1,10 @@
 """Handler registry — reads feeds.yaml and dispatches to handler modules."""
+from __future__ import annotations
 
 import importlib
 import logging
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import yaml
 
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 FEEDS_PATH = Path(__file__).resolve().parent.parent / "config" / "feeds.yaml"
 
-_config: dict | None = None
+_config: Optional[dict] = None
 
 
 def load_config(force_reload: bool = False) -> dict:

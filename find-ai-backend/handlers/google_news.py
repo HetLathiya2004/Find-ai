@@ -1,7 +1,9 @@
 """Google News RSS handler.
 
 Pure function: URL in → RawArticle list out. No FastAPI/core imports.
+Python 3.9 compatible.
 """
+from __future__ import annotations
 
 import html
 import logging
@@ -37,8 +39,23 @@ def _to_iso_date(raw_date: str) -> str:
 def _is_trusted(source_url: str, trusted_domains: list[str]) -> bool:
     if not trusted_domains:
         return True
-    host = urlparse(source_url).netloc.lower().removeprefix("www.")
+    host = urlparse(source_url).netloc.lower()
+    if host.startswith("www."):
+        host = host[4:]
     return any(host == d or host.endswith("." + d) for d in trusted_domains)
+
+
+def date_window(page: int) -> "tuple[str, str]":
+    """Return (after, before) ISO dates for a page.
+
+    Page 1 covers roughly the last 24h (yesterday → tomorrow); each
+    subsequent page shifts the window back by one day.
+    """
+    now = datetime.now(timezone.utc)
+    offset = max(page - 1, 0)
+    after = (now - timedelta(days=1 + offset)).strftime("%Y-%m-%d")
+    before = (now + timedelta(days=1 - offset)).strftime("%Y-%m-%d")
+    return after, before
 
 
 async def fetch_and_parse(
@@ -46,15 +63,13 @@ async def fetch_and_parse(
     params: dict,
     max_articles: int,
     trusted_domains: list[str],
+    page: int = 1,
 ) -> list[RawArticle]:
     """Fetch a Google News RSS search feed and parse its items."""
     try:
-        # Restrict the search to roughly the last 24 hours.
-        now = datetime.now(timezone.utc)
-        yesterday = (now - timedelta(days=1)).strftime("%Y-%m-%d")
-        tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
+        after, before = date_window(page)
         params = dict(params)
-        params["q"] = f"{params.get('q', '')} after:{yesterday} before:{tomorrow}".strip()
+        params["q"] = f"{params.get('q', '')} after:{after} before:{before}".strip()
 
         async with AsyncSession() as session:
             response = await session.get(url, params=params, impersonate="chrome")

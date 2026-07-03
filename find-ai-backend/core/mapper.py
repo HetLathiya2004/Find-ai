@@ -1,7 +1,9 @@
 """Keyword-based article → concept mapping."""
+from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Optional
 
 import yaml
 
@@ -9,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 CONCEPTS_PATH = Path(__file__).resolve().parent.parent / "config" / "concepts.yaml"
 
-_concepts: list[dict] | None = None
+_concepts: Optional[list] = None
 
 
 def load_concepts() -> list[dict]:
@@ -27,7 +29,7 @@ def load_concepts() -> list[dict]:
 def map_to_concept(
     title: str,
     description: str,
-    concepts: list[dict] | None = None,
+    concepts: Optional[list] = None,
 ) -> tuple[str, str]:
     """Return (concept_id, concept_title) for an article.
 

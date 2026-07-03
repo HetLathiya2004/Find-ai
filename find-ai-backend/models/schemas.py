@@ -1,4 +1,8 @@
-"""Pydantic models for the Find.ai news API."""
+"""Pydantic models for the Find.ai news API. Python 3.9 compatible."""
+from __future__ import annotations
+
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -17,7 +21,7 @@ class NewsArticle(BaseModel):
     id: str
     title: str
     summary: str
-    why_it_matters: str | None
+    why_it_matters: Optional[str]
     published_at: str
     concept_id: str
     concept_title: str
@@ -30,6 +34,8 @@ class NewsFeedResponse(BaseModel):
     category: str
     category_name: str
     count: int
+    page: int
+    has_more: bool
     articles: list[NewsArticle]
 
 
