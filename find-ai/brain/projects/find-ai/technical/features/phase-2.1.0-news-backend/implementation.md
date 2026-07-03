@@ -46,8 +46,28 @@ ssh -i ~/.ssh/orecal.key ubuntu@152.67.178.243
 # clone/pull repo, then run uvicorn under tmux or systemd
 ```
 
+## App integration (done 2026-07-03)
+
+Backend is deployed at `http://152.67.178.243` (port 80, behind the VM).
+App wiring:
+
+- `constants/api.ts` — `API_BASE = http://152.67.178.243`, `API_V1` helper
+- `hooks/useNews.ts` — fetches `/api/v1/news` (10s timeout via AbortController),
+  falls back to `MOCK_NEWS` when the API is unreachable, errors, or returns
+  zero articles; exposes `{ articles, loading, isLive }`
+- `app/(tabs)/news.tsx` — FlatList renders `useNews('all')` instead of
+  `MOCK_NEWS`; "Learn this concept" link hidden when `concept_id` has no
+  local concept (e.g. `c_default`)
+- `app/(tabs)/home.tsx` — top news card reads from `useNews('all')`
+- `config/concepts.yaml` — IDs/titles realigned to the app's `MOCK_CONCEPTS`
+  catalog (c8 Balance Sheets, c9 Bull/Bear, c10 Index Funds, c11 GDP,
+  c12 Cash Flow) so deep links resolve; keywords added for new concepts
+
+Note: plain HTTP — fine in Expo Go/dev; production builds need ATS/cleartext
+exceptions or HTTPS on the server.
+
 ## Phase 2.2 swap points
 
 - `core/enricher.py` → LLM summary + why_it_matters
 - Add cache layer in `_fetch_category` (main.py) or a `core/cache.py`
-- App side: `constants/api.ts` with `API_BASE = http://152.67.178.243:3000/api/v1`
+- `useNews` → React Query once more endpoints exist

@@ -1,3 +1,6 @@
+# Concept catalog — IDs and titles MUST match the app's MOCK_CONCEPTS
+# (find-ai/constants/mock-data.ts) so "Learn this concept" deep links work.
+
 concepts:
   - id: "c1"
     title: "Supply and Demand"
@@ -89,6 +92,18 @@ concepts:
       - central bank
 
   - id: "c8"
+    title: "Balance Sheets"
+    domain: "corporate_finance"
+    keywords:
+      - balance sheet
+      - quarterly results
+      - net profit
+      - annual results
+      - assets and liabilities
+      - debt burden
+      - revenue growth
+
+  - id: "c9"
     title: "Bull and Bear Markets"
     domain: "markets"
     keywords:
@@ -102,19 +117,19 @@ concepts:
       - all-time high
       - market downturn
 
-  - id: "c9"
-    title: "IPO"
-    domain: "corporate_finance"
-    keywords:
-      - IPO
-      - initial public offering
-      - listing
-      - public listing
-      - debut
-      - going public
-      - primary market
-
   - id: "c10"
+    title: "Index Funds"
+    domain: "investing"
+    keywords:
+      - index fund
+      - mutual fund
+      - ETF
+      - nifty 50
+      - passive investing
+      - SIP
+      - fund inflows
+
+  - id: "c11"
     title: "GDP"
     domain: "macro"
     keywords:
@@ -125,6 +140,17 @@ concepts:
       - recession
       - economic output
       - fiscal deficit
+
+  - id: "c12"
+    title: "Cash Flow"
+    domain: "corporate_finance"
+    keywords:
+      - cash flow
+      - cash reserves
+      - liquidity
+      - working capital
+      - fund raising
+      - bond issuance
 
   - id: "c_default"
     title: "Financial Literacy"
