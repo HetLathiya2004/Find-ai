@@ -6,14 +6,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { QuestionCard } from '@/components/quiz/QuestionCard';
 import { AppText } from '@/components/ui/AppText';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { HeartDisplay } from '@/components/ui/HeartDisplay';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
+import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { XPReward } from '@/components/ui/XPReward';
 import { Colors } from '@/constants/colors';
-import { getConceptById, getQuizById } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
+import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useMockProgress } from '@/hooks/useMockProgress';
 
@@ -24,9 +26,9 @@ type Phase = 'question' | 'out-of-hearts' | 'score' | 'reward';
 export default function QuizPlayerScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  // The route param is the concept slug — quiz content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
-  const quiz = getQuizById(id ?? '');
-  const concept = quiz ? getConceptById(quiz.concept_id) : undefined;
+  const { concept, loading, error, retry } = useConcept(id ?? null);
   const progress = useMockProgress();
 
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -37,27 +39,27 @@ export default function QuizPlayerScreen() {
   const [showExitModal, setShowExitModal] = useState(false);
 
   useEffect(() => {
-    if (quiz) progress.startQuiz(quiz.concept_id);
+    if (concept) progress.startQuiz(concept.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quiz?.id]);
+  }, [concept?.id]);
 
-  if (!quiz) {
+  if (error) {
+    return <ErrorState onRetry={retry} />;
+  }
+
+  if (loading || !concept) {
     return (
       <SafeAreaView style={styles.screen}>
-        <View style={styles.center}>
-          <AppText size="base" color={Colors.textSecondary}>
-            Quiz not found.
-          </AppText>
-          <PrimaryButton title="Go back" onPress={() => router.back()} style={{ marginTop: 20 }} />
-        </View>
+        <ScreenSkeleton rows={3} />
       </SafeAreaView>
     );
   }
 
-  const question = quiz.questions[questionIndex];
-  const isLastQuestion = questionIndex === quiz.questions.length - 1;
-  const score = Math.round((correctCount / quiz.questions.length) * 100);
-  const passed = score >= quiz.pass_threshold;
+  const questions = concept.questions;
+  const question = questions[questionIndex];
+  const isLastQuestion = questionIndex === questions.length - 1;
+  const score = Math.round((correctCount / questions.length) * 100);
+  const passed = score >= concept.quiz_pass_threshold;
 
   const selectOption = (index: number) => {
     if (selectedIndex !== null) return;
@@ -80,7 +82,7 @@ export default function QuizPlayerScreen() {
   const continueToNext = () => {
     haptics.light();
     if (isLastQuestion) {
-      progress.completeQuiz(quiz.concept_id, score, passed, quiz.xp_reward);
+      progress.completeQuiz(concept.id, score, passed, concept.quiz_xp);
       if (passed) haptics.success();
       setPhase('score');
     } else {
@@ -112,7 +114,7 @@ export default function QuizPlayerScreen() {
 
   if (phase === 'reward') {
     return (
-      <XPReward xp={quiz.xp_reward} subtitle="Quiz passed" onContinue={() => router.back()} />
+      <XPReward xp={concept.quiz_xp} subtitle="Quiz passed" onContinue={() => router.back()} />
     );
   }
 
@@ -132,8 +134,7 @@ export default function QuizPlayerScreen() {
             {passed ? 'Quiz passed!' : 'Not quite there'}
           </AppText>
           <AppText size="sm" color={Colors.textSecondary} center style={styles.outSubtitle}>
-            {correctCount} of {quiz.questions.length} correct
-            {concept ? ` — ${concept.title}` : ''}
+            {correctCount} of {questions.length} correct — {concept.title}
           </AppText>
         </View>
         <View style={styles.bottom}>
@@ -173,7 +174,7 @@ export default function QuizPlayerScreen() {
         >
           <Feather name="x" size={24} color={Colors.textSecondary} />
         </Pressable>
-        <SegmentBar total={quiz.questions.length} completed={questionIndex + 1} style={styles.segments} />
+        <SegmentBar total={questions.length} completed={questionIndex + 1} style={styles.segments} />
         <HeartDisplay hearts={hearts} size={18} />
       </View>
 
