@@ -3,3 +3,5 @@ uvicorn[standard]
 curl_cffi
 pyyaml
 pydantic
+supabase
+python-dotenv

@@ -1,9 +1,13 @@
-"""Find.ai News Backend — Phase 2.1.x (FastAPI entry point). Python 3.9 compatible."""
+"""Find.ai Backend — News + Course Content (FastAPI entry point)."""
 from __future__ import annotations
 
 import asyncio
 import logging
 import time
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +22,8 @@ from models.schemas import (
     NewsArticle,
     NewsFeedResponse,
 )
+from routes.courses import router as courses_router
+from routes.admin import router as admin_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,13 +41,16 @@ registry.load_config()
 registry.validate_handlers()
 load_concepts()
 
-app = FastAPI(title="Find.ai News API", version="2.1.1")
+app = FastAPI(title="Find.ai API", version="2.2.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(courses_router)
+app.include_router(admin_router)
 
 
 async def _fetch_category(category: str, page: int) -> "tuple[str, list[NewsArticle]]":

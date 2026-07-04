@@ -1,0 +1,427 @@
+{
+  "title": "Financial Literacy Foundations",
+  "description": "Build a strong foundation in personal finance, markets, and smart investing.",
+  "difficulty": "beginner",
+  "icon_emoji": "📊",
+  "order_index": 1,
+  "modules": [
+    {
+      "title": "Understanding Markets",
+      "domain": "markets",
+      "order_index": 1,
+      "concepts": [
+        {
+          "title": "What is a Stock Market?",
+          "slug": "what-is-stock-market",
+          "description": "Learn how stock exchanges work, how shares are bought and sold, and why stock markets matter for the global economy.",
+          "order_index": 1,
+          "lesson_title": "Inside the Stock Market",
+          "lesson_xp": 25,
+          "quiz_xp": 30,
+          "quiz_pass_threshold": 70,
+          "sim_title": "Your First Trade",
+          "sim_scenario": "You have $1,000 to invest and are looking at two stocks: a well-established blue-chip company trading at $150 per share and a small startup trading at $5 per share. The blue-chip has steady 8% annual returns while the startup has high volatility but potential for rapid growth. How do you allocate your money?",
+          "sim_xp": 20,
+          "tags": ["beginner", "markets", "stocks", "exchanges"],
+          "cards": [
+            {
+              "title": "What Is a Stock Exchange?",
+              "body": "A stock exchange is a regulated marketplace where buyers and sellers trade shares of publicly listed companies. Major exchanges like the New York Stock Exchange (NYSE) and NASDAQ facilitate millions of transactions every day. These exchanges provide transparency, liquidity, and price discovery for investors around the world.",
+              "visual_hint": "illustration of a trading floor with buy/sell order boards",
+              "order_index": 1
+            },
+            {
+              "title": "How Stocks Are Traded",
+              "body": "When you buy a stock, you are purchasing a small ownership stake in a company. Modern stock trading happens electronically through brokerages that route your order to the exchange. A trade is completed when a buyer's bid price matches a seller's ask price, and ownership is transferred almost instantly.",
+              "visual_hint": "diagram showing buyer, broker, exchange, seller flow",
+              "order_index": 2
+            },
+            {
+              "title": "Market Participants",
+              "body": "Stock markets involve many types of participants including retail investors, institutional investors like mutual funds and pension funds, and market makers who provide liquidity. Each plays a different role in keeping the market functioning efficiently. Retail investors now make up roughly 20-25% of daily trading volume in U.S. markets.",
+              "visual_hint": null,
+              "order_index": 3
+            },
+            {
+              "title": "Why Markets Matter",
+              "body": "Stock markets allow companies to raise capital by selling shares to the public through an Initial Public Offering (IPO). This capital funds research, expansion, and job creation. For investors, markets provide an opportunity to grow wealth over time, with the S&P 500 historically returning about 10% annually before inflation.",
+              "visual_hint": "chart showing S&P 500 long-term growth trajectory",
+              "order_index": 4
+            }
+          ],
+          "questions": [
+            {
+              "question": "What is the primary function of a stock exchange?",
+              "options": [
+                "A regulated marketplace for buying and selling shares",
+                "A government agency that prints money",
+                "A bank that provides loans to companies",
+                "A place where companies manufacture products"
+              ],
+              "correct_index": 0,
+              "explanation": "A stock exchange is a regulated marketplace where buyers and sellers trade shares of publicly listed companies, providing transparency, liquidity, and price discovery.",
+              "order_index": 1
+            },
+            {
+              "question": "What happens during an Initial Public Offering (IPO)?",
+              "options": [
+                "A company goes bankrupt",
+                "A company sells shares to the public for the first time",
+                "A company buys back all its shares",
+                "A company merges with another company"
+              ],
+              "correct_index": 1,
+              "explanation": "An IPO is when a company first sells shares to the public on a stock exchange to raise capital for growth, research, and operations.",
+              "order_index": 2
+            },
+            {
+              "question": "A trade is completed when which condition is met?",
+              "options": [
+                "The company approves the transaction",
+                "The government regulator signs off",
+                "A buyer's bid price matches a seller's ask price",
+                "The stock reaches its all-time high"
+              ],
+              "correct_index": 2,
+              "explanation": "A stock trade is executed when a buyer's bid price matches a seller's ask price. This matching is handled electronically by the exchange in fractions of a second.",
+              "order_index": 3
+            }
+          ],
+          "choices": [
+            {
+              "text": "Put all $1,000 into the small startup for maximum growth potential",
+              "outcome": "risky",
+              "feedback": "Concentrating your entire investment in a volatile startup is extremely risky. While the upside could be significant, you could also lose most of your capital. Small-cap stocks have higher failure rates and wider price swings.",
+              "learner_pct": 25,
+              "order_index": 1
+            },
+            {
+              "text": "Split the money: $700 in the blue-chip and $300 in the startup",
+              "outcome": "balanced",
+              "feedback": "A balanced approach gives you exposure to the startup's growth potential while anchoring most of your capital in a stable blue-chip stock. This is a sensible strategy for a beginner investor managing risk.",
+              "learner_pct": 45,
+              "order_index": 2
+            },
+            {
+              "text": "Invest all $1,000 in the blue-chip and wait for a better entry point on the startup",
+              "outcome": "strategic",
+              "feedback": "This conservative approach protects your capital with a proven company. Waiting for better timing on the startup shows discipline, though timing the market perfectly is very difficult. You benefit from steady returns in the meantime.",
+              "learner_pct": 30,
+              "order_index": 3
+            }
+          ]
+        },
+        {
+          "title": "Supply and Demand in Markets",
+          "slug": "supply-and-demand",
+          "description": "Understand the fundamental economic forces of supply and demand and how they drive the prices of stocks, goods, and services.",
+          "order_index": 2,
+          "lesson_title": "The Forces Behind Prices",
+          "lesson_xp": 25,
+          "quiz_xp": 30,
+          "quiz_pass_threshold": 70,
+          "sim_title": "Price Pressure",
+          "sim_scenario": "A popular tech company just announced record earnings, beating analyst expectations by 20%. The stock price is surging in after-hours trading, up 12%. You currently own 50 shares that you bought at $80 each, and the price is now $120. More buyers are flooding in, but some analysts warn the stock may be overbought. What do you do?",
+          "sim_xp": 20,
+          "tags": ["beginner", "markets", "economics", "supply-demand"],
+          "cards": [
+            {
+              "title": "The Law of Supply and Demand",
+              "body": "Supply and demand is the most fundamental concept in economics. When demand for a product or asset increases while supply stays the same, prices tend to rise. Conversely, when supply increases while demand remains constant, prices tend to fall. This dynamic applies to everything from groceries to stock prices.",
+              "visual_hint": "classic supply-demand curve intersection diagram",
+              "order_index": 1
+            },
+            {
+              "title": "Demand Drivers in Financial Markets",
+              "body": "In stock markets, demand is driven by factors like strong company earnings, positive economic data, low interest rates, and investor sentiment. When many investors want to buy a stock, they bid the price up. Media coverage, analyst upgrades, and institutional buying can all amplify demand for a particular stock.",
+              "visual_hint": "upward price chart with volume bars increasing",
+              "order_index": 2
+            },
+            {
+              "title": "Supply Dynamics",
+              "body": "The supply of a company's stock is determined by the number of outstanding shares. When insiders or large institutional holders sell their positions, the increased supply can push prices down. Companies can also issue new shares (dilution) or buy back shares (reducing supply), directly affecting the stock price.",
+              "visual_hint": null,
+              "order_index": 3
+            },
+            {
+              "title": "Price Equilibrium",
+              "body": "A market reaches equilibrium when the quantity demanded equals the quantity supplied at a given price. In stock markets, this equilibrium shifts constantly as new information arrives. High trading volume at a stable price suggests the market has found a temporary equilibrium between buyers and sellers.",
+              "visual_hint": "animated balance scale showing price settling at equilibrium",
+              "order_index": 4
+            }
+          ],
+          "questions": [
+            {
+              "question": "What generally happens to a stock's price when demand increases and supply remains the same?",
+              "options": [
+                "The price stays the same",
+                "The price decreases",
+                "The price increases",
+                "The stock is delisted from the exchange"
+              ],
+              "correct_index": 2,
+              "explanation": "When more buyers want a stock (higher demand) but the number of available shares stays the same (constant supply), competition among buyers pushes the price upward.",
+              "order_index": 1
+            },
+            {
+              "question": "What is a share buyback?",
+              "options": [
+                "When investors buy shares from each other",
+                "When a company repurchases its own shares from the market",
+                "When the government buys shares to stabilize markets",
+                "When a broker buys shares on behalf of a client"
+              ],
+              "correct_index": 1,
+              "explanation": "A share buyback is when a company uses its own cash to repurchase its shares from the open market, reducing the total supply of shares and often increasing the stock price.",
+              "order_index": 2
+            },
+            {
+              "question": "What does market equilibrium mean in stock trading?",
+              "options": [
+                "All stocks are priced the same",
+                "No one is buying or selling",
+                "The quantity demanded equals the quantity supplied at the current price",
+                "The market is closed for the day"
+              ],
+              "correct_index": 2,
+              "explanation": "Market equilibrium occurs when the number of shares buyers want to purchase matches the number sellers are willing to sell at a given price, creating a stable price point.",
+              "order_index": 3
+            }
+          ],
+          "choices": [
+            {
+              "text": "Sell all 50 shares immediately to lock in the $2,000 profit",
+              "outcome": "risky",
+              "feedback": "Selling everything after a big jump locks in your gains, but you might miss further upside if the momentum continues. Exiting your full position based on a single event can mean you sell too early. However, a guaranteed profit is never a bad outcome.",
+              "learner_pct": 30,
+              "order_index": 1
+            },
+            {
+              "text": "Sell half your shares to secure some profit and hold the rest",
+              "outcome": "balanced",
+              "feedback": "Selling half lets you realize a $1,000 profit while keeping exposure to further gains. This balanced approach reduces risk while maintaining upside potential. It is a common strategy among experienced investors after a large price jump.",
+              "learner_pct": 45,
+              "order_index": 2
+            },
+            {
+              "text": "Hold all shares and set a stop-loss order at $105 to protect gains",
+              "outcome": "strategic",
+              "feedback": "Holding while setting a stop-loss is a disciplined strategy. You stay invested for more upside while the stop-loss automatically sells if the price drops to $105, still locking in a solid $25-per-share profit. This uses supply-demand dynamics to your advantage.",
+              "learner_pct": 25,
+              "order_index": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Smart Investing",
+      "domain": "investing",
+      "order_index": 2,
+      "concepts": [
+        {
+          "title": "Compound Interest",
+          "slug": "compound-interest",
+          "description": "Discover how compound interest works and why Albert Einstein reportedly called it the eighth wonder of the world.",
+          "order_index": 1,
+          "lesson_title": "The Power of Compounding",
+          "lesson_xp": 25,
+          "quiz_xp": 30,
+          "quiz_pass_threshold": 70,
+          "sim_title": "The Compounding Decision",
+          "sim_scenario": "You are 25 years old and just received a $5,000 bonus. You have three options: invest it in a retirement account earning an average 7% annual return compounded yearly, put it in a high-yield savings account earning 4.5% APY, or use it to pay off a credit card with a 22% APR balance of $3,000 and invest the remaining $2,000. What do you choose?",
+          "sim_xp": 20,
+          "tags": ["beginner", "investing", "compound-interest", "saving"],
+          "cards": [
+            {
+              "title": "What Is Compound Interest?",
+              "body": "Compound interest is interest calculated on both the initial principal and the accumulated interest from previous periods. Unlike simple interest, which only earns on the original amount, compound interest lets your money grow exponentially over time. This is why starting to invest early is so powerful.",
+              "visual_hint": "side-by-side bar chart comparing simple vs compound interest growth over 30 years",
+              "order_index": 1
+            },
+            {
+              "title": "The Rule of 72",
+              "body": "The Rule of 72 is a quick way to estimate how long it takes for an investment to double. Simply divide 72 by the annual interest rate. For example, at a 7% annual return, your money doubles in roughly 10.3 years. At 10%, it doubles in about 7.2 years. This mental shortcut helps you grasp the power of different growth rates.",
+              "visual_hint": "table showing years to double at different interest rates",
+              "order_index": 2
+            },
+            {
+              "title": "Time Is Your Greatest Asset",
+              "body": "An investor who starts at age 25 and invests $200 per month at 7% annual return will have roughly $525,000 by age 65. Someone who waits until age 35 to start the same plan will have only about $244,000. That ten-year head start nearly doubles the final amount, even though the extra contributions total only $24,000.",
+              "visual_hint": "line graph showing two investors starting ten years apart",
+              "order_index": 3
+            },
+            {
+              "title": "Compounding Frequency Matters",
+              "body": "Interest can compound annually, quarterly, monthly, or even daily. The more frequently interest compounds, the faster your money grows. A $10,000 investment at 5% compounded annually yields $16,289 after 10 years, while the same rate compounded daily yields $16,487. Over longer periods, this difference becomes more significant.",
+              "visual_hint": null,
+              "order_index": 4
+            }
+          ],
+          "questions": [
+            {
+              "question": "Using the Rule of 72, approximately how many years would it take for an investment to double at a 9% annual return?",
+              "options": [
+                "6 years",
+                "8 years",
+                "9 years",
+                "12 years"
+              ],
+              "correct_index": 1,
+              "explanation": "The Rule of 72 says divide 72 by the interest rate: 72 / 9 = 8 years. This is a quick estimate for how long it takes an investment to double at a given annual return.",
+              "order_index": 1
+            },
+            {
+              "question": "What makes compound interest different from simple interest?",
+              "options": [
+                "Compound interest uses a higher rate",
+                "Compound interest earns interest on both the principal and previously accumulated interest",
+                "Simple interest compounds more frequently",
+                "There is no meaningful difference"
+              ],
+              "correct_index": 1,
+              "explanation": "Compound interest earns interest on both the original principal and all previously earned interest, creating exponential growth. Simple interest only earns on the original principal amount.",
+              "order_index": 2
+            },
+            {
+              "question": "Why is starting to invest early so important for building wealth?",
+              "options": [
+                "Early investors get lower tax rates",
+                "Stock prices were cheaper in the past",
+                "More time allows compound interest to work, dramatically increasing total returns",
+                "Younger investors are given higher interest rates by banks"
+              ],
+              "correct_index": 2,
+              "explanation": "Starting early gives compound interest more time to work. Even small amounts invested early can grow to large sums because each year's gains generate their own gains in subsequent years.",
+              "order_index": 3
+            }
+          ],
+          "choices": [
+            {
+              "text": "Invest the full $5,000 in the retirement account at 7% annual return",
+              "outcome": "strategic",
+              "feedback": "Investing the full amount at 7% means it could grow to roughly $75,000 by age 65 through compounding alone. However, carrying high-interest credit card debt at 22% APR costs you more than you earn at 7%, so this may not be the most efficient use of money.",
+              "learner_pct": 30,
+              "order_index": 1
+            },
+            {
+              "text": "Put it all in the high-yield savings account at 4.5% APY",
+              "outcome": "risky",
+              "feedback": "A savings account is safe but 4.5% barely keeps pace with inflation over the long term. Meanwhile, your 22% credit card debt is growing much faster than your savings. Prioritizing low-return savings over high-interest debt elimination is a common costly mistake.",
+              "learner_pct": 20,
+              "order_index": 2
+            },
+            {
+              "text": "Pay off the $3,000 credit card debt first, then invest the remaining $2,000",
+              "outcome": "balanced",
+              "feedback": "This is a mathematically optimal approach. Eliminating 22% APR debt gives you an immediate guaranteed 22% return on that $3,000. Then investing the remaining $2,000 at 7% lets compounding work for decades. Paying off high-interest debt before investing is one of the smartest financial moves you can make.",
+              "learner_pct": 50,
+              "order_index": 3
+            }
+          ]
+        },
+        {
+          "title": "Diversification",
+          "slug": "diversification",
+          "description": "Learn why spreading your investments across different assets, sectors, and regions is one of the most important strategies for managing risk.",
+          "order_index": 2,
+          "lesson_title": "Don't Put All Your Eggs in One Basket",
+          "lesson_xp": 25,
+          "quiz_xp": 30,
+          "quiz_pass_threshold": 70,
+          "sim_title": "Building Your Portfolio",
+          "sim_scenario": "You have $10,000 to build your first investment portfolio. Your friend who works in tech says their company stock has returned 35% this year and urges you to go all in. Meanwhile, a financial advisor recommends a diversified mix of index funds across U.S. stocks, international stocks, and bonds. You also read about a real estate investment trust (REIT) that pays 6% dividends. How do you build your portfolio?",
+          "sim_xp": 20,
+          "tags": ["beginner", "investing", "diversification", "risk-management"],
+          "cards": [
+            {
+              "title": "What Is Diversification?",
+              "body": "Diversification is the strategy of spreading your investments across different asset classes, industries, and geographic regions to reduce risk. The idea is that when one investment performs poorly, others may perform well, smoothing out your overall returns. It is often called the only free lunch in investing.",
+              "visual_hint": "pie chart showing a diversified portfolio allocation",
+              "order_index": 1
+            },
+            {
+              "title": "Asset Classes Explained",
+              "body": "The main asset classes are stocks (equities), bonds (fixed income), real estate, and cash equivalents. Stocks offer higher potential returns but more volatility. Bonds provide steadier income with lower risk. Real estate offers income through rent and potential appreciation. A mix of these creates a more resilient portfolio.",
+              "visual_hint": "four icons representing stocks, bonds, real estate, and cash with risk/return spectrum",
+              "order_index": 2
+            },
+            {
+              "title": "Correlation and Risk Reduction",
+              "body": "The key to effective diversification is holding assets that do not move in the same direction at the same time, known as low correlation. For example, when stocks fall during a recession, government bonds often rise as investors seek safety. This negative correlation helps protect your total portfolio value during market downturns.",
+              "visual_hint": "two overlapping line charts showing stocks and bonds moving in opposite directions",
+              "order_index": 3
+            },
+            {
+              "title": "Index Funds: Instant Diversification",
+              "body": "Index funds and ETFs are one of the easiest ways to achieve diversification. A single S&P 500 index fund gives you exposure to 500 of the largest U.S. companies across all major sectors. A total world stock index fund can hold over 9,000 stocks from dozens of countries, all for an annual fee as low as 0.03%.",
+              "visual_hint": null,
+              "order_index": 4
+            }
+          ],
+          "questions": [
+            {
+              "question": "What is the primary benefit of diversification?",
+              "options": [
+                "It guarantees higher returns",
+                "It eliminates all investment risk",
+                "It reduces risk by spreading investments across different assets",
+                "It makes investing more complicated and professional"
+              ],
+              "correct_index": 2,
+              "explanation": "Diversification reduces risk by spreading investments across different assets, sectors, and regions. When one investment declines, others may hold steady or rise, smoothing overall portfolio performance.",
+              "order_index": 1
+            },
+            {
+              "question": "What does 'low correlation' between assets mean?",
+              "options": [
+                "The assets have similar prices",
+                "The assets are in the same industry",
+                "The assets tend not to move in the same direction at the same time",
+                "The assets are all very low risk"
+              ],
+              "correct_index": 2,
+              "explanation": "Low correlation means the assets do not move in the same direction at the same time. This is important because holding assets with low correlation to each other provides better risk reduction in a portfolio.",
+              "order_index": 2
+            },
+            {
+              "question": "Why are index funds considered a good tool for diversification?",
+              "options": [
+                "They are guaranteed by the government",
+                "They only hold the single best-performing stock",
+                "A single fund provides exposure to hundreds or thousands of different companies",
+                "They charge higher fees than individual stocks"
+              ],
+              "correct_index": 2,
+              "explanation": "Index funds provide instant diversification because a single fund holds hundreds or thousands of stocks across multiple sectors and sometimes multiple countries, all at very low cost.",
+              "order_index": 3
+            }
+          ],
+          "choices": [
+            {
+              "text": "Put all $10,000 into your friend's company stock for maximum returns",
+              "outcome": "risky",
+              "feedback": "Investing everything in a single company stock is extremely risky, no matter how well it has performed recently. Past performance does not guarantee future results. If the company hits trouble, you could lose a large portion of your investment. Individual stocks can drop 50% or more in a single year.",
+              "learner_pct": 20,
+              "order_index": 1
+            },
+            {
+              "text": "Follow the financial advisor's recommendation: diversified index funds across U.S. stocks, international stocks, and bonds",
+              "outcome": "strategic",
+              "feedback": "A diversified mix of low-cost index funds is what most financial experts recommend, especially for beginners. You get broad exposure to thousands of companies worldwide, automatic sector diversification, and bonds to cushion market downturns. This approach has historically delivered solid risk-adjusted returns.",
+              "learner_pct": 45,
+              "order_index": 2
+            },
+            {
+              "text": "Split between index funds ($6,000), the tech stock ($2,000), and the REIT ($2,000)",
+              "outcome": "balanced",
+              "feedback": "This approach gives you a diversified core with index funds while adding exposure to a high-growth tech stock and income-producing real estate. You get multiple asset classes and the potential for above-average returns without betting everything on one asset. It is a reasonable blend of stability and opportunity.",
+              "learner_pct": 35,
+              "order_index": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
