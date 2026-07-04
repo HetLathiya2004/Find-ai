@@ -79,8 +79,8 @@ Backend (`?page=1&limit=20` on both news endpoints):
   page returned articles and `page < MAX_PAGES` (30). Adjacent windows
   overlap by design; dedupe happens server-side per response and client-side
   across pages.
-- All files carry `from __future__ import annotations` and use
-  `typing.Optional` instead of `X | Y` — the server runs Python 3.9.
+- Server upgraded from Python 3.9 to Python 3.12.12 via uv (2026-07-04).
+  `from __future__ import annotations` still present but no longer required.
 
 App:
 
@@ -92,8 +92,18 @@ App:
 
 Deploy note: server layout changed to nginx :80 → uvicorn :8000.
 
+## Server upgrades (2026-07-04)
+
+- **Python 3.12:** Installed via `uv` (`~/.local/bin/uv`). Old 3.9 venv
+  replaced with `uv venv --python 3.12` in `~/find-ai-backend/.venv/`.
+- **Port 80:** Headscale Docker container stopped. nginx moved from
+  port 8080 to port 80. iptables rule added and persisted.
+- **Systemd:** `find-ai-backend.service` (Restart=always, port 8000).
+  Old `bazaar-brief.service` stopped and disabled.
+
 ## Phase 2.2 swap points
 
 - `core/enricher.py` → LLM summary + why_it_matters
 - Add cache layer in `_fetch_category` (main.py) or a `core/cache.py`
 - `useNews` → React Query once more endpoints exist
+- Course content → Phase 2.2 adds Supabase Postgres tables + public/admin APIs

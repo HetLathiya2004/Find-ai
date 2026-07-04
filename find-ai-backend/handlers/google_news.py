@@ -26,23 +26,25 @@ def _strip_html(text: str) -> str:
     return html.unescape(_TAG_RE.sub(" ", text or "")).strip()
 
 
-def _to_iso_date(raw_date: str) -> str:
-    """Convert RFC 2822 or ISO 8601 date strings to YYYY-MM-DD."""
+def _to_iso_datetime(raw_date: str) -> str:
+    """Convert RFC 2822 or ISO 8601 date strings to full ISO 8601 datetime."""
     for parser in (parsedate_to_datetime, datetime.fromisoformat):
         try:
-            return parser(raw_date.strip()).strftime("%Y-%m-%d")
+            dt = parser(raw_date.strip())
+            return dt.astimezone(timezone.utc).isoformat()
         except (ValueError, TypeError):
             continue
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return datetime.now(timezone.utc).isoformat()
 
 
 def _is_trusted(source_url: str, trusted_domains: list[str]) -> bool:
     if not trusted_domains:
         return True
-    host = urlparse(source_url).netloc.lower()
-    if host.startswith("www."):
-        host = host[4:]
-    return any(host == d or host.endswith("." + d) for d in trusted_domains)
+    host = urlparse(source_url).netloc.lower().removeprefix("www.")
+    return any(
+        host == d or host.endswith("." + d) or d.endswith("." + host)
+        for d in trusted_domains
+    )
 
 
 def date_window(page: int) -> "tuple[str, str]":
@@ -100,7 +102,7 @@ async def fetch_and_parse(
                     source_name=(source_el.text or "").strip() if source_el is not None else "",
                     source_url=source_url,
                     link=link,
-                    published_at=_to_iso_date(item.findtext("pubDate") or ""),
+                    published_at=_to_iso_datetime(item.findtext("pubDate") or ""),
                 )
             )
             if len(articles) >= max_articles:

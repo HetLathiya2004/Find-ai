@@ -12,16 +12,28 @@ feeds:
     max_articles: 20
     trusted_domains:
       - moneycontrol.com
+      - economictimes.com
       - economictimes.indiatimes.com
+      - etnownews.com
       - livemint.com
       - ndtvprofit.com
       - business-standard.com
+      - businesstoday.in
       - financialexpress.com
       - reuters.com
       - bloomberg.com
       - cnbc.com
       - cnbctv18.com
       - thehindu.com
+      - fortune.com
+      - forbes.com
+      - yahoo.com
+      - benzinga.com
+      - fool.com
+      - investmentexecutive.com
+      - investors.com
+      - tradingview.com
+      - upstox.com
 
   startups:
     name: "Startups & Funding"
@@ -38,11 +50,18 @@ feeds:
       - inc42.com
       - yourstory.com
       - entrackr.com
+      - economictimes.com
       - economictimes.indiatimes.com
+      - etnownews.com
       - livemint.com
       - moneycontrol.com
+      - businesstoday.in
       - reuters.com
       - bloomberg.com
+      - forbes.com
+      - fortune.com
+      - siliconindia.com
+      - tice.news
 
   global:
     name: "Global Markets"
@@ -62,7 +81,21 @@ feeds:
       - financialexpress.com
       - livemint.com
       - moneycontrol.com
+      - economictimes.com
       - economictimes.indiatimes.com
+      - etnownews.com
+      - businesstoday.in
+      - ndtvprofit.com
+      - fortune.com
+      - forbes.com
+      - yahoo.com
+      - benzinga.com
+      - fool.com
+      - investors.com
+      - tradingview.com
+      - fxstreet.com
+      - msn.com
+      - ibtimes.com.au
 
 # Example: adding a future feed (no core changes needed)
 # techcrunch:

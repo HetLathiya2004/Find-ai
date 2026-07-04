@@ -27,13 +27,14 @@ def _strip_html(text: str) -> str:
     return html.unescape(_TAG_RE.sub(" ", text or "")).strip()
 
 
-def _to_iso_date(raw_date: str) -> str:
+def _to_iso_datetime(raw_date: str) -> str:
     for parser in (parsedate_to_datetime, datetime.fromisoformat):
         try:
-            return parser(raw_date.strip().replace("Z", "+00:00")).strftime("%Y-%m-%d")
+            dt = parser(raw_date.strip().replace("Z", "+00:00"))
+            return dt.astimezone(timezone.utc).isoformat()
         except (ValueError, TypeError):
             continue
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return datetime.now(timezone.utc).isoformat()
 
 
 def _date_window(page: int) -> "tuple[str, str]":
@@ -90,10 +91,9 @@ async def fetch_and_parse(
             title = _strip_html(raw_title)
             if not link or not title or link in seen_links:
                 continue
-            published_at = _to_iso_date(raw_date)
-            # ISO dates compare correctly as strings; upper bound exclusive,
-            # matching Google News "before:" semantics
-            if not (after <= published_at < before):
+            published_at = _to_iso_datetime(raw_date)
+            date_only = published_at[:10]
+            if not (after <= date_only < before):
                 continue
             seen_links.add(link)
             articles.append(
