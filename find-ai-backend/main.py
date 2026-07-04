@@ -22,8 +22,10 @@ from models.schemas import (
     NewsArticle,
     NewsFeedResponse,
 )
+from middleware.auth_gateway import AuthGatewayMiddleware
 from routes.courses import router as courses_router
 from routes.admin import router as admin_router
+from routes.me import router as me_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,7 +43,11 @@ registry.load_config()
 registry.validate_handlers()
 load_concepts()
 
-app = FastAPI(title="Find.ai API", version="2.2.0")
+app = FastAPI(title="Find.ai API", version="2.3.0")
+# Gateway auth: every request is authenticated before reaching any route
+# handler (see middleware/auth_gateway.py). CORS is added second so it wraps
+# the gateway and still decorates 401 responses.
+app.add_middleware(AuthGatewayMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -51,6 +57,7 @@ app.add_middleware(
 
 app.include_router(courses_router)
 app.include_router(admin_router)
+app.include_router(me_router)
 
 
 async def _fetch_category(category: str, page: int) -> "tuple[str, list[NewsArticle]]":

@@ -1,11 +1,14 @@
-"""Admin API key authentication dependency."""
+"""Admin route authorization.
 
-import os
+Two ways in, both established by the gateway middleware before this runs:
+  1. Legacy X-Admin-Key header (the gateway attaches an admin context).
+  2. A Supabase JWT belonging to an admin-tier user.
+"""
 
-from fastapi import Header, HTTPException
+from fastapi import HTTPException, Request
 
 
-def require_admin_key(x_admin_key: str = Header(alias="X-Admin-Key", default="")):
-    expected = os.environ.get("ADMIN_API_KEY", "")
-    if not x_admin_key or x_admin_key != expected:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+def require_admin_key(request: Request):
+    ctx = getattr(request.state, "ctx", None)
+    if ctx is None or ctx.tier != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")

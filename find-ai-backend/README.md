@@ -1,3 +1,39 @@
+# Find.ai Backend
+
+## Auth (Phase 2.3)
+
+Every request passes through a gateway middleware
+(`middleware/auth_gateway.py`) before reaching any route handler — there are
+no public resource routes. Clients authenticate with Supabase Auth (Google
+OAuth or email+password) and send `Authorization: Bearer <access_token>` on
+every request. The middleware validates the JWT locally, resolves the user's
+tier from the `users` table (cached in-memory with a TTL), and attaches a
+`RequestContext(user_id, email, tier, permissions)` to the request. Admin
+routes (`/api/admin/*`) additionally accept the legacy `X-Admin-Key` header.
+
+The provider is swappable: routes only import from `auth/provider.py` and
+`auth/models.py`. To change auth providers, write a new module with
+`get_current_user(authorization) -> AuthUser` and change one import in
+`auth/provider.py`.
+
+Required env vars (`.env`):
+
+```
+SUPABASE_URL=https://mjrmavtdhrbrrheuqbzg.supabase.co
+SUPABASE_KEY=<anon key>
+SUPABASE_SERVICE_KEY=<service-role key>   # needed: user tables have RLS enabled
+SUPABASE_JWT_SECRET=<JWT secret from Supabase dashboard → Settings → API>
+ADMIN_API_KEY=<admin key>
+```
+
+User data schema lives in `migrations/002_users_auth.sql` (run in the Supabase
+SQL editor): `users`, `user_lesson_progress`, `activity_log`, plus a trigger
+that auto-creates a `users` row on signup and RLS policies scoping every row
+to its owner. Authenticated user endpoints live under `/api/v1/me`
+(`routes/me.py`): profile GET/PUT, progress GET/POST, activity GET/POST.
+
+---
+
 # Find.ai News Backend (Phase 2.1.0)
 
 FastAPI backend that serves the Find.ai News tab. Fetches finance news from
