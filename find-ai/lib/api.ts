@@ -1,8 +1,3 @@
-// Authenticated API client for the FastAPI gateway. Every request carries
-// the Supabase access token as a Bearer header — the backend has no public
-// routes. Supabase's session management handles token refresh; we just read
-// the current access token per request.
-
 import { API_V1 } from '@/constants/api';
 import { supabase } from '@/lib/supabase';
 
@@ -17,28 +12,20 @@ export class ApiError extends Error {
   }
 }
 
-async function getAccessToken(): Promise<string | null> {
-  // getSession() refreshes the token automatically when it is expired.
-  const { data } = await supabase.auth.getSession();
-  return data.session?.access_token ?? null;
-}
-
-/**
- * fetch() against the gateway with Authorization header + timeout. `path` is
- * relative to /api/v1 (e.g. '/courses', '/me/progress').
- */
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const token = await getAccessToken();
-
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+
   try {
     return await fetch(`${API_V1}${path}`, {
       ...init,
       signal: init.signal ?? controller.signal,
       headers: {
-        ...(init.body ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init.body ? { 'Content-Type': 'application/json' } : {}),
         ...(init.headers ?? {}),
       },
     });
@@ -54,7 +41,7 @@ async function parseOrThrow<T>(res: Response): Promise<T> {
       const body = (await res.json()) as { detail?: string };
       if (body?.detail) detail = body.detail;
     } catch {
-      // non-JSON error body; keep the status message
+      // non-JSON error body
     }
     throw new ApiError(res.status, detail);
   }

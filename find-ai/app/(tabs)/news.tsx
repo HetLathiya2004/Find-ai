@@ -14,7 +14,7 @@ import { useProgress } from '@/hooks/useProgress';
 import { useNews } from '@/hooks/useNews';
 
 function formatDate(iso: string): string {
-  const date = new Date(`${iso}T00:00:00`);
+  const date = new Date(iso.includes('T') ? iso : `${iso}T00:00:00`);
   return date
     .toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     .toUpperCase();
