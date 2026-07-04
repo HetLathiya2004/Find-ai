@@ -17,7 +17,7 @@ import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 
 const TOTAL_HEARTS = 3;
 
@@ -29,7 +29,7 @@ export default function QuizPlayerScreen() {
   // The route param is the concept slug — quiz content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
   const { concept, loading, error, retry } = useConcept(id ?? null);
-  const progress = useMockProgress();
+  const progress = useProgress();
 
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);

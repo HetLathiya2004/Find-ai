@@ -102,6 +102,57 @@ export interface ApiConceptResponse {
   concept: ApiConceptDetail;
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2.3 authenticated user endpoints (/api/v1/me*)
+// ---------------------------------------------------------------------------
+
+export type UserTier = 'free' | 'premium' | 'admin';
+
+export interface ApiUserProfile {
+  id: string;
+  email: string;
+  username: string | null;
+  tier: UserTier;
+  total_xp: number;
+  current_streak: number;
+  longest_streak: number;
+  last_active_date: string | null;
+}
+
+export interface ApiUserProfileResponse {
+  user: ApiUserProfile;
+}
+
+export type ProgressStatus = 'in_progress' | 'completed';
+
+export interface ApiProgressItem {
+  lesson_id: string;
+  status: ProgressStatus;
+  xp_earned: number;
+  completed_at: string | null;
+}
+
+export interface ApiProgressListResponse {
+  progress: ApiProgressItem[];
+}
+
+export type ActivityAction =
+  | 'lesson_complete'
+  | 'quiz_complete'
+  | 'sim_complete'
+  | 'streak_bonus';
+
+export interface ApiActivityItem {
+  id: string;
+  action: ActivityAction;
+  xp_earned: number;
+  created_at: string;
+}
+
+export interface ApiActivityListResponse {
+  activity: ApiActivityItem[];
+}
+
 /**
  * Concept summary + parent module's domain → MockConcept, so ConceptCard and
  * the domain filter keep working unchanged. Mastery is derived from local

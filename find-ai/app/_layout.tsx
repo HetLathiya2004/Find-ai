@@ -8,8 +8,8 @@ import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/colors';
-import { MockAuthProvider } from '@/hooks/useMockAuth';
-import { MockProgressProvider } from '@/hooks/useMockProgress';
+import { AuthProvider } from '@/hooks/useAuth';
+import { ProgressProvider } from '@/hooks/useProgress';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -53,8 +53,8 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: Colors.bg }}>
-      <MockAuthProvider>
-        <MockProgressProvider>
+      <AuthProvider>
+        <ProgressProvider>
           <ThemeProvider value={FindAiTheme}>
             <StatusBar style="light" />
             <Stack
@@ -73,8 +73,8 @@ export default function RootLayout() {
               <Stack.Screen name="league" />
             </Stack>
           </ThemeProvider>
-        </MockProgressProvider>
-      </MockAuthProvider>
+        </ProgressProvider>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }

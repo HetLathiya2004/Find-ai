@@ -15,7 +15,7 @@ import { Spacing } from '@/constants/spacing';
 import { masteryFromActivities, masteryLabel } from '@/lib/gamification';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
-import { ActivityStatus, useMockProgress } from '@/hooks/useMockProgress';
+import { ActivityStatus, useProgress } from '@/hooks/useProgress';
 
 function StatusChip({ status, score }: { status: ActivityStatus; score?: number | null }) {
   if (status === 'completed') {
@@ -75,7 +75,7 @@ export default function ConceptDetailScreen() {
   const router = useRouter();
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { concept, loading, error, retry } = useConcept(slug ?? null);
-  const { getConceptProgress } = useMockProgress();
+  const { getConceptProgress } = useProgress();
 
   if (error) {
     return <ErrorState onRetry={retry} />;

@@ -10,7 +10,7 @@ import { FormInput } from '@/components/ui/FormInput';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockAuth, AuthState } from '@/hooks/useMockAuth';
+import { useAuth, AuthState } from '@/hooks/useAuth';
 
 const TOTAL_STEPS = 3;
 
@@ -25,7 +25,7 @@ const MINUTES: AuthState['dailyGoalMinutes'][] = [5, 10, 15];
 export default function OnboardingScreen() {
   const router = useRouter();
   const haptics = useHaptics();
-  const { completeOnboarding } = useMockAuth();
+  const { completeOnboarding } = useAuth();
 
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState<AuthState['goal'] | null>(null);

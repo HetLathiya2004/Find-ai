@@ -10,7 +10,7 @@ import { Colors } from '@/constants/colors';
 import { MockNewsArticle, getConceptById } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 import { useNews } from '@/hooks/useNews';
 
 function formatDate(iso: string): string {
@@ -23,7 +23,7 @@ function formatDate(iso: string): string {
 function ArticleCard({ article }: { article: MockNewsArticle }) {
   const router = useRouter();
   const haptics = useHaptics();
-  const { markNewsRead } = useMockProgress();
+  const { markNewsRead } = useProgress();
   const concept = getConceptById(article.concept_id);
 
   return (

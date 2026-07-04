@@ -16,9 +16,9 @@ import { MOCK_BADGES, MOCK_CONCEPTS } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { formatXP, levelForXP, xpForNextLevel } from '@/lib/gamification';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockAuth } from '@/hooks/useMockAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useMockLoading } from '@/hooks/useMockLoading';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 
 const GOAL_LABELS: Record<string, string> = {
   grow_wealth: 'Growing my wealth',
@@ -31,8 +31,8 @@ export default function ProfileScreen() {
   const haptics = useHaptics();
   const loading = useMockLoading();
   const { displayName, goal, dailyGoalMinutes, updateDisplayName, cycleDailyGoal, signOut } =
-    useMockAuth();
-  const { xp, streakCount } = useMockProgress();
+    useAuth();
+  const { xp, streakCount } = useProgress();
 
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(displayName);

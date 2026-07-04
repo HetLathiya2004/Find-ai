@@ -9,7 +9,7 @@ import { Colors } from '@/constants/colors';
 import { MOCK_STREAK_HISTORY } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 
 const CELL_SIZE = 36;
 const COLUMNS = 7;
@@ -17,7 +17,7 @@ const COLUMNS = 7;
 export default function StreakScreen() {
   const router = useRouter();
   const haptics = useHaptics();
-  const { streakCount, streakBest, streakFreezes } = useMockProgress();
+  const { streakCount, streakBest, streakFreezes } = useProgress();
 
   const todayIndex = MOCK_STREAK_HISTORY.length - 1;
 

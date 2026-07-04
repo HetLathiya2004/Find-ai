@@ -16,7 +16,7 @@ import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 
 const OUTCOME_META = {
   strategic: { label: 'Strategic', color: Colors.accent },
@@ -30,7 +30,7 @@ export default function SimulationPlayerScreen() {
   // The route param is the concept slug — simulation content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
   const { concept, loading, error, retry } = useConcept(id ?? null);
-  const progress = useMockProgress();
+  const progress = useProgress();
 
   const [choiceIndex, setChoiceIndex] = useState<number | null>(null);
   const [showReward, setShowReward] = useState(false);

@@ -18,16 +18,16 @@ import { formatXP, greetingForTime } from '@/lib/gamification';
 import { useConcept } from '@/hooks/useConcept';
 import { useCourse } from '@/hooks/useCourse';
 import { useCourses } from '@/hooks/useCourses';
-import { useMockAuth } from '@/hooks/useMockAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useMockLoading } from '@/hooks/useMockLoading';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 import { useNews } from '@/hooks/useNews';
 
 export default function HomeScreen() {
   const router = useRouter();
   const loading = useMockLoading();
-  const { displayName } = useMockAuth();
-  const progress = useMockProgress();
+  const { displayName } = useAuth();
+  const progress = useProgress();
   const { articles: newsArticles } = useNews('all');
 
   const {

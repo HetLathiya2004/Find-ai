@@ -14,7 +14,7 @@ import { masteryFromActivities } from '@/lib/gamification';
 import { useCourse } from '@/hooks/useCourse';
 import { useCourses } from '@/hooks/useCourses';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 import type { MockConcept } from '@/constants/mock-data';
 import type { ApiCourseSummary } from '@/types/api';
 import { toMockConcept } from '@/types/api';
@@ -88,7 +88,7 @@ export default function LearnScreen() {
     retry: retryCourse,
   } = useCourse(selectedCourseId);
 
-  const { getConceptProgress } = useMockProgress();
+  const { getConceptProgress } = useProgress();
 
   const concepts = useMemo<LearnConcept[]>(() => {
     if (!course) return [];

@@ -24,7 +24,7 @@ import { MOCK_DAILY_CHALLENGE } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 
 const SLIDE_DURATION = 250;
 const SLIDE_DISTANCE = 48;
@@ -34,7 +34,7 @@ export default function LessonPlayerScreen() {
   const haptics = useHaptics();
   const { slug, challenge } = useLocalSearchParams<{ slug: string; challenge?: string }>();
   const { concept, loading, error, retry } = useConcept(slug ?? null);
-  const progress = useMockProgress();
+  const progress = useProgress();
 
   const [cardIndex, setCardIndex] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
