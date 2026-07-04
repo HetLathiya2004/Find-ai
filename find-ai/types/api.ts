@@ -40,6 +40,11 @@ export interface ApiModule {
   title: string;
   domain: Domain;
   order_index: number;
+  /**
+   * Future backend field — when the API starts returning it, modules flagged
+   * true render blurred "Coming Soon" cards automatically. Missing = false.
+   */
+  is_coming_soon?: boolean;
   concepts: ApiConceptSummary[];
 }
 

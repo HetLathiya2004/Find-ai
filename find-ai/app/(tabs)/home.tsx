@@ -8,8 +8,8 @@ import { LeagueCard } from '@/components/home/LeagueCard';
 import { NewsCard } from '@/components/home/NewsCard';
 import { ResumeCard } from '@/components/home/ResumeCard';
 import { AppText } from '@/components/ui/AppText';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { StatPill } from '@/components/ui/StatPill';
 import { Colors } from '@/constants/colors';
 import { MOCK_DAILY_CHALLENGE, MOCK_LEAGUE } from '@/constants/mock-data';
@@ -77,7 +77,9 @@ export default function HomeScreen() {
   if (loading || coursesLoading || courseLoading) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <ScreenSkeleton rows={4} />
+        <View style={styles.loader}>
+          <DollarLoader />
+        </View>
       </SafeAreaView>
     );
   }
@@ -160,6 +162,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   content: {

@@ -2,14 +2,22 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  useSharedValue,
+  withTiming,
+  type EntryAnimationsValues,
+  type ExitAnimationsValues,
+  type LayoutAnimation,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { LessonCard } from '@/components/lesson/LessonCard';
 import { AppText } from '@/components/ui/AppText';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { GhostButton } from '@/components/ui/GhostButton';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { XPReward } from '@/components/ui/XPReward';
 import { Colors } from '@/constants/colors';
 import { MOCK_DAILY_CHALLENGE } from '@/constants/mock-data';
@@ -17,6 +25,9 @@ import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useMockProgress } from '@/hooks/useMockProgress';
+
+const SLIDE_DURATION = 250;
+const SLIDE_DISTANCE = 48;
 
 export default function LessonPlayerScreen() {
   const router = useRouter();
@@ -28,6 +39,40 @@ export default function LessonPlayerScreen() {
   const [cardIndex, setCardIndex] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
   const [completed, setCompleted] = useState(false);
+
+  // 1 = forward (Continue), -1 = back. A shared value (not React state) so the
+  // exiting card reads the direction chosen at press time, not at its last render.
+  const direction = useSharedValue(1);
+
+  const cardEntering = (values: EntryAnimationsValues): LayoutAnimation => {
+    'worklet';
+    return {
+      initialValues: {
+        opacity: 0,
+        originX: values.targetOriginX + direction.value * SLIDE_DISTANCE,
+      },
+      animations: {
+        opacity: withTiming(1, { duration: SLIDE_DURATION }),
+        originX: withTiming(values.targetOriginX, { duration: SLIDE_DURATION }),
+      },
+    };
+  };
+
+  const cardExiting = (values: ExitAnimationsValues): LayoutAnimation => {
+    'worklet';
+    return {
+      initialValues: {
+        opacity: 1,
+        originX: values.currentOriginX,
+      },
+      animations: {
+        opacity: withTiming(0, { duration: SLIDE_DURATION }),
+        originX: withTiming(values.currentOriginX - direction.value * SLIDE_DISTANCE, {
+          duration: SLIDE_DURATION,
+        }),
+      },
+    };
+  };
 
   useEffect(() => {
     if (!concept) return;
@@ -48,9 +93,9 @@ export default function LessonPlayerScreen() {
 
   if (loading || !concept) {
     return (
-      <SafeAreaView style={styles.screen}>
-        <ScreenSkeleton rows={3} />
-      </SafeAreaView>
+      <View style={styles.loader}>
+        <DollarLoader />
+      </View>
     );
   }
 
@@ -67,9 +112,11 @@ export default function LessonPlayerScreen() {
   }
 
   const isLastCard = cardIndex === concept.cards.length - 1;
+  const isFirstCard = cardIndex === 0;
 
   const advance = () => {
     haptics.medium();
+    direction.value = 1;
     if (isLastCard) {
       progress.completeLesson(concept.id, concept.lesson_xp);
       if (challenge === '1') {
@@ -82,6 +129,14 @@ export default function LessonPlayerScreen() {
       setCardIndex(next);
       progress.setLessonCardIndex(concept.id, next);
     }
+  };
+
+  const goBack = () => {
+    if (isFirstCard) return;
+    direction.value = -1;
+    const prev = cardIndex - 1;
+    setCardIndex(prev);
+    progress.setLessonCardIndex(concept.id, prev);
   };
 
   return (
@@ -105,12 +160,28 @@ export default function LessonPlayerScreen() {
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <LessonCard card={concept.cards[cardIndex]} />
+        <LessonCard
+          key={cardIndex}
+          card={concept.cards[cardIndex]}
+          entering={cardEntering}
+          exiting={cardExiting}
+        />
       </ScrollView>
 
-      {/* Bottom */}
+      {/* Bottom: [Back] [Continue / Finish lesson] */}
       <View style={styles.bottom}>
-        <PrimaryButton title={isLastCard ? 'Finish lesson' : 'Tap to continue'} onPress={advance} />
+        <GhostButton
+          title="Back"
+          icon="chevron-left"
+          onPress={goBack}
+          disabled={isFirstCard}
+          style={styles.backButton}
+        />
+        <PrimaryButton
+          title={isLastCard ? 'Finish lesson' : 'Continue'}
+          onPress={advance}
+          style={styles.continueButton}
+        />
       </View>
 
       <ExitModal
@@ -130,6 +201,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.bg,
+  },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -146,7 +223,15 @@ const styles = StyleSheet.create({
     padding: Spacing.padding.screen,
   },
   bottom: {
+    flexDirection: 'row',
+    gap: Spacing.gap.md,
     padding: Spacing.padding.screen,
     paddingBottom: 24,
+  },
+  backButton: {
+    flex: 3,
+  },
+  continueButton: {
+    flex: 7,
   },
 });

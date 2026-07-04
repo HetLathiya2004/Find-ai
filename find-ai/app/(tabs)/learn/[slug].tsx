@@ -7,9 +7,9 @@ import { AppText } from '@/components/ui/AppText';
 import { BackRow } from '@/components/ui/BackRow';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { MasteryDots } from '@/components/ui/MasteryDots';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { masteryFromActivities, masteryLabel } from '@/lib/gamification';
@@ -87,7 +87,9 @@ export default function ConceptDetailScreen() {
         <View style={styles.backRow}>
           <BackRow />
         </View>
-        <ScreenSkeleton rows={3} />
+        <View style={styles.loader}>
+          <DollarLoader />
+        </View>
       </SafeAreaView>
     );
   }
@@ -169,6 +171,12 @@ const styles = StyleSheet.create({
   backRow: {
     paddingHorizontal: Spacing.padding.screen,
     paddingTop: Spacing.padding.screen,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.bg,
   },
   title: {
     marginTop: Spacing.gap.xl,

@@ -2,11 +2,12 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ComingSoonCard } from '@/components/learn/ComingSoonCard';
 import { ConceptCard } from '@/components/learn/ConceptCard';
 import { DomainFilter, DomainFilterValue } from '@/components/learn/DomainFilter';
 import { AppText } from '@/components/ui/AppText';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { masteryFromActivities } from '@/lib/gamification';
@@ -14,8 +15,12 @@ import { useCourse } from '@/hooks/useCourse';
 import { useCourses } from '@/hooks/useCourses';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useMockProgress } from '@/hooks/useMockProgress';
+import type { MockConcept } from '@/constants/mock-data';
 import type { ApiCourseSummary } from '@/types/api';
 import { toMockConcept } from '@/types/api';
+
+/** Concept row enriched with the parent module's coming-soon flag. */
+type LearnConcept = MockConcept & { comingSoon: boolean };
 
 interface CoursePickerProps {
   courses: ApiCourseSummary[];
@@ -85,20 +90,23 @@ export default function LearnScreen() {
 
   const { getConceptProgress } = useMockProgress();
 
-  const concepts = useMemo(() => {
+  const concepts = useMemo<LearnConcept[]>(() => {
     if (!course) return [];
     return course.modules.flatMap((module) =>
       module.concepts.map((concept) => {
         const cp = getConceptProgress(concept.id);
-        return toMockConcept(
-          concept,
-          module.domain,
-          masteryFromActivities(
-            cp.lessonStatus === 'completed',
-            cp.quizPassed,
-            cp.simulationStatus === 'completed',
+        return {
+          ...toMockConcept(
+            concept,
+            module.domain,
+            masteryFromActivities(
+              cp.lessonStatus === 'completed',
+              cp.quizPassed,
+              cp.simulationStatus === 'completed',
+            ),
           ),
-        );
+          comingSoon: module.is_coming_soon === true,
+        };
       }),
     );
   }, [course, getConceptProgress]);
@@ -114,7 +122,9 @@ export default function LearnScreen() {
   if (coursesLoading || courseLoading || (courses.length > 0 && !course)) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <ScreenSkeleton rows={5} />
+        <View style={styles.loader}>
+          <DollarLoader />
+        </View>
       </SafeAreaView>
     );
   }
@@ -155,13 +165,17 @@ export default function LearnScreen() {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: Spacing.gap.md }} />}
-        renderItem={({ item }) => (
-          <ConceptCard
-            concept={item}
-            masteryLevel={item.mastery_level}
-            onPress={() => router.push(`/(tabs)/learn/${item.slug}`)}
-          />
-        )}
+        renderItem={({ item }) =>
+          item.comingSoon ? (
+            <ComingSoonCard concept={item} />
+          ) : (
+            <ConceptCard
+              concept={item}
+              masteryLevel={item.mastery_level}
+              onPress={() => router.push(`/(tabs)/learn/${item.slug}`)}
+            />
+          )
+        }
       />
     </SafeAreaView>
   );
@@ -170,6 +184,12 @@ export default function LearnScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   title: {

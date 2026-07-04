@@ -1,19 +1,24 @@
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import type { MockLessonCard } from '@/constants/mock-data';
 import { AppText } from '@/components/ui/AppText';
 
+type AnimatedViewProps = React.ComponentProps<typeof Animated.View>;
+
 interface LessonCardProps {
   card: MockLessonCard;
+  /** Layout animations, so the lesson player can slide cards by direction. */
+  entering?: AnimatedViewProps['entering'];
+  exiting?: AnimatedViewProps['exiting'];
 }
 
 /** Large centered content card inside the lesson player. */
-export function LessonCard({ card }: LessonCardProps) {
+export function LessonCard({ card, entering = FadeIn.duration(250), exiting }: LessonCardProps) {
   return (
-    <Animated.View key={card.title} entering={FadeIn.duration(250)} style={styles.card}>
+    <Animated.View key={card.title} entering={entering} exiting={exiting} style={styles.card}>
       <AppText size="2xl" weight="medium" style={styles.title}>
         {card.title}
       </AppText>

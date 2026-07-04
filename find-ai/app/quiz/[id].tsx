@@ -6,12 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { QuestionCard } from '@/components/quiz/QuestionCard';
 import { AppText } from '@/components/ui/AppText';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { HeartDisplay } from '@/components/ui/HeartDisplay';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { XPReward } from '@/components/ui/XPReward';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
@@ -49,9 +49,9 @@ export default function QuizPlayerScreen() {
 
   if (loading || !concept) {
     return (
-      <SafeAreaView style={styles.screen}>
-        <ScreenSkeleton rows={3} />
-      </SafeAreaView>
+      <View style={styles.loader}>
+        <DollarLoader />
+      </View>
     );
   }
 
@@ -203,6 +203,12 @@ export default function QuizPlayerScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   center: {

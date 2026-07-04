@@ -6,10 +6,10 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { AppText } from '@/components/ui/AppText';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { Tag } from '@/components/ui/Tag';
 import { XPReward } from '@/components/ui/XPReward';
 import { Colors } from '@/constants/colors';
@@ -42,9 +42,9 @@ export default function SimulationPlayerScreen() {
 
   if (loading || !concept) {
     return (
-      <SafeAreaView style={styles.screen}>
-        <ScreenSkeleton rows={3} />
-      </SafeAreaView>
+      <View style={styles.loader}>
+        <DollarLoader />
+      </View>
     );
   }
 
@@ -170,6 +170,12 @@ export default function SimulationPlayerScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   topBar: {
