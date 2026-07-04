@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { Tag } from '@/components/ui/Tag';
 import { Colors } from '@/constants/colors';
 import {
@@ -30,7 +30,9 @@ export default function PracticeScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <ScreenSkeleton rows={3} />
+        <View style={styles.loader}>
+          <DollarLoader />
+        </View>
       </SafeAreaView>
     );
   }
@@ -147,6 +149,12 @@ export default function PracticeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   content: {

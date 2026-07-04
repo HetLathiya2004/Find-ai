@@ -2,56 +2,106 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  useSharedValue,
+  withTiming,
+  type EntryAnimationsValues,
+  type ExitAnimationsValues,
+  type LayoutAnimation,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { LessonCard } from '@/components/lesson/LessonCard';
 import { AppText } from '@/components/ui/AppText';
+import { DollarLoader } from '@/components/ui/DollarLoader';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { GhostButton } from '@/components/ui/GhostButton';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { XPReward } from '@/components/ui/XPReward';
 import { Colors } from '@/constants/colors';
-import { getLessonBySlug, MOCK_DAILY_CHALLENGE } from '@/constants/mock-data';
+import { MOCK_DAILY_CHALLENGE } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
+import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useMockProgress } from '@/hooks/useMockProgress';
+
+const SLIDE_DURATION = 250;
+const SLIDE_DISTANCE = 48;
 
 export default function LessonPlayerScreen() {
   const router = useRouter();
   const haptics = useHaptics();
   const { slug, challenge } = useLocalSearchParams<{ slug: string; challenge?: string }>();
-  const lesson = getLessonBySlug(slug ?? '');
+  const { concept, loading, error, retry } = useConcept(slug ?? null);
   const progress = useMockProgress();
 
-  const startIndex = lesson
-    ? Math.min(progress.getConceptProgress(lesson.concept_id).lessonCardIndex, lesson.cards.length - 1)
-    : 0;
-
-  const [cardIndex, setCardIndex] = useState(startIndex);
+  const [cardIndex, setCardIndex] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
   const [completed, setCompleted] = useState(false);
 
-  useEffect(() => {
-    if (lesson) progress.startLesson(lesson.concept_id);
-    // Only run on mount for this lesson.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lesson?.id]);
+  // 1 = forward (Continue), -1 = back. A shared value (not React state) so the
+  // exiting card reads the direction chosen at press time, not at its last render.
+  const direction = useSharedValue(1);
 
-  if (!lesson) {
+  const cardEntering = (values: EntryAnimationsValues): LayoutAnimation => {
+    'worklet';
+    return {
+      initialValues: {
+        opacity: 0,
+        originX: values.targetOriginX + direction.value * SLIDE_DISTANCE,
+      },
+      animations: {
+        opacity: withTiming(1, { duration: SLIDE_DURATION }),
+        originX: withTiming(values.targetOriginX, { duration: SLIDE_DURATION }),
+      },
+    };
+  };
+
+  const cardExiting = (values: ExitAnimationsValues): LayoutAnimation => {
+    'worklet';
+    return {
+      initialValues: {
+        opacity: 1,
+        originX: values.currentOriginX,
+      },
+      animations: {
+        opacity: withTiming(0, { duration: SLIDE_DURATION }),
+        originX: withTiming(values.currentOriginX - direction.value * SLIDE_DISTANCE, {
+          duration: SLIDE_DURATION,
+        }),
+      },
+    };
+  };
+
+  useEffect(() => {
+    if (!concept) return;
+    // Resume where the learner left off, then mark the lesson in progress.
+    const resumeIndex = Math.min(
+      progress.getConceptProgress(concept.id).lessonCardIndex,
+      concept.cards.length - 1,
+    );
+    setCardIndex(Math.max(resumeIndex, 0));
+    progress.startLesson(concept.id);
+    // Only run when the fetched concept changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [concept?.id]);
+
+  if (error) {
+    return <ErrorState onRetry={retry} />;
+  }
+
+  if (loading || !concept) {
     return (
-      <SafeAreaView style={styles.screen}>
-        <View style={styles.center}>
-          <AppText size="base" color={Colors.textSecondary}>
-            Lesson not found.
-          </AppText>
-          <PrimaryButton title="Go back" onPress={() => router.back()} style={{ marginTop: 20 }} />
-        </View>
-      </SafeAreaView>
+      <View style={styles.loader}>
+        <DollarLoader />
+      </View>
     );
   }
 
   if (completed) {
     const isChallenge = challenge === '1';
-    const xp = lesson.xp_reward + (isChallenge ? MOCK_DAILY_CHALLENGE.xp_reward : 0);
+    const xp = concept.lesson_xp + (isChallenge ? MOCK_DAILY_CHALLENGE.xp_reward : 0);
     return (
       <XPReward
         xp={xp}
@@ -61,12 +111,14 @@ export default function LessonPlayerScreen() {
     );
   }
 
-  const isLastCard = cardIndex === lesson.cards.length - 1;
+  const isLastCard = cardIndex === concept.cards.length - 1;
+  const isFirstCard = cardIndex === 0;
 
   const advance = () => {
     haptics.medium();
+    direction.value = 1;
     if (isLastCard) {
-      progress.completeLesson(lesson.concept_id, lesson.xp_reward);
+      progress.completeLesson(concept.id, concept.lesson_xp);
       if (challenge === '1') {
         progress.completeDailyChallenge(MOCK_DAILY_CHALLENGE.xp_reward);
       }
@@ -75,8 +127,16 @@ export default function LessonPlayerScreen() {
     } else {
       const next = cardIndex + 1;
       setCardIndex(next);
-      progress.setLessonCardIndex(lesson.concept_id, next);
+      progress.setLessonCardIndex(concept.id, next);
     }
+  };
+
+  const goBack = () => {
+    if (isFirstCard) return;
+    direction.value = -1;
+    const prev = cardIndex - 1;
+    setCardIndex(prev);
+    progress.setLessonCardIndex(concept.id, prev);
   };
 
   return (
@@ -92,20 +152,36 @@ export default function LessonPlayerScreen() {
         >
           <Feather name="x" size={24} color={Colors.textSecondary} />
         </Pressable>
-        <SegmentBar total={lesson.cards.length} completed={cardIndex + 1} style={styles.segments} />
+        <SegmentBar total={concept.cards.length} completed={cardIndex + 1} style={styles.segments} />
         <AppText size="xs" weight="medium" color={Colors.accent}>
-          +{lesson.xp_reward} XP
+          +{concept.lesson_xp} XP
         </AppText>
       </View>
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <LessonCard card={lesson.cards[cardIndex]} />
+        <LessonCard
+          key={cardIndex}
+          card={concept.cards[cardIndex]}
+          entering={cardEntering}
+          exiting={cardExiting}
+        />
       </ScrollView>
 
-      {/* Bottom */}
+      {/* Bottom: [Back] [Continue / Finish lesson] */}
       <View style={styles.bottom}>
-        <PrimaryButton title={isLastCard ? 'Finish lesson' : 'Tap to continue'} onPress={advance} />
+        <GhostButton
+          title="Back"
+          icon="chevron-left"
+          onPress={goBack}
+          disabled={isFirstCard}
+          style={styles.backButton}
+        />
+        <PrimaryButton
+          title={isLastCard ? 'Finish lesson' : 'Continue'}
+          onPress={advance}
+          style={styles.continueButton}
+        />
       </View>
 
       <ExitModal
@@ -125,11 +201,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
-  center: {
+  loader: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: Spacing.padding.cardLg,
+    alignItems: 'center',
+    backgroundColor: Colors.bg,
   },
   topBar: {
     flexDirection: 'row',
@@ -147,7 +223,15 @@ const styles = StyleSheet.create({
     padding: Spacing.padding.screen,
   },
   bottom: {
+    flexDirection: 'row',
+    gap: Spacing.gap.md,
     padding: Spacing.padding.screen,
     paddingBottom: 24,
+  },
+  backButton: {
+    flex: 3,
+  },
+  continueButton: {
+    flex: 7,
   },
 });

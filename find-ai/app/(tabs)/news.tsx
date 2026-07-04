@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { Colors } from '@/constants/colors';
 import { MockNewsArticle, getConceptById } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
@@ -70,12 +70,15 @@ function ArticleCard({ article }: { article: MockNewsArticle }) {
 }
 
 export default function NewsScreen() {
-  const { articles, loading, loadingMore, hasMore, loadMore } = useNews('all');
+  const { articles, loading, loadingMore, refreshing, hasMore, loadMore, refresh } =
+    useNews('all');
 
   if (loading) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <ScreenSkeleton rows={3} />
+        <View style={styles.loader}>
+          <DollarLoader />
+        </View>
       </SafeAreaView>
     );
   }
@@ -87,6 +90,8 @@ export default function NewsScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={refresh}
         onEndReached={hasMore ? loadMore : undefined}
         onEndReachedThreshold={0.5}
         ListHeaderComponent={
@@ -111,6 +116,12 @@ export default function NewsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   list: {

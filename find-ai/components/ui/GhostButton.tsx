@@ -1,3 +1,4 @@
+import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -12,10 +13,12 @@ interface GhostButtonProps {
   title: string;
   onPress: () => void;
   disabled?: boolean;
+  /** Optional Feather icon rendered left of the label. */
+  icon?: keyof typeof Feather.glyphMap;
   style?: ViewStyle | ViewStyle[];
 }
 
-export function GhostButton({ title, onPress, disabled = false, style }: GhostButtonProps) {
+export function GhostButton({ title, onPress, disabled = false, icon, style }: GhostButtonProps) {
   const haptics = useHaptics();
   const scale = useSharedValue(1);
 
@@ -39,6 +42,7 @@ export function GhostButton({ title, onPress, disabled = false, style }: GhostBu
         onPress();
       }}
     >
+      {icon ? <Feather name={icon} size={18} color={Colors.textPrimary} /> : null}
       <AppText size="base" weight="medium" color={Colors.textPrimary}>
         {title}
       </AppText>
@@ -53,11 +57,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: Colors.textPrimary,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.gap.xs,
     paddingHorizontal: Spacing.padding.card,
   },
   disabled: {
-    opacity: 0.4,
+    opacity: 0.3,
   },
 });

@@ -47,6 +47,7 @@ export function useNews(category: NewsCategory = 'all') {
   const [articles, setArticles] = useState<MockNewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [isLive, setIsLive] = useState(false);
 
@@ -87,6 +88,44 @@ export function useNews(category: NewsCategory = 'all') {
     };
   }, [category]);
 
+  /**
+   * Pull-to-refresh: reset to page 1 and re-fetch from scratch, discarding
+   * previously appended pages. Mirrors the mount fetch, including the mock
+   * fallback, and re-arms infinite scroll from the fresh page 1 response.
+   */
+  const refresh = useCallback(async () => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setRefreshing(true);
+    pageRef.current = 1;
+
+    try {
+      const data = await fetchPage(category, 1);
+      if (data.status === 'ok' && data.articles.length > 0) {
+        setArticles(data.articles);
+        setIsLive(true);
+        liveRef.current = true;
+        setHasMore(data.has_more);
+        hasMoreRef.current = data.has_more;
+      } else {
+        setArticles(MOCK_NEWS);
+        setIsLive(false);
+        liveRef.current = false;
+        setHasMore(false);
+        hasMoreRef.current = false;
+      }
+    } catch {
+      setArticles(MOCK_NEWS);
+      setIsLive(false);
+      liveRef.current = false;
+      setHasMore(false);
+      hasMoreRef.current = false;
+    } finally {
+      busyRef.current = false;
+      setRefreshing(false);
+    }
+  }, [category]);
+
   const loadMore = useCallback(async () => {
     if (busyRef.current || !liveRef.current || !hasMoreRef.current) return;
     busyRef.current = true;
@@ -109,5 +148,5 @@ export function useNews(category: NewsCategory = 'all') {
     }
   }, [category]);
 
-  return { articles, loading, loadingMore, hasMore, isLive, loadMore };
+  return { articles, loading, loadingMore, refreshing, hasMore, isLive, loadMore, refresh };
 }

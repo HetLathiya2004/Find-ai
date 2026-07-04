@@ -7,16 +7,13 @@ import { AppText } from '@/components/ui/AppText';
 import { BackRow } from '@/components/ui/BackRow';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
+import { DollarLoader } from '@/components/ui/DollarLoader';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { MasteryDots } from '@/components/ui/MasteryDots';
 import { Colors } from '@/constants/colors';
-import {
-  getConceptBySlug,
-  getLessonByConceptId,
-  getQuizByConceptId,
-  getSimulationByConceptId,
-} from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
-import { masteryLabel } from '@/lib/gamification';
+import { masteryFromActivities, masteryLabel } from '@/lib/gamification';
+import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { ActivityStatus, useMockProgress } from '@/hooks/useMockProgress';
 
@@ -77,29 +74,35 @@ function PathwayRow({ icon, title, xp, status, score, locked, divider, onPress }
 export default function ConceptDetailScreen() {
   const router = useRouter();
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const concept = getConceptBySlug(slug ?? '');
+  const { concept, loading, error, retry } = useConcept(slug ?? null);
   const { getConceptProgress } = useMockProgress();
 
-  if (!concept) {
+  if (error) {
+    return <ErrorState onRetry={retry} />;
+  }
+
+  if (loading || !concept) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <View style={styles.content}>
+        <View style={styles.backRow}>
           <BackRow />
-          <AppText size="base" color={Colors.textSecondary} style={{ marginTop: 20 }}>
-            Concept not found.
-          </AppText>
+        </View>
+        <View style={styles.loader}>
+          <DollarLoader />
         </View>
       </SafeAreaView>
     );
   }
 
-  const lesson = getLessonByConceptId(concept.id);
-  const quiz = getQuizByConceptId(concept.id);
-  const simulation = getSimulationByConceptId(concept.id);
   const cp = getConceptProgress(concept.id);
 
   const quizLocked = cp.lessonStatus !== 'completed';
   const simLocked = !cp.quizPassed;
+  const mastery = masteryFromActivities(
+    cp.lessonStatus === 'completed',
+    cp.quizPassed,
+    cp.simulationStatus === 'completed',
+  );
 
   const iconColor = (locked: boolean) => (locked ? Colors.textFaint : Colors.textPrimary);
 
@@ -115,46 +118,40 @@ export default function ConceptDetailScreen() {
         </AppText>
 
         <Card padding="none" style={styles.pathway}>
-          {lesson ? (
-            <PathwayRow
-              icon={<Feather name="book-open" size={20} color={iconColor(false)} />}
-              title="Lesson"
-              xp={lesson.xp_reward}
-              status={cp.lessonStatus}
-              locked={false}
-              divider={false}
-              onPress={() => router.push(`/lesson/${lesson.slug}`)}
-            />
-          ) : null}
-          {quiz ? (
-            <PathwayRow
-              icon={<MaterialCommunityIcons name="brain" size={20} color={iconColor(quizLocked)} />}
-              title="Quiz"
-              xp={quiz.xp_reward}
-              status={cp.quizStatus}
-              score={cp.quizStatus === 'completed' ? cp.quizBestScore : undefined}
-              locked={quizLocked}
-              divider
-              onPress={() => router.push(`/quiz/${quiz.id}`)}
-            />
-          ) : null}
-          {simulation ? (
-            <PathwayRow
-              icon={<MaterialCommunityIcons name="gamepad-variant" size={20} color={iconColor(simLocked)} />}
-              title="Simulation"
-              xp={simulation.xp_reward}
-              status={cp.simulationStatus}
-              locked={simLocked}
-              divider
-              onPress={() => router.push(`/simulation/${simulation.id}`)}
-            />
-          ) : null}
+          <PathwayRow
+            icon={<Feather name="book-open" size={20} color={iconColor(false)} />}
+            title="Lesson"
+            xp={concept.lesson_xp}
+            status={cp.lessonStatus}
+            locked={false}
+            divider={false}
+            onPress={() => router.push(`/lesson/${concept.slug}`)}
+          />
+          <PathwayRow
+            icon={<MaterialCommunityIcons name="brain" size={20} color={iconColor(quizLocked)} />}
+            title="Quiz"
+            xp={concept.quiz_xp}
+            status={cp.quizStatus}
+            score={cp.quizStatus === 'completed' ? cp.quizBestScore : undefined}
+            locked={quizLocked}
+            divider
+            onPress={() => router.push(`/quiz/${concept.slug}`)}
+          />
+          <PathwayRow
+            icon={<MaterialCommunityIcons name="gamepad-variant" size={20} color={iconColor(simLocked)} />}
+            title="Simulation"
+            xp={concept.sim_xp}
+            status={cp.simulationStatus}
+            locked={simLocked}
+            divider
+            onPress={() => router.push(`/simulation/${concept.slug}`)}
+          />
         </Card>
 
         <View style={styles.mastery}>
-          <MasteryDots level={concept.mastery_level} />
+          <MasteryDots level={mastery} />
           <AppText size="sm" color={Colors.textSecondary} style={styles.masteryLabel}>
-            {masteryLabel(concept.mastery_level)} — Level {concept.mastery_level} of 5
+            {masteryLabel(mastery)} — Level {mastery} of 5
           </AppText>
         </View>
       </ScrollView>
@@ -170,6 +167,16 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.padding.screen,
     paddingBottom: Spacing.bottomOffset,
+  },
+  backRow: {
+    paddingHorizontal: Spacing.padding.screen,
+    paddingTop: Spacing.padding.screen,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.bg,
   },
   title: {
     marginTop: Spacing.gap.xl,

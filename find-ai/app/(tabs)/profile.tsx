@@ -8,8 +8,8 @@ import { StatsGrid } from '@/components/profile/StatsGrid';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { FormInput } from '@/components/ui/FormInput';
+import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { Tag } from '@/components/ui/Tag';
 import { Colors } from '@/constants/colors';
 import { MOCK_BADGES, MOCK_CONCEPTS } from '@/constants/mock-data';
@@ -40,7 +40,9 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <ScreenSkeleton rows={4} />
+        <View style={styles.loader}>
+          <DollarLoader />
+        </View>
       </SafeAreaView>
     );
   }
@@ -167,6 +169,12 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   content: {

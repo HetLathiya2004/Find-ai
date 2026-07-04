@@ -27,6 +27,18 @@ export function masteryLabel(level: number): string {
   return ['Unknown', 'Aware', 'Learning', 'Practicing', 'Proficient', 'Mastered'][level] ?? 'Unknown';
 }
 
+/**
+ * Mastery level (0-5) derived from local activity progress. API concepts have
+ * no mastery field — user progress stays mock until Phase 2.3.
+ */
+export function masteryFromActivities(
+  lessonCompleted: boolean,
+  quizPassed: boolean,
+  simulationCompleted: boolean,
+): number {
+  return (lessonCompleted ? 1 : 0) + (quizPassed ? 2 : 0) + (simulationCompleted ? 2 : 0);
+}
+
 export function domainLabel(domain: string): string {
   const map: Record<string, string> = {
     markets: 'Markets',

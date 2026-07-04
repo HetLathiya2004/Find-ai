@@ -8,16 +8,16 @@ import { LeagueCard } from '@/components/home/LeagueCard';
 import { NewsCard } from '@/components/home/NewsCard';
 import { ResumeCard } from '@/components/home/ResumeCard';
 import { AppText } from '@/components/ui/AppText';
-import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
+import { DollarLoader } from '@/components/ui/DollarLoader';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { StatPill } from '@/components/ui/StatPill';
 import { Colors } from '@/constants/colors';
-import {
-  MOCK_DAILY_CHALLENGE,
-  MOCK_LEAGUE,
-  MOCK_LESSONS,
-} from '@/constants/mock-data';
+import { MOCK_DAILY_CHALLENGE, MOCK_LEAGUE } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { formatXP, greetingForTime } from '@/lib/gamification';
+import { useConcept } from '@/hooks/useConcept';
+import { useCourse } from '@/hooks/useCourse';
+import { useCourses } from '@/hooks/useCourses';
 import { useMockAuth } from '@/hooks/useMockAuth';
 import { useMockLoading } from '@/hooks/useMockLoading';
 import { useMockProgress } from '@/hooks/useMockProgress';
@@ -30,23 +30,59 @@ export default function HomeScreen() {
   const progress = useMockProgress();
   const { articles: newsArticles } = useNews('all');
 
-  if (loading) {
+  const {
+    courses,
+    loading: coursesLoading,
+    error: coursesError,
+    retry: retryCourses,
+  } = useCourses();
+  const firstCourseId = courses.length > 0 ? courses[0].id : null;
+  const {
+    course,
+    loading: courseLoading,
+    error: courseError,
+    retry: retryCourse,
+  } = useCourse(firstCourseId);
+
+  // Concept summaries in course order, used by the learning cards.
+  const conceptSummaries = course ? course.modules.flatMap((m) => m.concepts) : [];
+
+  // Resume card: first concept whose lesson is in progress.
+  const resumeSummary = conceptSummaries.find(
+    (c) => progress.getConceptProgress(c.id).lessonStatus === 'in_progress',
+  );
+  const {
+    concept: resumeConcept,
+    error: resumeError,
+    retry: retryResume,
+  } = useConcept(resumeSummary?.slug ?? null);
+  const resumeProgress =
+    resumeConcept && resumeConcept.cards.length > 0
+      ? progress.getConceptProgress(resumeConcept.id).lessonCardIndex / resumeConcept.cards.length
+      : 0;
+
+  // Daily challenge: first concept the learner hasn't started, else the first.
+  const challengeSummary =
+    conceptSummaries.find(
+      (c) => progress.getConceptProgress(c.id).lessonStatus === 'not_started',
+    ) ?? conceptSummaries[0];
+
+  const learningError = coursesError || courseError || resumeError;
+  const retryLearning = () => {
+    if (coursesError) retryCourses();
+    if (courseError) retryCourse();
+    if (resumeError) retryResume();
+  };
+
+  if (loading || coursesLoading || courseLoading) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <ScreenSkeleton rows={4} />
+        <View style={styles.loader}>
+          <DollarLoader />
+        </View>
       </SafeAreaView>
     );
   }
-
-  // Resume card: first lesson that is in progress
-  const inProgressEntry = Object.entries(progress.concepts).find(
-    ([, p]) => p.lessonStatus === 'in_progress',
-  );
-  const resumeLesson = inProgressEntry
-    ? MOCK_LESSONS.find((l) => l.concept_id === inProgressEntry[0])
-    : undefined;
-  const resumeProgress =
-    resumeLesson && inProgressEntry ? inProgressEntry[1].lessonCardIndex / resumeLesson.cards.length : 0;
 
   const topNews = newsArticles.find((n) => !progress.readNewsIds.includes(n.id));
   const currentRank = MOCK_LEAGUE.users.find((u) => u.is_current_user)?.rank ?? 0;
@@ -82,12 +118,14 @@ export default function HomeScreen() {
         <View style={styles.stack}>
           <DailyGoalCard completed={progress.dailyGoalCompleted} target={progress.dailyGoalTarget} />
 
-          {resumeLesson ? (
+          {learningError ? (
+            <ErrorState onRetry={retryLearning} />
+          ) : resumeSummary && resumeConcept ? (
             <ResumeCard
-              lessonTitle={resumeLesson.title}
+              lessonTitle={resumeConcept.lesson_title}
               progress={resumeProgress}
-              xpReward={resumeLesson.xp_reward}
-              onContinue={() => router.push(`/lesson/${resumeLesson.slug}`)}
+              xpReward={resumeConcept.lesson_xp}
+              onContinue={() => router.push(`/lesson/${resumeConcept.slug}`)}
             />
           ) : null}
 
@@ -108,11 +146,11 @@ export default function HomeScreen() {
             onPress={() => router.push('/league')}
           />
 
-          {!progress.dailyChallengeCompleted ? (
+          {!learningError && !progress.dailyChallengeCompleted && challengeSummary ? (
             <DailyChallengeCard
-              lessonTitle={MOCK_DAILY_CHALLENGE.lesson_title}
+              lessonTitle={challengeSummary.title}
               xpReward={MOCK_DAILY_CHALLENGE.xp_reward}
-              onStart={() => router.push(`/lesson/${MOCK_DAILY_CHALLENGE.lesson_slug}?challenge=1`)}
+              onStart={() => router.push(`/lesson/${challengeSummary.slug}?challenge=1`)}
             />
           ) : null}
         </View>
@@ -124,6 +162,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.bg,
   },
   content: {

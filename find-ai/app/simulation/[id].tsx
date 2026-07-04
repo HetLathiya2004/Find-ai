@@ -6,13 +6,15 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { AppText } from '@/components/ui/AppText';
+import { DollarLoader } from '@/components/ui/DollarLoader';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Tag } from '@/components/ui/Tag';
 import { XPReward } from '@/components/ui/XPReward';
 import { Colors } from '@/constants/colors';
-import { getConceptById, getSimulationById } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
+import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useMockProgress } from '@/hooks/useMockProgress';
 
@@ -25,36 +27,35 @@ const OUTCOME_META = {
 export default function SimulationPlayerScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  // The route param is the concept slug — simulation content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
-  const simulation = getSimulationById(id ?? '');
-  const concept = simulation ? getConceptById(simulation.concept_id) : undefined;
+  const { concept, loading, error, retry } = useConcept(id ?? null);
   const progress = useMockProgress();
 
   const [choiceIndex, setChoiceIndex] = useState<number | null>(null);
   const [showReward, setShowReward] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
-  if (!simulation) {
+  if (error) {
+    return <ErrorState onRetry={retry} />;
+  }
+
+  if (loading || !concept) {
     return (
-      <SafeAreaView style={styles.screen}>
-        <View style={styles.center}>
-          <AppText size="base" color={Colors.textSecondary}>
-            Simulation not found.
-          </AppText>
-          <PrimaryButton title="Go back" onPress={() => router.back()} style={{ marginTop: 20 }} />
-        </View>
-      </SafeAreaView>
+      <View style={styles.loader}>
+        <DollarLoader />
+      </View>
     );
   }
 
   if (showReward) {
     return (
-      <XPReward xp={simulation.xp_reward} subtitle="Simulation complete" onContinue={() => router.back()} />
+      <XPReward xp={concept.sim_xp} subtitle="Simulation complete" onContinue={() => router.back()} />
     );
   }
 
   const answered = choiceIndex !== null;
-  const chosen = answered ? simulation.choices[choiceIndex] : null;
+  const chosen = answered ? concept.choices[choiceIndex] : null;
 
   const selectChoice = (index: number) => {
     if (answered) return;
@@ -63,7 +64,7 @@ export default function SimulationPlayerScreen() {
   };
 
   const finish = () => {
-    progress.completeSimulation(simulation.concept_id, simulation.xp_reward);
+    progress.completeSimulation(concept.id, concept.sim_xp);
     haptics.success();
     setShowReward(true);
   };
@@ -83,28 +84,28 @@ export default function SimulationPlayerScreen() {
         </Pressable>
         <View style={styles.topBarSpacer} />
         <AppText size="xs" weight="medium" color={Colors.accent}>
-          +{simulation.xp_reward} XP
+          +{concept.sim_xp} XP
         </AppText>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Tag>{concept ? `Simulation — ${concept.title}` : 'Simulation'}</Tag>
+        <Tag>{`Simulation — ${concept.title}`}</Tag>
         <AppText size="2xl" weight="medium" style={styles.title}>
-          {simulation.title}
+          {concept.sim_title}
         </AppText>
         <View style={styles.scenarioBox}>
           <AppText size="base" color={Colors.textSecondary} leading="relaxed">
-            {simulation.scenario}
+            {concept.sim_scenario}
           </AppText>
         </View>
 
         <View style={styles.choices}>
-          {simulation.choices.map((choice, i) => {
+          {concept.choices.map((choice, i) => {
             const isChosen = choiceIndex === i;
             const meta = OUTCOME_META[choice.outcome];
             return (
               <Pressable
-                key={i}
+                key={choice.id}
                 disabled={answered}
                 style={[
                   styles.choice,
@@ -122,12 +123,12 @@ export default function SimulationPlayerScreen() {
                 {answered ? (
                   <Animated.View entering={FadeIn.duration(250)} style={styles.distribution}>
                     <ProgressBar
-                      progress={simulation.learner_distribution[i] / 100}
+                      progress={choice.learner_pct / 100}
                       height={4}
                       color={isChosen ? meta.color : Colors.borderStrong}
                     />
                     <AppText size="xs" color={Colors.textMuted} style={styles.distributionLabel}>
-                      {simulation.learner_distribution[i]}% of learners chose this
+                      {choice.learner_pct}% of learners chose this
                     </AppText>
                   </Animated.View>
                 ) : null}
@@ -171,11 +172,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
-  center: {
+  loader: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: Spacing.padding.cardLg,
+    alignItems: 'center',
+    backgroundColor: Colors.bg,
   },
   topBar: {
     flexDirection: 'row',
