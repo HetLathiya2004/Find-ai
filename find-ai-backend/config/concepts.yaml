@@ -1,0 +1,158 @@
+# Concept catalog — IDs and titles MUST match the app's MOCK_CONCEPTS
+# (find-ai/constants/mock-data.ts) so "Learn this concept" deep links work.
+
+concepts:
+  - id: "c1"
+    title: "Supply and Demand"
+    domain: "markets"
+    keywords:
+      - supply
+      - demand
+      - shortage
+      - surplus
+      - price surge
+      - price drop
+      - market forces
+      - pricing
+
+  - id: "c2"
+    title: "Compound Interest"
+    domain: "investing"
+    keywords:
+      - compound interest
+      - compounding
+      - fixed deposit
+      - FD rates
+      - savings rate
+      - interest rate on savings
+
+  - id: "c3"
+    title: "Inflation"
+    domain: "macro"
+    keywords:
+      - inflation
+      - CPI
+      - consumer price
+      - wholesale price
+      - WPI
+      - price rise
+      - cost of living
+      - deflation
+      - disinflation
+      - stagflation
+
+  - id: "c4"
+    title: "P/E Ratio"
+    domain: "corporate_finance"
+    keywords:
+      - P/E ratio
+      - price to earnings
+      - earnings per share
+      - EPS
+      - valuation
+      - overvalued
+      - undervalued
+      - PE multiple
+
+  - id: "c5"
+    title: "Market Orders vs. Limit Orders"
+    domain: "markets"
+    keywords:
+      - market order
+      - limit order
+      - stop loss
+      - order book
+      - bid ask
+      - trading order
+
+  - id: "c6"
+    title: "Diversification"
+    domain: "investing"
+    keywords:
+      - diversification
+      - diversify
+      - portfolio allocation
+      - asset allocation
+      - risk spread
+      - balanced portfolio
+
+  - id: "c7"
+    title: "Interest Rates"
+    domain: "macro"
+    keywords:
+      - interest rate
+      - repo rate
+      - RBI rate
+      - federal reserve
+      - fed rate
+      - rate cut
+      - rate hike
+      - monetary policy
+      - basis points
+      - central bank
+
+  - id: "c8"
+    title: "Balance Sheets"
+    domain: "corporate_finance"
+    keywords:
+      - balance sheet
+      - quarterly results
+      - net profit
+      - annual results
+      - assets and liabilities
+      - debt burden
+      - revenue growth
+
+  - id: "c9"
+    title: "Bull and Bear Markets"
+    domain: "markets"
+    keywords:
+      - bull market
+      - bear market
+      - bullish
+      - bearish
+      - market rally
+      - market crash
+      - correction
+      - all-time high
+      - market downturn
+
+  - id: "c10"
+    title: "Index Funds"
+    domain: "investing"
+    keywords:
+      - index fund
+      - mutual fund
+      - ETF
+      - nifty 50
+      - passive investing
+      - SIP
+      - fund inflows
+
+  - id: "c11"
+    title: "GDP"
+    domain: "macro"
+    keywords:
+      - GDP
+      - gross domestic product
+      - economic growth
+      - growth rate
+      - recession
+      - economic output
+      - fiscal deficit
+
+  - id: "c12"
+    title: "Cash Flow"
+    domain: "corporate_finance"
+    keywords:
+      - cash flow
+      - cash reserves
+      - liquidity
+      - working capital
+      - fund raising
+      - bond issuance
+
+  - id: "c_default"
+    title: "Financial Literacy"
+    domain: "markets"
+    keywords: []

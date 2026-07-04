@@ -1,17 +1,17 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
 import { ScreenSkeleton } from '@/components/ui/SkeletonLoader';
 import { Colors } from '@/constants/colors';
-import { MOCK_NEWS, MockNewsArticle, getConceptById } from '@/constants/mock-data';
+import { MockNewsArticle, getConceptById } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockLoading } from '@/hooks/useMockLoading';
 import { useMockProgress } from '@/hooks/useMockProgress';
+import { useNews } from '@/hooks/useNews';
 
 function formatDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00`);
@@ -50,25 +50,27 @@ function ArticleCard({ article }: { article: MockNewsArticle }) {
       ) : null}
       <View style={styles.bottomRow}>
         <Chip>{article.concept_title}</Chip>
-        <Pressable
-          hitSlop={8}
-          onPress={() => {
-            haptics.light();
-            markNewsRead(article.id, article.xp_reward);
-            if (concept) router.push(`/(tabs)/learn/${concept.slug}`);
-          }}
-        >
-          <AppText size="xs" color={Colors.accent}>
-            Learn this concept → +{article.xp_reward} XP
-          </AppText>
-        </Pressable>
+        {concept ? (
+          <Pressable
+            hitSlop={8}
+            onPress={() => {
+              haptics.light();
+              markNewsRead(article.id, article.xp_reward);
+              router.push(`/(tabs)/learn/${concept.slug}`);
+            }}
+          >
+            <AppText size="xs" color={Colors.accent}>
+              Learn this concept → +{article.xp_reward} XP
+            </AppText>
+          </Pressable>
+        ) : null}
       </View>
     </Card>
   );
 }
 
 export default function NewsScreen() {
-  const loading = useMockLoading();
+  const { articles, loading, loadingMore, hasMore, loadMore } = useNews('all');
 
   if (loading) {
     return (
@@ -81,14 +83,23 @@ export default function NewsScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <FlatList
-        data={MOCK_NEWS}
+        data={articles}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        onEndReached={hasMore ? loadMore : undefined}
+        onEndReachedThreshold={0.5}
         ListHeaderComponent={
           <AppText size="2xl" weight="medium" style={styles.title}>
             News
           </AppText>
+        }
+        ListFooterComponent={
+          loadingMore ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator size="small" color={Colors.textMuted} />
+            </View>
+          ) : null
         }
         ItemSeparatorComponent={() => <View style={{ height: Spacing.gap.md }} />}
         renderItem={({ item }) => <ArticleCard article={item} />}
@@ -126,5 +137,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: Spacing.gap.lg,
+  },
+  footerLoader: {
+    paddingVertical: Spacing.gap.xl,
+    alignItems: 'center',
   },
 });

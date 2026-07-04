@@ -15,19 +15,20 @@ import {
   MOCK_DAILY_CHALLENGE,
   MOCK_LEAGUE,
   MOCK_LESSONS,
-  MOCK_NEWS,
 } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { formatXP, greetingForTime } from '@/lib/gamification';
 import { useMockAuth } from '@/hooks/useMockAuth';
 import { useMockLoading } from '@/hooks/useMockLoading';
 import { useMockProgress } from '@/hooks/useMockProgress';
+import { useNews } from '@/hooks/useNews';
 
 export default function HomeScreen() {
   const router = useRouter();
   const loading = useMockLoading();
   const { displayName } = useMockAuth();
   const progress = useMockProgress();
+  const { articles: newsArticles } = useNews('all');
 
   if (loading) {
     return (
@@ -47,7 +48,7 @@ export default function HomeScreen() {
   const resumeProgress =
     resumeLesson && inProgressEntry ? inProgressEntry[1].lessonCardIndex / resumeLesson.cards.length : 0;
 
-  const topNews = MOCK_NEWS.find((n) => !progress.readNewsIds.includes(n.id));
+  const topNews = newsArticles.find((n) => !progress.readNewsIds.includes(n.id));
   const currentRank = MOCK_LEAGUE.users.find((u) => u.is_current_user)?.rank ?? 0;
   const daysUntilReset = Math.max(
     Math.ceil((new Date(MOCK_LEAGUE.week_end).getTime() - Date.now()) / 86_400_000),
