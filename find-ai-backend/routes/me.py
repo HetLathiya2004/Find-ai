@@ -1,4 +1,4 @@
-"""Authenticated user routes: profile, lesson progress, activity log.
+"""Authenticated user routes: profile, progress (lessons/quizzes/simulations), activity log.
 
 Handlers receive a RequestContext from the gateway middleware (via the
 `get_request_context` dependency) and never touch tokens. Only imports from
@@ -56,21 +56,54 @@ class UserUpdate(BaseModel):
         return v
 
 
-class ProgressItem(BaseModel):
-    lesson_id: str
+class LessonProgressItem(BaseModel):
+    concept_id: str
+    status: str
+    card_index: int
+    xp_earned: int
+    completed_at: Optional[str]
+
+
+class QuizProgressItem(BaseModel):
+    concept_id: str
+    status: str
+    best_score: int
+    passed: bool
+    xp_earned: int
+    completed_at: Optional[str]
+
+
+class SimulationProgressItem(BaseModel):
+    concept_id: str
     status: str
     xp_earned: int
     completed_at: Optional[str]
 
 
 class ProgressListResponse(BaseModel):
-    progress: list[ProgressItem]
+    lessons: list[LessonProgressItem]
+    quizzes: list[QuizProgressItem]
+    simulations: list[SimulationProgressItem]
+
+
+ACTIVITY_TYPES = ("lesson", "quiz", "simulation")
 
 
 class ProgressIn(BaseModel):
-    lesson_id: str
+    activity_type: str
+    concept_id: str
     status: str
     xp_earned: int = 0
+    card_index: Optional[int] = None
+    best_score: Optional[int] = None
+    passed: Optional[bool] = None
+
+    @field_validator("activity_type")
+    @classmethod
+    def validate_activity_type(cls, v: str) -> str:
+        if v not in ACTIVITY_TYPES:
+            raise ValueError(f"activity_type must be one of {', '.join(ACTIVITY_TYPES)}")
+        return v
 
     @field_validator("status")
     @classmethod
@@ -175,38 +208,55 @@ def update_me(payload: UserUpdate, ctx: RequestContext = Depends(get_request_con
     return _profile_response(ctx, _load_profile(ctx))
 
 
-# --- Lesson progress ---
+# --- Progress ---
 
 @router.get("/progress", response_model=ProgressListResponse)
 def get_progress(ctx: RequestContext = Depends(get_request_context)):
-    result = (
-        supabase.table("user_lesson_progress")
-        .select("lesson_id, status, xp_earned, completed_at")
-        .eq("user_id", ctx.user_id)
-        .execute()
+    result = supabase.rpc("get_user_progress", {"p_user_id": ctx.user_id}).execute()
+    data = result.data or {}
+    return ProgressListResponse(
+        lessons=data.get("lessons", []),
+        quizzes=data.get("quizzes", []),
+        simulations=data.get("simulations", []),
     )
-    return ProgressListResponse(progress=result.data)
 
 
-@router.post("/progress", response_model=ProgressItem)
+_TABLE_FOR_TYPE = {
+    "lesson": "user_lesson_progress",
+    "quiz": "user_quiz_progress",
+    "simulation": "user_simulation_progress",
+}
+
+
+@router.post("/progress")
 def save_progress(payload: ProgressIn, ctx: RequestContext = Depends(get_request_context)):
+    table = _TABLE_FOR_TYPE[payload.activity_type]
     now = datetime.now(timezone.utc).isoformat()
-    row = {
+
+    row: dict = {
         "user_id": ctx.user_id,
-        "lesson_id": payload.lesson_id,
+        "concept_id": payload.concept_id,
         "status": payload.status,
         "xp_earned": payload.xp_earned,
         "completed_at": now if payload.status == "completed" else None,
         "updated_at": now,
     }
 
-    # Never downgrade a completed lesson back to in_progress, and keep the
-    # highest XP earned for it.
+    if payload.activity_type == "lesson":
+        row["card_index"] = payload.card_index or 0
+    elif payload.activity_type == "quiz":
+        row["best_score"] = payload.best_score or 0
+        row["passed"] = payload.passed or False
+
+    # Never downgrade a completed activity back to in_progress, and keep the
+    # highest XP earned. For quizzes: keep max best_score, once passed stays
+    # passed.
     existing = (
-        supabase.table("user_lesson_progress")
-        .select("status, xp_earned, completed_at")
+        supabase.table(table)
+        .select("status, xp_earned, completed_at"
+                + (", best_score, passed" if payload.activity_type == "quiz" else ""))
         .eq("user_id", ctx.user_id)
-        .eq("lesson_id", payload.lesson_id)
+        .eq("concept_id", payload.concept_id)
         .execute()
     )
     if existing.data:
@@ -215,25 +265,46 @@ def save_progress(payload: ProgressIn, ctx: RequestContext = Depends(get_request
             row["status"] = "completed"
             row["completed_at"] = prev["completed_at"]
         row["xp_earned"] = max(prev["xp_earned"] or 0, payload.xp_earned)
+        if payload.activity_type == "quiz":
+            row["best_score"] = max(prev.get("best_score") or 0, row["best_score"])
+            row["passed"] = prev.get("passed", False) or row.get("passed", False)
 
     try:
         result = (
-            supabase.table("user_lesson_progress")
-            .upsert(row, on_conflict="user_id,lesson_id")
+            supabase.table(table)
+            .upsert(row, on_conflict="user_id,concept_id")
             .execute()
         )
     except Exception as exc:
         if "foreign key" in str(exc).lower():
-            raise HTTPException(status_code=404, detail="Lesson not found")
+            raise HTTPException(status_code=404, detail="Concept not found")
         raise
 
     saved = result.data[0]
-    return ProgressItem(
-        lesson_id=saved["lesson_id"],
-        status=saved["status"],
-        xp_earned=saved["xp_earned"],
-        completed_at=saved.get("completed_at"),
-    )
+    if payload.activity_type == "lesson":
+        return LessonProgressItem(
+            concept_id=saved["concept_id"],
+            status=saved["status"],
+            card_index=saved["card_index"],
+            xp_earned=saved["xp_earned"],
+            completed_at=saved.get("completed_at"),
+        )
+    elif payload.activity_type == "quiz":
+        return QuizProgressItem(
+            concept_id=saved["concept_id"],
+            status=saved["status"],
+            best_score=saved["best_score"],
+            passed=saved["passed"],
+            xp_earned=saved["xp_earned"],
+            completed_at=saved.get("completed_at"),
+        )
+    else:
+        return SimulationProgressItem(
+            concept_id=saved["concept_id"],
+            status=saved["status"],
+            xp_earned=saved["xp_earned"],
+            completed_at=saved.get("completed_at"),
+        )
 
 
 # --- Activity log ---
