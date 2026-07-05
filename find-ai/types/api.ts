@@ -125,15 +125,46 @@ export interface ApiUserProfileResponse {
 
 export type ProgressStatus = 'in_progress' | 'completed';
 
-export interface ApiProgressItem {
-  lesson_id: string;
+export interface ApiLessonProgress {
+  concept_id: string;
+  status: ProgressStatus;
+  card_index: number;
+  xp_earned: number;
+  completed_at: string | null;
+}
+
+export interface ApiQuizProgress {
+  concept_id: string;
+  status: ProgressStatus;
+  best_score: number;
+  passed: boolean;
+  xp_earned: number;
+  completed_at: string | null;
+}
+
+export interface ApiSimulationProgress {
+  concept_id: string;
   status: ProgressStatus;
   xp_earned: number;
   completed_at: string | null;
 }
 
+/** GET /me/progress — all three activity types in one response (Phase 2.4). */
 export interface ApiProgressListResponse {
-  progress: ApiProgressItem[];
+  lessons: ApiLessonProgress[];
+  quizzes: ApiQuizProgress[];
+  simulations: ApiSimulationProgress[];
+}
+
+/** POST /me/progress request body — routed by activity_type on the backend. */
+export interface ApiProgressIn {
+  activity_type: 'lesson' | 'quiz' | 'simulation';
+  concept_id: string;
+  status: ProgressStatus;
+  xp_earned: number;
+  card_index?: number; // lesson only
+  best_score?: number; // quiz only
+  passed?: boolean; // quiz only
 }
 
 export type ActivityAction =

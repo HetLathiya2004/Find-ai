@@ -1,33 +1,92 @@
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
 import { DollarLoader } from '@/components/ui/DollarLoader';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { Tag } from '@/components/ui/Tag';
 import { Colors } from '@/constants/colors';
-import {
-  MOCK_CONCEPTS,
-  MOCK_SIMULATIONS,
-  getConceptById,
-  getQuizByConceptId,
-} from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
-import { masteryLabel } from '@/lib/gamification';
+import { domainLabel, masteryFromActivities, masteryLabel } from '@/lib/gamification';
+import { useCourse } from '@/hooks/useCourse';
+import { useCourses } from '@/hooks/useCourses';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockLoading } from '@/hooks/useMockLoading';
+import { useProgress } from '@/hooks/useProgress';
+import type { Domain } from '@/constants/mock-data';
 
 const REVIEW_XP = 15;
+
+interface PracticeConcept {
+  id: string;
+  title: string;
+  slug: string;
+  domain: Domain;
+  mastery: number;
+  simulationCompleted: boolean;
+}
 
 export default function PracticeScreen() {
   const router = useRouter();
   const haptics = useHaptics();
-  const loading = useMockLoading();
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
-  if (loading) {
+  const {
+    courses,
+    loading: coursesLoading,
+    error: coursesError,
+    retry: retryCourses,
+  } = useCourses();
+
+  useEffect(() => {
+    if (!selectedCourseId && courses.length > 0) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [courses, selectedCourseId]);
+
+  const {
+    course,
+    loading: courseLoading,
+    error: courseError,
+    retry: retryCourse,
+  } = useCourse(selectedCourseId);
+
+  const { getConceptProgress } = useProgress();
+
+  const concepts = useMemo<PracticeConcept[]>(() => {
+    if (!course) return [];
+    return course.modules
+      .filter((module) => module.is_coming_soon !== true)
+      .flatMap((module) =>
+        module.concepts.map((concept) => {
+          const cp = getConceptProgress(concept.id);
+          return {
+            id: concept.id,
+            title: concept.title,
+            slug: concept.slug,
+            domain: module.domain,
+            mastery: masteryFromActivities(
+              cp.lessonStatus === 'completed',
+              cp.quizPassed,
+              cp.simulationStatus === 'completed',
+            ),
+            simulationCompleted: cp.simulationStatus === 'completed',
+          };
+        }),
+      );
+  }, [course, getConceptProgress]);
+
+  if (coursesError) {
+    return <ErrorState onRetry={retryCourses} />;
+  }
+  if (courseError) {
+    return <ErrorState onRetry={retryCourse} />;
+  }
+
+  if (coursesLoading || courseLoading || (courses.length > 0 && !course)) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
@@ -37,11 +96,12 @@ export default function PracticeScreen() {
     );
   }
 
-  // Due for review: concepts at mastery 2-4 (learned but not mastered)
-  const dueForReview = MOCK_CONCEPTS.filter((c) => c.mastery_level >= 2 && c.mastery_level <= 4);
-  // Weak concepts: started but low mastery
-  const weakConcepts = MOCK_CONCEPTS.filter((c) => c.mastery_level === 1);
-  const simulations = MOCK_SIMULATIONS.slice(0, 4);
+  // Due for review: learned but not mastered (mastery 2-4)
+  const dueForReview = concepts.filter((c) => c.mastery >= 2 && c.mastery <= 4);
+  // Weak concepts: just started (mastery 1)
+  const weakConcepts = concepts.filter((c) => c.mastery === 1);
+  // Simulations not yet completed
+  const simulations = concepts.filter((c) => !c.simulationCompleted).slice(0, 4);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -54,27 +114,24 @@ export default function PracticeScreen() {
         <Tag>Due for review</Tag>
         {dueForReview.length > 0 ? (
           <Card padding="none" style={styles.sectionCard}>
-            {dueForReview.map((concept, i) => {
-              const quiz = getQuizByConceptId(concept.id);
-              return (
-                <Pressable
-                  key={concept.id}
-                  style={[styles.row, i > 0 && styles.divider]}
-                  onPress={() => {
-                    haptics.light();
-                    if (quiz) router.push(`/quiz/${quiz.id}`);
-                  }}
-                >
-                  <AppText size="base" style={styles.rowTitle}>
-                    {concept.title}
-                  </AppText>
-                  <AppText size="xs" color={Colors.accent}>
-                    Review — +{REVIEW_XP} XP
-                  </AppText>
-                  <Feather name="chevron-right" size={16} color={Colors.textMuted} />
-                </Pressable>
-              );
-            })}
+            {dueForReview.map((concept, i) => (
+              <Pressable
+                key={concept.id}
+                style={[styles.row, i > 0 && styles.divider]}
+                onPress={() => {
+                  haptics.light();
+                  router.push(`/quiz/${concept.slug}`);
+                }}
+              >
+                <AppText size="base" style={styles.rowTitle}>
+                  {concept.title}
+                </AppText>
+                <AppText size="xs" color={Colors.accent}>
+                  Review — +{REVIEW_XP} XP
+                </AppText>
+                <Feather name="chevron-right" size={16} color={Colors.textMuted} />
+              </Pressable>
+            ))}
           </Card>
         ) : (
           <Card style={styles.sectionCard}>
@@ -101,7 +158,7 @@ export default function PracticeScreen() {
                   {concept.title}
                 </AppText>
                 <AppText size="xs" color={Colors.warning}>
-                  {masteryLabel(concept.mastery_level)} — Level {concept.mastery_level}
+                  {masteryLabel(concept.mastery)} — Level {concept.mastery}
                 </AppText>
               </Pressable>
             ))}
@@ -116,31 +173,34 @@ export default function PracticeScreen() {
 
         {/* Simulations */}
         <Tag style={styles.sectionTag}>Try a simulation</Tag>
-        <Card padding="none" style={styles.sectionCard}>
-          {simulations.map((sim, i) => {
-            const concept = getConceptById(sim.concept_id);
-            return (
+        {simulations.length > 0 ? (
+          <Card padding="none" style={styles.sectionCard}>
+            {simulations.map((concept, i) => (
               <Pressable
-                key={sim.id}
+                key={concept.id}
                 style={[styles.simRow, i > 0 && styles.divider]}
                 onPress={() => {
                   haptics.light();
-                  router.push(`/simulation/${sim.id}`);
+                  router.push(`/simulation/${concept.slug}`);
                 }}
               >
                 <View style={styles.simInfo}>
                   <AppText size="base" style={styles.simTitle}>
-                    {sim.title}
+                    {concept.title}
                   </AppText>
-                  {concept ? <Chip>{concept.title}</Chip> : null}
+                  <Chip>{domainLabel(concept.domain)}</Chip>
                 </View>
-                <AppText size="xs" color={Colors.accent}>
-                  +{sim.xp_reward} XP
-                </AppText>
+                <Feather name="chevron-right" size={16} color={Colors.textMuted} />
               </Pressable>
-            );
-          })}
-        </Card>
+            ))}
+          </Card>
+        ) : (
+          <Card style={styles.sectionCard}>
+            <AppText size="sm" color={Colors.textSecondary}>
+              All simulations completed. Impressive!
+            </AppText>
+          </Card>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BadgeGrid } from '@/components/profile/BadgeGrid';
@@ -12,13 +12,15 @@ import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Tag } from '@/components/ui/Tag';
 import { Colors } from '@/constants/colors';
-import { MOCK_BADGES, MOCK_CONCEPTS } from '@/constants/mock-data';
+import { MOCK_BADGES } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
-import { formatXP, levelForXP, xpForNextLevel } from '@/lib/gamification';
+import { formatXP, levelForXP, masteryFromActivities, xpForNextLevel } from '@/lib/gamification';
+import { useCourse } from '@/hooks/useCourse';
+import { useCourses } from '@/hooks/useCourses';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useAuth } from '@/hooks/useAuth';
-import { useMockLoading } from '@/hooks/useMockLoading';
 import { useProgress } from '@/hooks/useProgress';
+import { toMockConcept } from '@/types/api';
 
 const GOAL_LABELS: Record<string, string> = {
   grow_wealth: 'Growing my wealth',
@@ -29,15 +31,44 @@ const GOAL_LABELS: Record<string, string> = {
 export default function ProfileScreen() {
   const router = useRouter();
   const haptics = useHaptics();
-  const loading = useMockLoading();
   const { displayName, goal, dailyGoalMinutes, updateDisplayName, cycleDailyGoal, signOut } =
     useAuth();
-  const { xp, streakCount } = useProgress();
+  const { xp, streakCount, getConceptProgress } = useProgress();
 
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(displayName);
 
-  if (loading) {
+  // Mastery is derived from real course concepts + server-backed progress.
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const { courses, loading: coursesLoading } = useCourses();
+  useEffect(() => {
+    if (!selectedCourseId && courses.length > 0) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [courses, selectedCourseId]);
+  const { course, loading: courseLoading } = useCourse(selectedCourseId);
+
+  const masteredConcepts = useMemo(() => {
+    if (!course) return [];
+    return course.modules
+      .flatMap((module) =>
+        module.concepts.map((concept) => {
+          const cp = getConceptProgress(concept.id);
+          return toMockConcept(
+            concept,
+            module.domain,
+            masteryFromActivities(
+              cp.lessonStatus === 'completed',
+              cp.quizPassed,
+              cp.simulationStatus === 'completed',
+            ),
+          );
+        }),
+      )
+      .sort((a, b) => b.mastery_level - a.mastery_level);
+  }, [course, getConceptProgress]);
+
+  if (coursesLoading || courseLoading) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
@@ -49,7 +80,6 @@ export default function ProfileScreen() {
 
   const level = levelForXP(xp);
   const levelInfo = xpForNextLevel(xp);
-  const masteredConcepts = [...MOCK_CONCEPTS].sort((a, b) => b.mastery_level - a.mastery_level);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -95,7 +125,15 @@ export default function ProfileScreen() {
 
         {/* Mastery */}
         <Tag style={styles.sectionTag}>Concept mastery</Tag>
-        <MasteryList concepts={masteredConcepts.slice(0, 6)} />
+        {masteredConcepts.length > 0 ? (
+          <MasteryList concepts={masteredConcepts.slice(0, 6)} />
+        ) : (
+          <Card>
+            <AppText size="sm" color={Colors.textSecondary}>
+              Start learning to build concept mastery.
+            </AppText>
+          </Card>
+        )}
 
         {/* Settings */}
         <Tag style={styles.sectionTag}>Settings</Tag>

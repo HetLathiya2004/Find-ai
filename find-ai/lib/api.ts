@@ -12,7 +12,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+async function doFetch(path: string, init: RequestInit): Promise<Response> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
@@ -32,6 +32,24 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   } finally {
     clearTimeout(timeout);
   }
+}
+
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const res = await doFetch(path, init);
+
+  // 401 interceptor: the stored access token may be stale or revoked. Force
+  // a session refresh and retry once; if the refresh fails, sign out so the
+  // app returns to the sign-in screen instead of staying half-authenticated.
+  if (res.status === 401) {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error || !data.session) {
+      await supabase.auth.signOut().catch(() => {});
+      return res;
+    }
+    return doFetch(path, init);
+  }
+
+  return res;
 }
 
 async function parseOrThrow<T>(res: Response): Promise<T> {
