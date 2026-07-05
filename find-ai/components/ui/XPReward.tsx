@@ -21,10 +21,12 @@ interface XPRewardProps {
   children?: React.ReactNode;
 }
 
-/** Full-screen celebration overlay: "+25 XP", subtitle, confetti, scale-in entrance. */
+/** Full-screen celebration overlay: "+25 XP", subtitle, confetti, scale-in entrance.
+ *  When xp === 0 (repeat completion), shows an inspiring message instead — no confetti. */
 export function XPReward({ xp, subtitle, buttonTitle = 'Continue', onContinue, children }: XPRewardProps) {
   const scale = useSharedValue(0);
   const textOpacity = useSharedValue(0);
+  const isRepeat = xp === 0;
 
   useEffect(() => {
     scale.value = withSpring(1, { damping: 14, stiffness: 120 });
@@ -39,12 +41,18 @@ export function XPReward({ xp, subtitle, buttonTitle = 'Continue', onContinue, c
 
   return (
     <View style={styles.container}>
-      <Confetti />
+      {!isRepeat && <Confetti />}
       <View style={styles.center}>
         <Animated.View style={scaleStyle}>
-          <AppText size="5xl" weight="medium" color={Colors.accent} center>
-            +{xp} XP
-          </AppText>
+          {isRepeat ? (
+            <AppText size="5xl" weight="medium" color={Colors.accent} center>
+              Great Revision!
+            </AppText>
+          ) : (
+            <AppText size="5xl" weight="medium" color={Colors.accent} center>
+              +{xp} XP
+            </AppText>
+          )}
         </Animated.View>
         <Animated.View style={[styles.subtitle, fadeStyle]}>
           <AppText size="base" color={Colors.textSecondary} center>

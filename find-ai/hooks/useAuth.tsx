@@ -58,6 +58,7 @@ interface AuthContextValue extends AuthState {
     dailyGoalMinutes: AuthState['dailyGoalMinutes'];
     displayName: string;
   }) => void;
+  markOnboarded: () => void;
   updateDisplayName: (name: string) => void;
   cycleDailyGoal: () => void;
   signOut: () => Promise<void>;
@@ -111,6 +112,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const _isExistingUser = async (): Promise<boolean> => {
+    try {
+      const { user } = await apiGet<ApiUserProfileResponse>('/me');
+      return user.total_xp > 0 || !!user.username;
+    } catch {
+      return false;
+    }
+  };
+
   const signIn = useCallback(
     async (email: string, password: string): Promise<string | null> => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -127,10 +137,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) return error.message;
       if (!data.session) {
-        // Email confirmation is enabled on the project.
         return 'Check your inbox to confirm your email, then sign in.';
       }
-      persistPrefs({ ...loadPrefs(), onboarded: false });
+      const isExisting = await _isExistingUser();
+      persistPrefs({ ...loadPrefs(), onboarded: isExisting });
       return null;
     },
     [persistPrefs],
@@ -147,18 +157,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!data.url) return 'Could not start Google sign-in';
 
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-      if (result.type !== 'success') return null; // user dismissed the browser
+      if (result.type !== 'success') return null;
 
       const code = new URL(result.url).searchParams.get('code');
       if (!code) return 'Google sign-in was cancelled';
 
       const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) return exchangeError.message;
+
+      const isExisting = await _isExistingUser();
+      persistPrefs({ ...loadPrefs(), onboarded: isExisting });
       return null;
     } catch (e) {
       return e instanceof Error ? e.message : 'Google sign-in failed';
     }
-  }, []);
+  }, [persistPrefs]);
 
   const completeOnboarding = useCallback(
     (opts: {
@@ -193,6 +206,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [persistPrefs, prefs],
   );
 
+  const markOnboarded = useCallback(() => {
+    persistPrefs({ ...loadPrefs(), onboarded: true });
+  }, [persistPrefs]);
+
   const cycleDailyGoal = useCallback(() => {
     const next = prefs.dailyGoalMinutes === 5 ? 10 : prefs.dailyGoalMinutes === 10 ? 15 : 5;
     persistPrefs({ ...prefs, dailyGoalMinutes: next });
@@ -217,6 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       signInWithGoogle,
       completeOnboarding,
+      markOnboarded,
       updateDisplayName,
       cycleDailyGoal,
       signOut,
@@ -229,6 +247,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       signInWithGoogle,
       completeOnboarding,
+      markOnboarded,
       updateDisplayName,
       cycleDailyGoal,
       signOut,

@@ -15,7 +15,7 @@ import { domainLabel, masteryFromActivities, masteryLabel } from '@/lib/gamifica
 import { useCourse } from '@/hooks/useCourse';
 import { useCourses } from '@/hooks/useCourses';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useProgress } from '@/hooks/useProgress';
+import { type ActivityStatus, useProgress } from '@/hooks/useProgress';
 import type { Domain } from '@/constants/mock-data';
 
 const REVIEW_XP = 15;
@@ -26,6 +26,8 @@ interface PracticeConcept {
   slug: string;
   domain: Domain;
   mastery: number;
+  lessonStatus: ActivityStatus;
+  quizPassed: boolean;
   simulationCompleted: boolean;
 }
 
@@ -73,6 +75,8 @@ export default function PracticeScreen() {
               cp.quizPassed,
               cp.simulationStatus === 'completed',
             ),
+            lessonStatus: cp.lessonStatus,
+            quizPassed: cp.quizPassed,
             simulationCompleted: cp.simulationStatus === 'completed',
           };
         }),
@@ -96,12 +100,20 @@ export default function PracticeScreen() {
     );
   }
 
-  // Due for review: learned but not mastered (mastery 2-4)
-  const dueForReview = concepts.filter((c) => c.mastery >= 2 && c.mastery <= 4);
-  // Weak concepts: just started (mastery 1)
-  const weakConcepts = concepts.filter((c) => c.mastery === 1);
-  // Simulations not yet completed
-  const simulations = concepts.filter((c) => !c.simulationCompleted).slice(0, 4);
+  // 1. "Start learning" — lesson not completed (user needs to learn first)
+  const startLearning = concepts.filter((c) => c.lessonStatus !== 'completed');
+  // 2. "Needs practice" — lesson done but quiz not passed
+  const needsPractice = concepts.filter(
+    (c) => c.lessonStatus === 'completed' && !c.quizPassed,
+  );
+  // 3. "Due for review" — lesson done AND quiz passed (review via quiz)
+  const dueForReview = concepts.filter(
+    (c) => c.lessonStatus === 'completed' && c.quizPassed && c.mastery >= 2 && c.mastery <= 4,
+  );
+  // 4. "Try a simulation" — quiz passed but sim not done
+  const simulations = concepts
+    .filter((c) => c.quizPassed && !c.simulationCompleted)
+    .slice(0, 4);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -110,8 +122,68 @@ export default function PracticeScreen() {
           Practice
         </AppText>
 
+        {/* Start Learning */}
+        <Tag>Start learning</Tag>
+        {startLearning.length > 0 ? (
+          <Card padding="none" style={styles.sectionCard}>
+            {startLearning.map((concept, i) => (
+              <Pressable
+                key={concept.id}
+                style={[styles.row, i > 0 && styles.divider]}
+                onPress={() => {
+                  haptics.light();
+                  router.push(`/(tabs)/learn/${concept.slug}`);
+                }}
+              >
+                <Feather name="book-open" size={16} color={Colors.accent} />
+                <AppText size="base" style={styles.rowTitle}>
+                  {concept.title}
+                </AppText>
+                <Chip>{domainLabel(concept.domain)}</Chip>
+                <Feather name="chevron-right" size={16} color={Colors.textMuted} />
+              </Pressable>
+            ))}
+          </Card>
+        ) : (
+          <Card style={styles.sectionCard}>
+            <AppText size="sm" color={Colors.textSecondary}>
+              All lessons completed. Great progress!
+            </AppText>
+          </Card>
+        )}
+
+        {/* Needs Practice */}
+        <Tag style={styles.sectionTag}>Needs practice</Tag>
+        {needsPractice.length > 0 ? (
+          <Card padding="none" style={styles.sectionCard}>
+            {needsPractice.map((concept, i) => (
+              <Pressable
+                key={concept.id}
+                style={[styles.row, i > 0 && styles.divider]}
+                onPress={() => {
+                  haptics.light();
+                  router.push(`/quiz/${concept.slug}`);
+                }}
+              >
+                <AppText size="base" style={styles.rowTitle}>
+                  {concept.title}
+                </AppText>
+                <AppText size="xs" color={Colors.warning}>
+                  {masteryLabel(concept.mastery)} — Level {concept.mastery}
+                </AppText>
+              </Pressable>
+            ))}
+          </Card>
+        ) : (
+          <Card style={styles.sectionCard}>
+            <AppText size="sm" color={Colors.textSecondary}>
+              No weak concepts right now. Nice work!
+            </AppText>
+          </Card>
+        )}
+
         {/* Due for Review */}
-        <Tag>Due for review</Tag>
+        <Tag style={styles.sectionTag}>Due for review</Tag>
         {dueForReview.length > 0 ? (
           <Card padding="none" style={styles.sectionCard}>
             {dueForReview.map((concept, i) => (
@@ -137,36 +209,6 @@ export default function PracticeScreen() {
           <Card style={styles.sectionCard}>
             <AppText size="sm" color={Colors.textSecondary}>
               Nothing due for review. Keep learning!
-            </AppText>
-          </Card>
-        )}
-
-        {/* Weak Concepts */}
-        <Tag style={styles.sectionTag}>Needs practice</Tag>
-        {weakConcepts.length > 0 ? (
-          <Card padding="none" style={styles.sectionCard}>
-            {weakConcepts.map((concept, i) => (
-              <Pressable
-                key={concept.id}
-                style={[styles.row, i > 0 && styles.divider]}
-                onPress={() => {
-                  haptics.light();
-                  router.push(`/(tabs)/learn/${concept.slug}`);
-                }}
-              >
-                <AppText size="base" style={styles.rowTitle}>
-                  {concept.title}
-                </AppText>
-                <AppText size="xs" color={Colors.warning}>
-                  {masteryLabel(concept.mastery)} — Level {concept.mastery}
-                </AppText>
-              </Pressable>
-            ))}
-          </Card>
-        ) : (
-          <Card style={styles.sectionCard}>
-            <AppText size="sm" color={Colors.textSecondary}>
-              No weak concepts right now. Nice work!
             </AppText>
           </Card>
         )}

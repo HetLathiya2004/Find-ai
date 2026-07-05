@@ -20,7 +20,7 @@ from db import supabase
 
 router = APIRouter(prefix="/api/v1/me")
 
-PROFILE_FIELDS = "id, username, tier, total_xp, current_streak, longest_streak, last_active_date"
+PROFILE_FIELDS = "id, username, tier, total_xp, current_streak, longest_streak, last_active_date, daily_goal_target, streak_freeze_count"
 
 ACTIVITY_ACTIONS = ("lesson_complete", "quiz_complete", "sim_complete", "streak_bonus")
 
@@ -36,6 +36,8 @@ class UserProfile(BaseModel):
     current_streak: int
     longest_streak: int
     last_active_date: Optional[str]
+    daily_goal_target: int
+    streak_freeze_count: int
 
 
 class UserProfileResponse(BaseModel):
@@ -44,6 +46,7 @@ class UserProfileResponse(BaseModel):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
+    daily_goal_target: Optional[int] = None
 
     @field_validator("username")
     @classmethod
@@ -53,6 +56,15 @@ class UserUpdate(BaseModel):
         v = v.strip()
         if not (1 <= len(v) <= 40):
             raise ValueError("username must be 1-40 characters")
+        return v
+
+    @field_validator("daily_goal_target")
+    @classmethod
+    def validate_daily_goal(cls, v: Optional[int]) -> Optional[int]:
+        if v is None:
+            return v
+        if not (1 <= v <= 10):
+            raise ValueError("daily_goal_target must be between 1 and 10")
         return v
 
 
@@ -156,6 +168,33 @@ def _load_profile(ctx: RequestContext) -> dict:
 
 def _profile_response(ctx: RequestContext, row: dict) -> UserProfileResponse:
     return UserProfileResponse(user=UserProfile(email=ctx.email, **row))
+
+
+def _upsert_daily_activity(user_id: str, today: date, xp_earned: int) -> None:
+    """Increment today's daily activity row (or create it)."""
+    today_iso = today.isoformat()
+    existing = (
+        supabase.table("user_daily_activity")
+        .select("xp_earned, activities_completed")
+        .eq("user_id", user_id)
+        .eq("activity_date", today_iso)
+        .execute()
+    )
+    if existing.data:
+        prev = existing.data[0]
+        supabase.table("user_daily_activity").upsert({
+            "user_id": user_id,
+            "activity_date": today_iso,
+            "xp_earned": (prev["xp_earned"] or 0) + xp_earned,
+            "activities_completed": (prev["activities_completed"] or 0) + 1,
+        }, on_conflict="user_id,activity_date").execute()
+    else:
+        supabase.table("user_daily_activity").insert({
+            "user_id": user_id,
+            "activity_date": today_iso,
+            "xp_earned": xp_earned,
+            "activities_completed": 1,
+        }).execute()
 
 
 def _apply_streak(row: dict, today: date) -> dict:
@@ -328,7 +367,11 @@ def get_activity(
 @router.post("/activity", response_model=UserProfileResponse)
 def log_activity(payload: ActivityIn, ctx: RequestContext = Depends(get_request_context)):
     """Append an activity entry and roll its XP + streak effect into the
-    user's profile. Returns the updated profile so the client can sync."""
+    user's profile. Also upserts the daily activity row for leaderboard,
+    streak calendar, and daily goal tracking. Returns the updated profile
+    so the client can sync."""
+    today = datetime.now(timezone.utc).date()
+
     supabase.table("activity_log").insert({
         "user_id": ctx.user_id,
         "action": payload.action,
@@ -336,9 +379,58 @@ def log_activity(payload: ActivityIn, ctx: RequestContext = Depends(get_request_
     }).execute()
 
     profile = _load_profile(ctx)
-    updates = _apply_streak(profile, datetime.now(timezone.utc).date())
+    updates = _apply_streak(profile, today)
     updates["total_xp"] = (profile["total_xp"] or 0) + payload.xp_earned
     updates["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     supabase.table("users").update(updates).eq("id", ctx.user_id).execute()
+
+    _upsert_daily_activity(ctx.user_id, today, payload.xp_earned)
+
     return _profile_response(ctx, _load_profile(ctx))
+
+
+# --- Streak calendar ---
+
+class StreakDay(BaseModel):
+    date: str
+    active: bool
+    xp_earned: int
+    activities: int
+
+
+class StreakCalendarResponse(BaseModel):
+    streak_history: list[StreakDay]
+
+
+@router.get("/streak-calendar", response_model=StreakCalendarResponse)
+def get_streak_calendar(ctx: RequestContext = Depends(get_request_context)):
+    result = supabase.rpc("get_streak_calendar", {"p_user_id": ctx.user_id}).execute()
+    return StreakCalendarResponse(streak_history=result.data or [])
+
+
+# --- Daily goal ---
+
+class DailyGoalResponse(BaseModel):
+    target: int
+    completed: int
+    xp_earned: int
+
+
+@router.get("/daily-goal", response_model=DailyGoalResponse)
+def get_daily_goal(ctx: RequestContext = Depends(get_request_context)):
+    profile = _load_profile(ctx)
+    today_iso = datetime.now(timezone.utc).date().isoformat()
+    daily = (
+        supabase.table("user_daily_activity")
+        .select("activities_completed, xp_earned")
+        .eq("user_id", ctx.user_id)
+        .eq("activity_date", today_iso)
+        .execute()
+    )
+    row = daily.data[0] if daily.data else {}
+    return DailyGoalResponse(
+        target=profile.get("daily_goal_target", 3),
+        completed=row.get("activities_completed", 0),
+        xp_earned=row.get("xp_earned", 0),
+    )

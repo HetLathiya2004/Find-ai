@@ -1,22 +1,24 @@
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { BackRow } from '@/components/ui/BackRow';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { Colors } from '@/constants/colors';
-import { MOCK_LEAGUE, MockLeagueUser } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
+import type { LeaderboardUser } from '@/types/api';
 
 const PROMOTION_CUTOFF = 5;
-const DEMOTION_CUTOFF = 25; // ranks 26-30 demote
+const DEMOTION_CUTOFF = 25;
 
 function zoneDotColor(rank: number, total: number): string {
   if (rank <= PROMOTION_CUTOFF) return Colors.accent;
-  if (rank > total - PROMOTION_CUTOFF) return Colors.danger;
+  if (rank > Math.max(total - 5, DEMOTION_CUTOFF)) return Colors.danger;
   return Colors.borderDefault;
 }
 
-function LeagueRow({ user, total }: { user: MockLeagueUser; total: number }) {
+function LeagueRow({ user, total }: { user: LeaderboardUser; total: number }) {
   return (
     <View style={[styles.row, user.is_current_user && styles.currentUserRow]}>
       <View style={[styles.zoneDot, { backgroundColor: zoneDotColor(user.rank, total) }]} />
@@ -24,26 +26,52 @@ function LeagueRow({ user, total }: { user: MockLeagueUser; total: number }) {
         {user.rank}
       </AppText>
       <AppText size="base" style={styles.name}>
-        {user.name}
+        {user.username}
       </AppText>
-      <AppText size="sm" color={Colors.textSecondary}>
-        {user.weekly_xp} XP
-      </AppText>
+      <View style={styles.scoreCol}>
+        <AppText size="sm" color={Colors.textSecondary}>
+          {user.league_score} pts
+        </AppText>
+        {user.streak > 0 ? (
+          <AppText size="xs" color={Colors.textMuted}>
+            {user.total_xp} XP + {user.streak * 10} streak
+          </AppText>
+        ) : null}
+      </View>
     </View>
   );
 }
 
 export default function LeagueScreen() {
-  const total = MOCK_LEAGUE.users.length;
-  const daysUntilReset = Math.max(
-    Math.ceil((new Date(MOCK_LEAGUE.week_end).getTime() - Date.now()) / 86_400_000),
-    0,
-  );
+  const { leaderboard, loading, error, refresh } = useLeaderboard();
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+        <BackRow label="back" />
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={Colors.accent} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !leaderboard) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+        <BackRow label="back" />
+        <ErrorState message="Could not load leaderboard" onRetry={refresh} />
+      </SafeAreaView>
+    );
+  }
+
+  const total = leaderboard.users.length;
+  const tier = leaderboard.current_user_tier ?? 'Bronze';
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <FlatList
-        data={MOCK_LEAGUE.users}
+        data={leaderboard.users}
         keyExtractor={(item) => String(item.rank)}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
@@ -55,10 +83,13 @@ export default function LeagueScreen() {
                 🏆
               </AppText>
               <AppText size="2xl" weight="medium" center>
-                {MOCK_LEAGUE.tier} League
+                {tier} League
               </AppText>
               <AppText size="sm" color={Colors.textSecondary} center style={styles.subtitle}>
-                Resets in {daysUntilReset} days
+                Total XP + Streak Bonus
+              </AppText>
+              <AppText size="xs" color={Colors.textMuted} center style={styles.scoring}>
+                Score = Weekly XP + (Streak × 10)
               </AppText>
             </View>
             <AppText size="caption" label color={Colors.accent} style={styles.zoneLabel}>
@@ -66,10 +97,17 @@ export default function LeagueScreen() {
             </AppText>
           </>
         }
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <AppText size="base" color={Colors.textSecondary} center>
+              No activity this week yet. Complete a lesson to join the leaderboard!
+            </AppText>
+          </View>
+        }
         renderItem={({ item }) => (
           <>
             <LeagueRow user={item} total={total} />
-            {item.rank === DEMOTION_CUTOFF ? (
+            {item.rank === DEMOTION_CUTOFF && total > DEMOTION_CUTOFF ? (
               <AppText size="caption" label color={Colors.danger} style={styles.demotionLabel}>
                 Demotion zone — bottom {total - DEMOTION_CUTOFF}
               </AppText>
@@ -86,6 +124,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   list: {
     padding: Spacing.padding.screen,
     paddingBottom: 48,
@@ -101,6 +144,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: 4,
+  },
+  scoring: {
+    marginTop: 2,
   },
   zoneLabel: {
     marginTop: Spacing.gap['2xl'],
@@ -136,5 +182,12 @@ const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
+  },
+  scoreCol: {
+    alignItems: 'flex-end',
+  },
+  empty: {
+    paddingVertical: Spacing.gap['2xl'],
+    paddingHorizontal: Spacing.gap.lg,
   },
 });

@@ -17,7 +17,7 @@ function isValidEmail(email: string): boolean {
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const { signUp, signInWithGoogle } = useAuth();
+  const { signUp, signInWithGoogle, onboarded } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,6 @@ export default function SignUpScreen() {
       setError(message);
       return;
     }
-    router.replace('/(auth)/onboarding');
   };
 
   const submitGoogle = async () => {
@@ -52,7 +51,6 @@ export default function SignUpScreen() {
       setError(message);
       return;
     }
-    router.replace('/');
   };
 
   return (

@@ -55,8 +55,6 @@ export interface ProgressState {
   streakCount: number;
   streakBest: number;
   streakFreezes: number;
-  dailyGoalCompleted: number; // activities done today
-  dailyGoalTarget: number;
   concepts: Record<string, ConceptProgress>;
   readNewsIds: string[];
   dailyChallengeCompleted: boolean;
@@ -77,10 +75,8 @@ interface StoredProgress {
   serverXp: number;
   streakCount: number;
   streakBest: number;
+  streakFreezes: number;
   xpBonus: number; // news/daily-challenge XP the backend doesn't track
-  dailyGoalCompleted: number;
-  dailyGoalTarget: number;
-  lastGoalDate: string | null; // device-local date the daily goal was last touched
   concepts: Record<string, ConceptProgress>;
   readNewsIds: string[];
   dailyChallengeCompleted: boolean;
@@ -90,34 +86,16 @@ const DEFAULT_STORED: StoredProgress = {
   serverXp: 0,
   streakCount: 0,
   streakBest: 0,
+  streakFreezes: 0,
   xpBonus: 0,
-  dailyGoalCompleted: 0,
-  dailyGoalTarget: 5,
-  lastGoalDate: null,
   concepts: {},
   readNewsIds: [],
   dailyChallengeCompleted: false,
 };
 
-function todayKey(): string {
-  return new Date().toDateString();
-}
-
-/** Reset the daily goal counter when the device date rolls over. */
-function withDailyReset(prev: StoredProgress): StoredProgress {
-  const today = todayKey();
-  if (prev.lastGoalDate === today) return prev;
-  return {
-    ...prev,
-    dailyGoalCompleted: 0,
-    lastGoalDate: today,
-  };
-}
-
 interface ProgressContextValue extends ProgressState {
   getConceptProgress: (conceptId: string) => ConceptProgress;
   addXP: (amount: number) => void;
-  incrementDailyGoal: () => void;
   startLesson: (conceptId: string) => void;
   setLessonCardIndex: (conceptId: string, index: number) => void;
   completeLesson: (conceptId: string, xpReward: number) => void;
@@ -131,10 +109,10 @@ interface ProgressContextValue extends ProgressState {
 const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 function loadStored(): StoredProgress {
-  return withDailyReset({
+  return {
     ...DEFAULT_STORED,
     ...(getJSON<Partial<StoredProgress>>(StorageKeys.progress) ?? {}),
-  });
+  };
 }
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
@@ -145,7 +123,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   const update = useCallback((updater: (prev: StoredProgress) => StoredProgress) => {
     setStored((prev) => {
-      const next = updater(withDailyReset(prev));
+      const next = updater(prev);
       setJSON(StorageKeys.progress, next);
       return next;
     });
@@ -158,6 +136,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         serverXp: profile.total_xp,
         streakCount: profile.current_streak,
         streakBest: profile.longest_streak,
+        streakFreezes: profile.streak_freeze_count,
       }));
     },
     [update],
@@ -214,6 +193,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
             serverXp: user.total_xp,
             streakCount: user.current_streak,
             streakBest: user.longest_streak,
+            streakFreezes: user.streak_freeze_count,
             concepts,
           };
         });
@@ -254,14 +234,10 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   );
 
   const updateConcept = useCallback(
-    (conceptId: string, patch: Partial<ConceptProgress>, xpGain = 0, countsTowardGoal = false) => {
+    (conceptId: string, patch: Partial<ConceptProgress>, xpGain = 0) => {
       update((prev) => ({
         ...prev,
-        // Optimistic bump — overwritten by the profile in the activity response.
         serverXp: prev.serverXp + xpGain,
-        dailyGoalCompleted: countsTowardGoal
-          ? Math.min(prev.dailyGoalCompleted + 1, prev.dailyGoalTarget)
-          : prev.dailyGoalCompleted,
         concepts: {
           ...prev.concepts,
           [conceptId]: { ...(prev.concepts[conceptId] ?? EMPTY_CONCEPT_PROGRESS), ...patch },
@@ -278,15 +254,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   const addXP = useCallback(
     (amount: number) => update((p) => ({ ...p, xpBonus: p.xpBonus + amount })),
-    [update],
-  );
-
-  const incrementDailyGoal = useCallback(
-    () =>
-      update((p) => ({
-        ...p,
-        dailyGoalCompleted: Math.min(p.dailyGoalCompleted + 1, p.dailyGoalTarget),
-      })),
     [update],
   );
 
@@ -325,7 +292,9 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const completeLesson = useCallback(
     (conceptId: string, xpReward: number) => {
       const cur = stored.concepts[conceptId] ?? EMPTY_CONCEPT_PROGRESS;
-      updateConcept(conceptId, { lessonStatus: 'completed', lessonCardIndex: 0 }, xpReward, true);
+      const alreadyCompleted = cur.lessonStatus === 'completed';
+      // Only award XP on first completion
+      updateConcept(conceptId, { lessonStatus: 'completed', lessonCardIndex: 0 }, alreadyCompleted ? 0 : xpReward);
       postProgress({
         activity_type: 'lesson',
         concept_id: conceptId,
@@ -333,7 +302,9 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         xp_earned: xpReward,
         card_index: cur.lessonCardIndex,
       });
-      postActivity('lesson_complete', xpReward);
+      if (!alreadyCompleted) {
+        postActivity('lesson_complete', xpReward);
+      }
     },
     [stored.concepts, updateConcept, postProgress, postActivity],
   );
@@ -351,6 +322,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const completeQuiz = useCallback(
     (conceptId: string, score: number, passed: boolean, xpReward: number) => {
       const cur = stored.concepts[conceptId] ?? EMPTY_CONCEPT_PROGRESS;
+      const alreadyPassed = cur.quizPassed;
+      const earnXp = passed && !alreadyPassed;
       updateConcept(
         conceptId,
         {
@@ -358,8 +331,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           quizBestScore: Math.max(cur.quizBestScore ?? 0, score),
           quizPassed: cur.quizPassed || passed,
         },
-        passed ? xpReward : 0,
-        true,
+        earnXp ? xpReward : 0,
       );
       postProgress({
         activity_type: 'quiz',
@@ -369,23 +341,28 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         passed,
         xp_earned: passed ? xpReward : 0,
       });
-      postActivity('quiz_complete', passed ? xpReward : 0);
+      if (earnXp) {
+        postActivity('quiz_complete', xpReward);
+      }
     },
     [stored.concepts, updateConcept, postProgress, postActivity],
   );
 
   const completeSimulation = useCallback(
     (conceptId: string, xpReward: number) => {
-      updateConcept(conceptId, { simulationStatus: 'completed' }, xpReward, true);
+      const alreadyCompleted = (stored.concepts[conceptId] ?? EMPTY_CONCEPT_PROGRESS).simulationStatus === 'completed';
+      updateConcept(conceptId, { simulationStatus: 'completed' }, alreadyCompleted ? 0 : xpReward);
       postProgress({
         activity_type: 'simulation',
         concept_id: conceptId,
         status: 'completed',
         xp_earned: xpReward,
       });
-      postActivity('sim_complete', xpReward);
+      if (!alreadyCompleted) {
+        postActivity('sim_complete', xpReward);
+      }
     },
-    [updateConcept, postProgress, postActivity],
+    [stored.concepts, updateConcept, postProgress, postActivity],
   );
 
   const markNewsRead = useCallback(
@@ -413,15 +390,12 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       xp: stored.serverXp + stored.xpBonus,
       streakCount: stored.streakCount,
       streakBest: stored.streakBest,
-      streakFreezes: 0, // not modeled server-side yet
-      dailyGoalCompleted: stored.dailyGoalCompleted,
-      dailyGoalTarget: stored.dailyGoalTarget,
+      streakFreezes: stored.streakFreezes,
       concepts: stored.concepts,
       readNewsIds: stored.readNewsIds,
       dailyChallengeCompleted: stored.dailyChallengeCompleted,
       getConceptProgress,
       addXP,
-      incrementDailyGoal,
       startLesson,
       setLessonCardIndex,
       completeLesson,
@@ -435,7 +409,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       stored,
       getConceptProgress,
       addXP,
-      incrementDailyGoal,
       startLesson,
       setLessonCardIndex,
       completeLesson,

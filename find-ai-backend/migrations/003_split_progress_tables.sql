@@ -22,7 +22,7 @@ CREATE TABLE user_lesson_progress (
     status text NOT NULL DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed')),
     card_index integer NOT NULL DEFAULT 0,
     xp_earned integer NOT NULL DEFAULT 0,
-    completed_at timestamptz NOT NULL DEFAULT now(),
+    completed_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, concept_id)
@@ -36,7 +36,7 @@ CREATE TABLE user_quiz_progress (
     best_score integer NOT NULL DEFAULT 0,
     passed boolean NOT NULL DEFAULT false,
     xp_earned integer NOT NULL DEFAULT 0,
-    completed_at timestamptz NOT NULL DEFAULT now(),
+    completed_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, concept_id)
@@ -48,7 +48,7 @@ CREATE TABLE user_simulation_progress (
     concept_id uuid NOT NULL REFERENCES concepts(id) ON DELETE CASCADE,
     status text NOT NULL DEFAULT 'completed' CHECK (status IN ('in_progress', 'completed')),
     xp_earned integer NOT NULL DEFAULT 0,
-    completed_at timestamptz NOT NULL DEFAULT now(),
+    completed_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, concept_id)

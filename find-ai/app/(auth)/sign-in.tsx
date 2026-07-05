@@ -52,7 +52,7 @@ export default function SignInScreen() {
       setError(message);
       return;
     }
-    router.replace('/');
+    router.replace('/(tabs)/home');
   };
 
   return (

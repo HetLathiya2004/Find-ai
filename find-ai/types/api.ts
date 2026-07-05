@@ -92,6 +92,7 @@ export interface ApiConceptDetail {
   sim_title: string;
   sim_scenario: string;
   sim_xp: number;
+  card_count: number;
   cards: ApiLessonCard[];
   questions: ApiQuizQuestion[];
   choices: ApiSimulationChoice[];
@@ -117,6 +118,8 @@ export interface ApiUserProfile {
   current_streak: number;
   longest_streak: number;
   last_active_date: string | null;
+  daily_goal_target: number;
+  streak_freeze_count: number;
 }
 
 export interface ApiUserProfileResponse {
@@ -182,6 +185,44 @@ export interface ApiActivityItem {
 
 export interface ApiActivityListResponse {
   activity: ApiActivityItem[];
+}
+
+// --- Leaderboard ---
+
+export interface LeaderboardUser {
+  rank: number;
+  username: string;
+  total_xp: number;
+  streak: number;
+  league_score: number;
+  is_current_user: boolean;
+}
+
+export interface LeaderboardResponse {
+  users: LeaderboardUser[];
+  current_user_rank: number | null;
+  current_user_tier: string | null;
+}
+
+// --- Streak calendar ---
+
+export interface StreakDay {
+  date: string;
+  active: boolean;
+  xp_earned: number;
+  activities: number;
+}
+
+export interface StreakCalendarResponse {
+  streak_history: StreakDay[];
+}
+
+// --- Daily goal ---
+
+export interface DailyGoalResponse {
+  target: number;
+  completed: number;
+  xp_earned: number;
 }
 
 /**

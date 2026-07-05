@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
@@ -28,7 +28,7 @@ export default function QuizPlayerScreen() {
   const haptics = useHaptics();
   // The route param is the concept slug — quiz content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { concept, loading, error, retry } = useConcept(id ?? null);
+  const { concept, loading, error, retry } = useConcept(id ?? null, 'questions');
   const progress = useProgress();
 
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -38,8 +38,13 @@ export default function QuizPlayerScreen() {
   const [phase, setPhase] = useState<Phase>('question');
   const [showExitModal, setShowExitModal] = useState(false);
 
+  // Capture whether the quiz was already passed before this session.
+  const wasAlreadyPassed = useRef(false);
+
   useEffect(() => {
-    if (concept) progress.startQuiz(concept.id);
+    if (!concept) return;
+    wasAlreadyPassed.current = progress.getConceptProgress(concept.id).quizPassed;
+    progress.startQuiz(concept.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [concept?.id]);
 
@@ -114,7 +119,11 @@ export default function QuizPlayerScreen() {
 
   if (phase === 'reward') {
     return (
-      <XPReward xp={concept.quiz_xp} subtitle="Quiz passed" onContinue={() => router.back()} />
+      <XPReward
+        xp={wasAlreadyPassed.current ? 0 : concept.quiz_xp}
+        subtitle="Quiz passed"
+        onContinue={() => router.back()}
+      />
     );
   }
 

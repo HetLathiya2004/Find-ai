@@ -1,6 +1,6 @@
 """Public API routes for course content."""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 from db import supabase
@@ -90,6 +90,7 @@ class ConceptDetail(BaseModel):
     sim_title: str
     sim_scenario: str
     sim_xp: int
+    card_count: int
     cards: list[LessonCardOut]
     questions: list[QuizQuestionOut]
     choices: list[SimChoiceOut]
@@ -164,7 +165,7 @@ def get_course(course_id: str):
 
 
 @router.get("/concepts/{slug}", response_model=ConceptDetailResponse)
-def get_concept(slug: str):
+def get_concept(slug: str, include: str = Query("")):
     concept_result = (
         supabase.table("concepts")
         .select("id, title, slug, description, lesson_title, lesson_xp, quiz_xp, quiz_pass_threshold, sim_title, sim_scenario, sim_xp")
@@ -177,30 +178,54 @@ def get_concept(slug: str):
     concept = concept_result.data[0]
     concept_id = concept["id"]
 
-    cards_result = (
+    includes = set(include.split(",")) if include else set()
+
+    # Always fetch card_count (lightweight count query)
+    card_count_result = (
         supabase.table("lesson_cards")
-        .select("id, title, body, visual_hint, order_index")
+        .select("id", count="exact")
         .eq("concept_id", concept_id)
-        .order("order_index")
         .execute()
     )
+    card_count = card_count_result.count or 0
 
-    questions_result = (
-        supabase.table("quiz_questions")
-        .select("id, question, options, correct_index, explanation, order_index")
-        .eq("concept_id", concept_id)
-        .order("order_index")
-        .execute()
-    )
+    # Conditionally fetch lesson cards
+    cards = []
+    if "cards" in includes:
+        cards_result = (
+            supabase.table("lesson_cards")
+            .select("id, title, body, visual_hint, order_index")
+            .eq("concept_id", concept_id)
+            .order("order_index")
+            .execute()
+        )
+        cards = cards_result.data
 
-    choices_result = (
-        supabase.table("simulation_choices")
-        .select("id, text, outcome, feedback, learner_pct, order_index")
-        .eq("concept_id", concept_id)
-        .order("order_index")
-        .execute()
-    )
+    # Conditionally fetch quiz questions
+    questions = []
+    if "questions" in includes:
+        questions_result = (
+            supabase.table("quiz_questions")
+            .select("id, question, options, correct_index, explanation, order_index")
+            .eq("concept_id", concept_id)
+            .order("order_index")
+            .execute()
+        )
+        questions = questions_result.data
 
+    # Conditionally fetch simulation choices
+    choices = []
+    if "choices" in includes:
+        choices_result = (
+            supabase.table("simulation_choices")
+            .select("id, text, outcome, feedback, learner_pct, order_index")
+            .eq("concept_id", concept_id)
+            .order("order_index")
+            .execute()
+        )
+        choices = choices_result.data
+
+    # Tags always fetched (lightweight, always needed)
     tags_result = (
         supabase.table("concept_tags")
         .select("tag")
@@ -211,8 +236,9 @@ def get_concept(slug: str):
 
     return ConceptDetailResponse(concept=ConceptDetail(
         **concept,
-        cards=cards_result.data,
-        questions=questions_result.data,
-        choices=choices_result.data,
+        card_count=card_count,
+        cards=cards,
+        questions=questions,
+        choices=choices,
         tags=tags,
     ))

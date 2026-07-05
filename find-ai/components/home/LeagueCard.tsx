@@ -8,11 +8,10 @@ interface LeagueCardProps {
   tier: string;
   rank: number;
   totalUsers: number;
-  daysUntilReset: number;
   onPress: () => void;
 }
 
-export function LeagueCard({ tier, rank, totalUsers, daysUntilReset, onPress }: LeagueCardProps) {
+export function LeagueCard({ tier, rank, totalUsers, onPress }: LeagueCardProps) {
   return (
     <Card onPress={onPress}>
       <View style={styles.row}>
@@ -21,16 +20,18 @@ export function LeagueCard({ tier, rank, totalUsers, daysUntilReset, onPress }: 
             🏆 {tier} League
           </AppText>
           <AppText size="xs" color={Colors.textMuted} style={styles.subtitle}>
-            Resets in {daysUntilReset}d
+            XP + Streak bonus
           </AppText>
         </View>
         <View style={styles.rankBlock}>
           <AppText size="3xl" weight="medium">
-            #{rank}
+            #{rank || '—'}
           </AppText>
-          <AppText size="sm" color={Colors.textSecondary}>
-            of {totalUsers}
-          </AppText>
+          {totalUsers > 0 ? (
+            <AppText size="sm" color={Colors.textSecondary}>
+              of {totalUsers}
+            </AppText>
+          ) : null}
         </View>
       </View>
     </Card>

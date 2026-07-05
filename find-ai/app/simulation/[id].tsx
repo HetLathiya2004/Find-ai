@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,12 +29,22 @@ export default function SimulationPlayerScreen() {
   const haptics = useHaptics();
   // The route param is the concept slug — simulation content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { concept, loading, error, retry } = useConcept(id ?? null);
+  const { concept, loading, error, retry } = useConcept(id ?? null, 'choices');
   const progress = useProgress();
 
   const [choiceIndex, setChoiceIndex] = useState<number | null>(null);
   const [showReward, setShowReward] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+
+  // Capture whether the simulation was already completed before this session.
+  const wasAlreadyCompleted = useRef(false);
+
+  useEffect(() => {
+    if (!concept) return;
+    wasAlreadyCompleted.current =
+      progress.getConceptProgress(concept.id).simulationStatus === 'completed';
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [concept?.id]);
 
   if (error) {
     return <ErrorState onRetry={retry} />;
@@ -50,7 +60,11 @@ export default function SimulationPlayerScreen() {
 
   if (showReward) {
     return (
-      <XPReward xp={concept.sim_xp} subtitle="Simulation complete" onContinue={() => router.back()} />
+      <XPReward
+        xp={wasAlreadyCompleted.current ? 0 : concept.sim_xp}
+        subtitle="Simulation complete"
+        onContinue={() => router.back()}
+      />
     );
   }
 

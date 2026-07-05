@@ -26,6 +26,7 @@ from middleware.auth_gateway import AuthGatewayMiddleware
 from routes.courses import router as courses_router
 from routes.admin import router as admin_router
 from routes.me import router as me_router
+from routes.leaderboard import router as leaderboard_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -58,6 +59,7 @@ app.add_middleware(
 app.include_router(courses_router)
 app.include_router(admin_router)
 app.include_router(me_router)
+app.include_router(leaderboard_router)
 
 
 async def _fetch_category(category: str, page: int) -> "tuple[str, list[NewsArticle]]":
