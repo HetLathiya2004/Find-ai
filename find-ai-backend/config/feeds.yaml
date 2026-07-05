@@ -97,12 +97,11 @@ feeds:
       - msn.com
       - ibtimes.com.au
 
-# Example: adding a future feed (no core changes needed)
-# techcrunch:
-#   name: "TechCrunch Startups"
-#   url: "https://techcrunch.com/feed/"
-#   handler: "generic_rss"
-#   function: "fetch_and_parse"
-#   params: {}
-#   max_articles: 10
-#   trusted_domains: []
+  moneycontrol:
+    name: "Moneycontrol"
+    url: "https://www.moneycontrol.com/news/business/"
+    handler: "moneycontrol"
+    function: "fetch_and_parse"
+    params: {}
+    max_articles: 20
+    trusted_domains: []
