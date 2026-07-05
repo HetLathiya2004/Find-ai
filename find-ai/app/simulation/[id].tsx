@@ -103,7 +103,7 @@ export default function SimulationPlayerScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Tag>{`Simulation — ${concept.title}`}</Tag>
+        <Tag>{`Simulation · ${concept.title}`}</Tag>
         <AppText size="2xl" weight="medium" style={styles.title}>
           {concept.sim_title}
         </AppText>

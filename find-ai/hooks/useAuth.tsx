@@ -112,10 +112,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const _isExistingUser = async (): Promise<boolean> => {
+  // Accounts older than this at sign-up time must have existed before the
+  // current attempt (covers "existing user taps Sign Up with Google").
+  const ACCOUNT_AGE_EXISTING_MS = 5 * 60 * 1000;
+
+  const _isExistingUser = async (accountCreatedAt?: string): Promise<boolean> => {
+    if (accountCreatedAt) {
+      const ageMs = Date.now() - new Date(accountCreatedAt).getTime();
+      if (Number.isFinite(ageMs) && ageMs > ACCOUNT_AGE_EXISTING_MS) return true;
+    }
     try {
+      // Note: username is NOT a signal here — the signup trigger auto-fills
+      // it from the email for brand-new accounts. Earned XP is.
       const { user } = await apiGet<ApiUserProfileResponse>('/me');
-      return user.total_xp > 0 || !!user.username;
+      return user.total_xp > 0;
     } catch {
       return false;
     }
@@ -135,11 +145,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = useCallback(
     async (email: string, password: string): Promise<string | null> => {
       const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) return error.message;
+
+      if (error) {
+        // Existing account on the sign-up page: try signing them in with the
+        // credentials they just typed instead of dead-ending on an error.
+        if (/already registered|already exists/i.test(error.message)) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (signInError) return 'This email already has an account. Try signing in.';
+          persistPrefs({ ...loadPrefs(), onboarded: true });
+          return null;
+        }
+        return error.message;
+      }
+
       if (!data.session) {
+        // Supabase obfuscates existing emails when confirmations are on: it
+        // returns a fake user with no identities instead of an error.
+        if (data.user && (data.user.identities?.length ?? 0) === 0) {
+          return 'This email already has an account. Try signing in.';
+        }
         return 'Check your inbox to confirm your email, then sign in.';
       }
-      const isExisting = await _isExistingUser();
+
+      const isExisting = await _isExistingUser(data.user?.created_at);
       persistPrefs({ ...loadPrefs(), onboarded: isExisting });
       return null;
     },
@@ -162,10 +193,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const code = new URL(result.url).searchParams.get('code');
       if (!code) return 'Google sign-in was cancelled';
 
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      const { data: exchanged, error: exchangeError } =
+        await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) return exchangeError.message;
 
-      const isExisting = await _isExistingUser();
+      const isExisting = await _isExistingUser(exchanged.session?.user?.created_at);
       persistPrefs({ ...loadPrefs(), onboarded: isExisting });
       return null;
     } catch (e) {

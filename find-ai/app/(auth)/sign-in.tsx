@@ -52,7 +52,9 @@ export default function SignInScreen() {
       setError(message);
       return;
     }
-    router.replace('/(tabs)/home');
+    // Google on the sign-in page can still be a brand-new account; the index
+    // redirect sends new users to onboarding and existing users to home.
+    router.replace('/');
   };
 
   return (

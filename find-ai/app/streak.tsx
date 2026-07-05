@@ -18,7 +18,7 @@ export default function StreakScreen() {
   const router = useRouter();
   const haptics = useHaptics();
   const { streakCount, streakBest, streakFreezes } = useProgress();
-  const { history, loading } = useStreakCalendar();
+  const { history, loading, error, refresh } = useStreakCalendar();
 
   const todayIndex = history.length - 1;
 
@@ -55,6 +55,21 @@ export default function StreakScreen() {
           <View style={styles.loadingGrid}>
             <ActivityIndicator size="small" color={Colors.accent} />
           </View>
+        ) : error || history.length === 0 ? (
+          <Pressable
+            style={styles.loadingGrid}
+            onPress={() => {
+              haptics.light();
+              refresh();
+            }}
+          >
+            <AppText size="sm" color={Colors.textSecondary} center>
+              couldn't load your calendar
+            </AppText>
+            <AppText size="xs" color={Colors.accent} center style={styles.retryLabel}>
+              tap to retry
+            </AppText>
+          </Pressable>
         ) : (
           <View style={styles.grid}>
             {history.map((day, i) => {
@@ -97,7 +112,7 @@ export default function StreakScreen() {
               {streakBest}
             </AppText>
             <AppText size="xs" color={Colors.textMuted} center style={styles.statLabel}>
-              Best streak — days
+              longest run
             </AppText>
           </Card>
           <Card variant="strong" style={styles.statCard}>
@@ -105,7 +120,7 @@ export default function StreakScreen() {
               {streakFreezes}
             </AppText>
             <AppText size="xs" color={Colors.textMuted} center style={styles.statLabel}>
-              Freezes left — remaining
+              freezes available
             </AppText>
           </Card>
         </View>
@@ -155,6 +170,9 @@ const styles = StyleSheet.create({
     height: 4 * CELL_SIZE + 3 * 6,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  retryLabel: {
+    marginTop: 4,
   },
   grid: {
     width: COLUMNS * CELL_SIZE + (COLUMNS - 1) * 6,

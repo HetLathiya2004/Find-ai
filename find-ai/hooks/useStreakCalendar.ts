@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { apiGet } from '@/lib/api';
 import type { StreakCalendarResponse, StreakDay } from '@/types/api';
 
+/**
+ * 28-day activity calendar from GET /api/v1/me/streak-calendar. Days are
+ * ordered oldest -> today (today is always the last entry).
+ */
 export function useStreakCalendar() {
   const [history, setHistory] = useState<StreakDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,7 +31,9 @@ export function useStreakCalendar() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt]);
 
-  return { history, loading, error };
+  const refresh = useCallback(() => setAttempt((a) => a + 1), []);
+
+  return { history, loading, error, refresh };
 }

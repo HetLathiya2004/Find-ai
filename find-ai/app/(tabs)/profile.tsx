@@ -12,8 +12,8 @@ import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Tag } from '@/components/ui/Tag';
 import { Colors } from '@/constants/colors';
-import { MOCK_BADGES } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
+import { deriveBadges } from '@/lib/badges';
 import { formatXP, levelForXP, masteryFromActivities, xpForNextLevel } from '@/lib/gamification';
 import { useCourse } from '@/hooks/useCourse';
 import { useCourses } from '@/hooks/useCourses';
@@ -33,7 +33,7 @@ export default function ProfileScreen() {
   const haptics = useHaptics();
   const { displayName, goal, dailyGoalMinutes, updateDisplayName, cycleDailyGoal, signOut } =
     useAuth();
-  const { xp, streakCount, getConceptProgress } = useProgress();
+  const { xp, streakCount, streakBest, getConceptProgress } = useProgress();
 
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(displayName);
@@ -67,6 +67,39 @@ export default function ProfileScreen() {
       )
       .sort((a, b) => b.mastery_level - a.mastery_level);
   }, [course, getConceptProgress]);
+
+  // Badges are earned from real progress, not mock flags.
+  const badges = useMemo(() => {
+    let lessonsCompleted = 0;
+    let bestQuizScore = 0;
+    let simulationsCompleted = 0;
+    let marketsMastered = 0;
+    let marketsTotal = 0;
+
+    for (const module of course?.modules ?? []) {
+      for (const concept of module.concepts) {
+        const cp = getConceptProgress(concept.id);
+        const lessonDone = cp.lessonStatus === 'completed';
+        const simDone = cp.simulationStatus === 'completed';
+        if (lessonDone) lessonsCompleted += 1;
+        if (simDone) simulationsCompleted += 1;
+        bestQuizScore = Math.max(bestQuizScore, cp.quizBestScore ?? 0);
+        if (module.domain === 'markets') {
+          marketsTotal += 1;
+          if (lessonDone && cp.quizPassed && simDone) marketsMastered += 1;
+        }
+      }
+    }
+
+    return deriveBadges({
+      lessonsCompleted,
+      bestQuizScore,
+      simulationsCompleted,
+      streak: Math.max(streakCount, streakBest),
+      marketsMastered,
+      marketsTotal,
+    });
+  }, [course, getConceptProgress, streakCount, streakBest]);
 
   if (coursesLoading || courseLoading) {
     return (
@@ -121,7 +154,7 @@ export default function ProfileScreen() {
 
         {/* Badges */}
         <Tag style={styles.sectionTag}>Badges</Tag>
-        <BadgeGrid badges={MOCK_BADGES} />
+        <BadgeGrid badges={badges} />
 
         {/* Mastery */}
         <Tag style={styles.sectionTag}>Concept mastery</Tag>

@@ -86,21 +86,21 @@ export default function LeagueScreen() {
                 {tier} League
               </AppText>
               <AppText size="sm" color={Colors.textSecondary} center style={styles.subtitle}>
-                Total XP + Streak Bonus
+                climb the ranks, stack that XP
               </AppText>
               <AppText size="xs" color={Colors.textMuted} center style={styles.scoring}>
-                Score = Weekly XP + (Streak × 10)
+                score = total XP + streak × 10
               </AppText>
             </View>
             <AppText size="caption" label color={Colors.accent} style={styles.zoneLabel}>
-              Promotion zone — top {PROMOTION_CUTOFF}
+              promotion zone · top {PROMOTION_CUTOFF}
             </AppText>
           </>
         }
         ListEmptyComponent={
           <View style={styles.empty}>
             <AppText size="base" color={Colors.textSecondary} center>
-              No activity this week yet. Complete a lesson to join the leaderboard!
+              nobody's on the board yet. finish a lesson to claim the top spot
             </AppText>
           </View>
         }
@@ -109,7 +109,7 @@ export default function LeagueScreen() {
             <LeagueRow user={item} total={total} />
             {item.rank === DEMOTION_CUTOFF && total > DEMOTION_CUTOFF ? (
               <AppText size="caption" label color={Colors.danger} style={styles.demotionLabel}>
-                Demotion zone — bottom {total - DEMOTION_CUTOFF}
+                danger zone · bottom {total - DEMOTION_CUTOFF}
               </AppText>
             ) : null}
           </>

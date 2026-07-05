@@ -21,7 +21,7 @@ function StatusChip({ status, score }: { status: ActivityStatus; score?: number 
   if (status === 'completed') {
     return (
       <Chip color={Colors.accent} backgroundColor={Colors.accentMuted + '40'}>
-        {score != null ? `Passed — ${score}%` : 'Complete'}
+        {score != null ? `Passed · ${score}%` : 'Complete'}
       </Chip>
     );
   }
@@ -151,7 +151,7 @@ export default function ConceptDetailScreen() {
         <View style={styles.mastery}>
           <MasteryDots level={mastery} />
           <AppText size="sm" color={Colors.textSecondary} style={styles.masteryLabel}>
-            {masteryLabel(mastery)} — Level {mastery} of 5
+            {masteryLabel(mastery)} · lvl {mastery} of 5
           </AppText>
         </View>
       </ScrollView>

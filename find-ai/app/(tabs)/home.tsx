@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import React from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DailyChallengeCard } from '@/components/home/DailyChallengeCard';
@@ -33,7 +33,18 @@ export default function HomeScreen() {
   const progress = useProgress();
   const { articles: newsArticles } = useNews('all');
   const dailyGoal = useDailyGoal();
-  const { leaderboard } = useLeaderboard();
+  const { leaderboard, refresh: refreshLeaderboard } = useLeaderboard();
+  const refreshDailyGoal = dailyGoal.refresh;
+
+  // Rank and goal progress change while the user is off in lessons/quizzes —
+  // re-sync (silently) every time the home tab regains focus so the cards
+  // never show stale numbers.
+  useFocusEffect(
+    useCallback(() => {
+      refreshLeaderboard();
+      refreshDailyGoal();
+    }, [refreshLeaderboard, refreshDailyGoal]),
+  );
 
   const {
     courses,
@@ -120,6 +131,7 @@ export default function HomeScreen() {
           <DailyGoalCard
             completed={dailyGoal.completed}
             target={dailyGoal.target}
+            xpEarned={dailyGoal.xpEarned}
             loading={dailyGoal.loading}
           />
 

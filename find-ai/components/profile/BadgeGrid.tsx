@@ -2,11 +2,12 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
-import type { MockBadge } from '@/constants/mock-data';
+import type { Badge } from '@/lib/badges';
 import { AppText } from '@/components/ui/AppText';
+import { BadgeIcon } from '@/components/profile/BadgeIcon';
 
 interface BadgeGridProps {
-  badges: MockBadge[];
+  badges: Badge[];
 }
 
 export function BadgeGrid({ badges }: BadgeGridProps) {
@@ -18,14 +19,23 @@ export function BadgeGrid({ badges }: BadgeGridProps) {
           style={[
             styles.badge,
             {
-              borderColor: badge.earned ? Colors.borderStrong : Colors.borderDefault,
-              opacity: badge.earned ? 1 : 0.3,
+              borderColor: badge.earned ? Colors.accentMuted : Colors.borderDefault,
+              opacity: badge.earned ? 1 : 0.4,
             },
           ]}
         >
-          <AppText size="3xl" center>
-            {badge.icon}
-          </AppText>
+          <View
+            style={[
+              styles.iconWrap,
+              { backgroundColor: badge.earned ? Colors.accentMuted : Colors.surface2 },
+            ]}
+          >
+            <BadgeIcon
+              id={badge.id}
+              size={26}
+              color={badge.earned ? Colors.accent : Colors.textMuted}
+            />
+          </View>
           <AppText size="xs" center style={styles.name}>
             {badge.name}
           </AppText>
@@ -53,6 +63,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.gap.sm,
     padding: Spacing.gap.sm,
+  },
+  iconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: Spacing.radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   name: {
     marginTop: 2,

@@ -17,7 +17,7 @@ function isValidEmail(email: string): boolean {
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const { signUp, signInWithGoogle, onboarded } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +40,9 @@ export default function SignUpScreen() {
       setError(message);
       return;
     }
+    // Route through the index redirect, which reads the freshly-set
+    // `onboarded` flag: existing users land on home, new users on onboarding.
+    router.replace('/');
   };
 
   const submitGoogle = async () => {
@@ -51,6 +54,7 @@ export default function SignUpScreen() {
       setError(message);
       return;
     }
+    router.replace('/');
   };
 
   return (

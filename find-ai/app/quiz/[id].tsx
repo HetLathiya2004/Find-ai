@@ -107,7 +107,7 @@ export default function QuizPlayerScreen() {
             Out of hearts
           </AppText>
           <AppText size="sm" color={Colors.textSecondary} center style={styles.outSubtitle}>
-            Review the lesson and try again — the concepts will stick.
+            Review the lesson and run it back. You've got this.
           </AppText>
         </View>
         <View style={styles.bottom}>
@@ -143,7 +143,7 @@ export default function QuizPlayerScreen() {
             {passed ? 'Quiz passed!' : 'Not quite there'}
           </AppText>
           <AppText size="sm" color={Colors.textSecondary} center style={styles.outSubtitle}>
-            {correctCount} of {questions.length} correct — {concept.title}
+            {correctCount} of {questions.length} right · {concept.title}
           </AppText>
         </View>
         <View style={styles.bottom}>

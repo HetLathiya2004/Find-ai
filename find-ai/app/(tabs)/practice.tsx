@@ -169,7 +169,7 @@ export default function PracticeScreen() {
                   {concept.title}
                 </AppText>
                 <AppText size="xs" color={Colors.warning}>
-                  {masteryLabel(concept.mastery)} — Level {concept.mastery}
+                  {masteryLabel(concept.mastery)} · lvl {concept.mastery}
                 </AppText>
               </Pressable>
             ))}
@@ -199,7 +199,7 @@ export default function PracticeScreen() {
                   {concept.title}
                 </AppText>
                 <AppText size="xs" color={Colors.accent}>
-                  Review — +{REVIEW_XP} XP
+                  Review · +{REVIEW_XP} XP
                 </AppText>
                 <Feather name="chevron-right" size={16} color={Colors.textMuted} />
               </Pressable>

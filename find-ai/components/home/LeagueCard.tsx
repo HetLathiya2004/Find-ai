@@ -12,6 +12,7 @@ interface LeagueCardProps {
 }
 
 export function LeagueCard({ tier, rank, totalUsers, onPress }: LeagueCardProps) {
+  const ranked = rank > 0;
   return (
     <Card onPress={onPress}>
       <View style={styles.row}>
@@ -20,18 +21,26 @@ export function LeagueCard({ tier, rank, totalUsers, onPress }: LeagueCardProps)
             🏆 {tier} League
           </AppText>
           <AppText size="xs" color={Colors.textMuted} style={styles.subtitle}>
-            XP + Streak bonus
+            xp + streak bonus
           </AppText>
         </View>
         <View style={styles.rankBlock}>
-          <AppText size="3xl" weight="medium">
-            #{rank || '—'}
-          </AppText>
-          {totalUsers > 0 ? (
+          {ranked ? (
+            <>
+              <AppText size="3xl" weight="medium">
+                #{rank}
+              </AppText>
+              {totalUsers > 0 ? (
+                <AppText size="sm" color={Colors.textSecondary}>
+                  of {totalUsers}
+                </AppText>
+              ) : null}
+            </>
+          ) : (
             <AppText size="sm" color={Colors.textSecondary}>
-              of {totalUsers}
+              not ranked yet
             </AppText>
-          ) : null}
+          )}
         </View>
       </View>
     </Card>
@@ -41,15 +50,13 @@ export function LeagueCard({ tier, rank, totalUsers, onPress }: LeagueCardProps)
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   subtitle: {
-    marginTop: 4,
+    marginTop: 2,
   },
   rankBlock: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 6,
+    alignItems: 'flex-end',
   },
 });

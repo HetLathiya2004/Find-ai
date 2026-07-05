@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiGet } from '@/lib/api';
 import type { DailyGoalResponse } from '@/types/api';
 
+/**
+ * Today's goal progress from GET /api/v1/me/daily-goal. `refresh()` refetches
+ * silently after the first load so the card updates in place (e.g. when the
+ * home tab regains focus after completing a lesson).
+ */
 export function useDailyGoal() {
   const [target, setTarget] = useState(3);
   const [completed, setCompleted] = useState(0);
@@ -9,22 +14,23 @@ export function useDailyGoal() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const hasDataRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    if (!hasDataRef.current) setLoading(true);
     setError(false);
 
     apiGet<DailyGoalResponse>('/me/daily-goal')
       .then((data) => {
-        if (!cancelled) {
-          setTarget(data.target);
-          setCompleted(data.completed);
-          setXpEarned(data.xp_earned);
-        }
+        if (cancelled) return;
+        hasDataRef.current = true;
+        setTarget(data.target);
+        setCompleted(data.completed);
+        setXpEarned(data.xp_earned);
       })
       .catch(() => {
-        if (!cancelled) setError(true);
+        if (!cancelled && !hasDataRef.current) setError(true);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
