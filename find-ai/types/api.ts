@@ -92,6 +92,7 @@ export interface ApiConceptDetail {
   sim_title: string;
   sim_scenario: string;
   sim_xp: number;
+  card_count: number;
   cards: ApiLessonCard[];
   questions: ApiQuizQuestion[];
   choices: ApiSimulationChoice[];
@@ -100,6 +101,128 @@ export interface ApiConceptDetail {
 
 export interface ApiConceptResponse {
   concept: ApiConceptDetail;
+}
+
+// ---------------------------------------------------------------------------
+// Phase 2.3 authenticated user endpoints (/api/v1/me*)
+// ---------------------------------------------------------------------------
+
+export type UserTier = 'free' | 'premium' | 'admin';
+
+export interface ApiUserProfile {
+  id: string;
+  email: string;
+  username: string | null;
+  tier: UserTier;
+  total_xp: number;
+  current_streak: number;
+  longest_streak: number;
+  last_active_date: string | null;
+  daily_goal_target: number;
+  streak_freeze_count: number;
+}
+
+export interface ApiUserProfileResponse {
+  user: ApiUserProfile;
+}
+
+export type ProgressStatus = 'in_progress' | 'completed';
+
+export interface ApiLessonProgress {
+  concept_id: string;
+  status: ProgressStatus;
+  card_index: number;
+  xp_earned: number;
+  completed_at: string | null;
+}
+
+export interface ApiQuizProgress {
+  concept_id: string;
+  status: ProgressStatus;
+  best_score: number;
+  passed: boolean;
+  xp_earned: number;
+  completed_at: string | null;
+}
+
+export interface ApiSimulationProgress {
+  concept_id: string;
+  status: ProgressStatus;
+  xp_earned: number;
+  completed_at: string | null;
+}
+
+/** GET /me/progress — all three activity types in one response (Phase 2.4). */
+export interface ApiProgressListResponse {
+  lessons: ApiLessonProgress[];
+  quizzes: ApiQuizProgress[];
+  simulations: ApiSimulationProgress[];
+}
+
+/** POST /me/progress request body — routed by activity_type on the backend. */
+export interface ApiProgressIn {
+  activity_type: 'lesson' | 'quiz' | 'simulation';
+  concept_id: string;
+  status: ProgressStatus;
+  xp_earned: number;
+  card_index?: number; // lesson only
+  best_score?: number; // quiz only
+  passed?: boolean; // quiz only
+}
+
+export type ActivityAction =
+  | 'lesson_complete'
+  | 'quiz_complete'
+  | 'sim_complete'
+  | 'streak_bonus';
+
+export interface ApiActivityItem {
+  id: string;
+  action: ActivityAction;
+  xp_earned: number;
+  created_at: string;
+}
+
+export interface ApiActivityListResponse {
+  activity: ApiActivityItem[];
+}
+
+// --- Leaderboard ---
+
+export interface LeaderboardUser {
+  rank: number;
+  username: string;
+  total_xp: number;
+  streak: number;
+  league_score: number;
+  is_current_user: boolean;
+}
+
+export interface LeaderboardResponse {
+  users: LeaderboardUser[];
+  current_user_rank: number | null;
+  current_user_tier: string | null;
+}
+
+// --- Streak calendar ---
+
+export interface StreakDay {
+  date: string;
+  active: boolean;
+  xp_earned: number;
+  activities: number;
+}
+
+export interface StreakCalendarResponse {
+  streak_history: StreakDay[];
+}
+
+// --- Daily goal ---
+
+export interface DailyGoalResponse {
+  target: number;
+  completed: number;
+  xp_earned: number;
 }
 
 /**

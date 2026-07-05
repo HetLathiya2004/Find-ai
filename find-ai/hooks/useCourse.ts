@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { API_V1 } from '@/constants/api';
+import { apiFetch } from '@/lib/api';
 import type { ApiCourseDetail, ApiCourseResponse } from '@/types/api';
 
 const FETCH_TIMEOUT_MS = 10_000;
@@ -32,7 +32,7 @@ export function useCourse(courseId: string | null) {
 
     (async () => {
       try {
-        const res = await fetch(`${API_V1}/courses/${courseId}`, { signal: controller.signal });
+        const res = await apiFetch(`/courses/${courseId}`, { signal: controller.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as ApiCourseResponse;
         if (!cancelled) setCourse(data.course);

@@ -15,13 +15,13 @@ import { Spacing } from '@/constants/spacing';
 import { masteryFromActivities, masteryLabel } from '@/lib/gamification';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
-import { ActivityStatus, useMockProgress } from '@/hooks/useMockProgress';
+import { ActivityStatus, useProgress } from '@/hooks/useProgress';
 
 function StatusChip({ status, score }: { status: ActivityStatus; score?: number | null }) {
   if (status === 'completed') {
     return (
       <Chip color={Colors.accent} backgroundColor={Colors.accentMuted + '40'}>
-        {score != null ? `Passed — ${score}%` : 'Complete'}
+        {score != null ? `Passed · ${score}%` : 'Complete'}
       </Chip>
     );
   }
@@ -75,7 +75,7 @@ export default function ConceptDetailScreen() {
   const router = useRouter();
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { concept, loading, error, retry } = useConcept(slug ?? null);
-  const { getConceptProgress } = useMockProgress();
+  const { getConceptProgress } = useProgress();
 
   if (error) {
     return <ErrorState onRetry={retry} />;
@@ -151,7 +151,7 @@ export default function ConceptDetailScreen() {
         <View style={styles.mastery}>
           <MasteryDots level={mastery} />
           <AppText size="sm" color={Colors.textSecondary} style={styles.masteryLabel}>
-            {masteryLabel(mastery)} — Level {mastery} of 5
+            {masteryLabel(mastery)} · lvl {mastery} of 5
           </AppText>
         </View>
       </ScrollView>

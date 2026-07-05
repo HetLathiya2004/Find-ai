@@ -26,7 +26,7 @@ export function ConceptCard({ concept, masteryLevel, onPress }: ConceptCardProps
       </AppText>
       <ProgressBar progress={masteryLevel / 5} height={4} style={styles.bar} />
       <AppText size="xs" color={Colors.textSecondary}>
-        Level {masteryLevel} — {masteryLabel(masteryLevel)}
+        Lvl {masteryLevel} · {masteryLabel(masteryLevel)}
       </AppText>
     </Card>
   );

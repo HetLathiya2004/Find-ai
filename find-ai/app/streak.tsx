@@ -1,15 +1,15 @@
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Colors } from '@/constants/colors';
-import { MOCK_STREAK_HISTORY } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
+import { useStreakCalendar } from '@/hooks/useStreakCalendar';
 
 const CELL_SIZE = 36;
 const COLUMNS = 7;
@@ -17,9 +17,10 @@ const COLUMNS = 7;
 export default function StreakScreen() {
   const router = useRouter();
   const haptics = useHaptics();
-  const { streakCount, streakBest, streakFreezes } = useMockProgress();
+  const { streakCount, streakBest, streakFreezes } = useProgress();
+  const { history, loading, error, refresh } = useStreakCalendar();
 
-  const todayIndex = MOCK_STREAK_HISTORY.length - 1;
+  const todayIndex = history.length - 1;
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
@@ -50,22 +51,43 @@ export default function StreakScreen() {
         </View>
 
         {/* 28-day calendar grid */}
-        <View style={styles.grid}>
-          {MOCK_STREAK_HISTORY.map((active, i) => {
-            const isToday = i === todayIndex;
-            return (
-              <View
-                key={i}
-                style={[
-                  styles.cell,
-                  active && !isToday && styles.cellActive,
-                  !active && !isToday && styles.cellInactive,
-                  isToday && styles.cellToday,
-                ]}
-              />
-            );
-          })}
-        </View>
+        {loading ? (
+          <View style={styles.loadingGrid}>
+            <ActivityIndicator size="small" color={Colors.accent} />
+          </View>
+        ) : error || history.length === 0 ? (
+          <Pressable
+            style={styles.loadingGrid}
+            onPress={() => {
+              haptics.light();
+              refresh();
+            }}
+          >
+            <AppText size="sm" color={Colors.textSecondary} center>
+              couldn't load your calendar
+            </AppText>
+            <AppText size="xs" color={Colors.accent} center style={styles.retryLabel}>
+              tap to retry
+            </AppText>
+          </Pressable>
+        ) : (
+          <View style={styles.grid}>
+            {history.map((day, i) => {
+              const isToday = i === todayIndex;
+              return (
+                <View
+                  key={day.date}
+                  style={[
+                    styles.cell,
+                    day.active && !isToday && styles.cellActive,
+                    !day.active && !isToday && styles.cellInactive,
+                    isToday && (day.active ? styles.cellTodayActive : styles.cellToday),
+                  ]}
+                />
+              );
+            })}
+          </View>
+        )}
 
         {/* Legend */}
         <View style={styles.legend}>
@@ -90,7 +112,7 @@ export default function StreakScreen() {
               {streakBest}
             </AppText>
             <AppText size="xs" color={Colors.textMuted} center style={styles.statLabel}>
-              Best streak — days
+              longest run
             </AppText>
           </Card>
           <Card variant="strong" style={styles.statCard}>
@@ -98,7 +120,7 @@ export default function StreakScreen() {
               {streakFreezes}
             </AppText>
             <AppText size="xs" color={Colors.textMuted} center style={styles.statLabel}>
-              Freezes left — remaining
+              freezes available
             </AppText>
           </Card>
         </View>
@@ -106,7 +128,7 @@ export default function StreakScreen() {
         {/* Info */}
         <Card style={styles.infoCard}>
           <AppText size="sm" color={Colors.textSecondary} leading="normal">
-            Streak freezes protect your streak when you miss a day. You have {streakFreezes} freezes.
+            Streak freezes protect your streak when you miss a day. You have {streakFreezes} freeze{streakFreezes !== 1 ? 's' : ''}.
           </AppText>
         </Card>
       </ScrollView>
@@ -143,6 +165,15 @@ const styles = StyleSheet.create({
     lineHeight: 56,
     marginTop: Spacing.gap.sm,
   },
+  loadingGrid: {
+    width: COLUMNS * CELL_SIZE + (COLUMNS - 1) * 6,
+    height: 4 * CELL_SIZE + 3 * 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  retryLabel: {
+    marginTop: 4,
+  },
   grid: {
     width: COLUMNS * CELL_SIZE + (COLUMNS - 1) * 6,
     flexDirection: 'row',
@@ -166,6 +197,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.textPrimary,
     backgroundColor: 'transparent',
+  },
+  cellTodayActive: {
+    backgroundColor: Colors.accent,
+    borderWidth: 2,
+    borderColor: Colors.textPrimary,
   },
   legend: {
     flexDirection: 'row',

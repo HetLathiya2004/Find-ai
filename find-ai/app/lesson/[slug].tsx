@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import {
   useSharedValue,
@@ -20,11 +20,11 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { XPReward } from '@/components/ui/XPReward';
 import { Colors } from '@/constants/colors';
-import { MOCK_DAILY_CHALLENGE } from '@/constants/mock-data';
+const DAILY_CHALLENGE_XP = 50;
 import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 
 const SLIDE_DURATION = 250;
 const SLIDE_DISTANCE = 48;
@@ -33,12 +33,16 @@ export default function LessonPlayerScreen() {
   const router = useRouter();
   const haptics = useHaptics();
   const { slug, challenge } = useLocalSearchParams<{ slug: string; challenge?: string }>();
-  const { concept, loading, error, retry } = useConcept(slug ?? null);
-  const progress = useMockProgress();
+  const { concept, loading, error, retry } = useConcept(slug ?? null, 'cards');
+  const progress = useProgress();
 
   const [cardIndex, setCardIndex] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
   const [completed, setCompleted] = useState(false);
+
+  // Capture whether the lesson was already completed before this session.
+  // useRef so it doesn't change when the progress context updates mid-session.
+  const wasAlreadyCompleted = useRef(false);
 
   // 1 = forward (Continue), -1 = back. A shared value (not React state) so the
   // exiting card reads the direction chosen at press time, not at its last render.
@@ -76,9 +80,12 @@ export default function LessonPlayerScreen() {
 
   useEffect(() => {
     if (!concept) return;
+    // Snapshot whether this lesson was already completed before the user started.
+    const conceptProgress = progress.getConceptProgress(concept.id);
+    wasAlreadyCompleted.current = conceptProgress.lessonStatus === 'completed';
     // Resume where the learner left off, then mark the lesson in progress.
     const resumeIndex = Math.min(
-      progress.getConceptProgress(concept.id).lessonCardIndex,
+      conceptProgress.lessonCardIndex,
       concept.cards.length - 1,
     );
     setCardIndex(Math.max(resumeIndex, 0));
@@ -101,7 +108,9 @@ export default function LessonPlayerScreen() {
 
   if (completed) {
     const isChallenge = challenge === '1';
-    const xp = concept.lesson_xp + (isChallenge ? MOCK_DAILY_CHALLENGE.xp_reward : 0);
+    const xp = wasAlreadyCompleted.current
+      ? 0
+      : concept.lesson_xp + (isChallenge ? DAILY_CHALLENGE_XP : 0);
     return (
       <XPReward
         xp={xp}
@@ -120,7 +129,7 @@ export default function LessonPlayerScreen() {
     if (isLastCard) {
       progress.completeLesson(concept.id, concept.lesson_xp);
       if (challenge === '1') {
-        progress.completeDailyChallenge(MOCK_DAILY_CHALLENGE.xp_reward);
+        progress.completeDailyChallenge(DAILY_CHALLENGE_XP);
       }
       haptics.success();
       setCompleted(true);

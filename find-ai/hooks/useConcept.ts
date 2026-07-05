@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { API_V1 } from '@/constants/api';
+import { apiFetch } from '@/lib/api';
 import type { ApiConceptDetail, ApiConceptResponse } from '@/types/api';
 
 const FETCH_TIMEOUT_MS = 10_000;
@@ -10,7 +10,7 @@ const FETCH_TIMEOUT_MS = 10_000;
  * players. Pass null to skip fetching. No mock fallback — callers render
  * ErrorState + retry().
  */
-export function useConcept(slug: string | null) {
+export function useConcept(slug: string | null, include?: string) {
   const [concept, setConcept] = useState<ApiConceptDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -33,7 +33,10 @@ export function useConcept(slug: string | null) {
 
     (async () => {
       try {
-        const res = await fetch(`${API_V1}/concepts/${slug}`, { signal: controller.signal });
+        const url = include
+          ? `/concepts/${slug}?include=${include}`
+          : `/concepts/${slug}`;
+        const res = await apiFetch(url, { signal: controller.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as ApiConceptResponse;
         if (!cancelled) setConcept(data.concept);
@@ -53,7 +56,7 @@ export function useConcept(slug: string | null) {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [slug, attempt]);
+  }, [slug, include, attempt]);
 
   const retry = useCallback(() => setAttempt((a) => a + 1), []);
 

@@ -40,6 +40,14 @@ export const StorageKeys = {
   progress: 'progress-state',
 } as const;
 
+export function getString(key: string): string | null {
+  return storage.getString(key) ?? null;
+}
+
+export function setString(key: string, value: string): void {
+  storage.set(key, value);
+}
+
 export function getJSON<T>(key: string): T | null {
   const raw = storage.getString(key);
   if (raw == null) return null;

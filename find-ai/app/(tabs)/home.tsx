@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import React from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DailyChallengeCard } from '@/components/home/DailyChallengeCard';
@@ -12,23 +12,39 @@ import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { StatPill } from '@/components/ui/StatPill';
 import { Colors } from '@/constants/colors';
-import { MOCK_DAILY_CHALLENGE, MOCK_LEAGUE } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { formatXP, greetingForTime } from '@/lib/gamification';
 import { useConcept } from '@/hooks/useConcept';
 import { useCourse } from '@/hooks/useCourse';
 import { useCourses } from '@/hooks/useCourses';
-import { useMockAuth } from '@/hooks/useMockAuth';
+import { useAuth } from '@/hooks/useAuth';
+import { useDailyGoal } from '@/hooks/useDailyGoal';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useMockLoading } from '@/hooks/useMockLoading';
-import { useMockProgress } from '@/hooks/useMockProgress';
+import { useProgress } from '@/hooks/useProgress';
 import { useNews } from '@/hooks/useNews';
+
+const DAILY_CHALLENGE_XP = 50;
 
 export default function HomeScreen() {
   const router = useRouter();
   const loading = useMockLoading();
-  const { displayName } = useMockAuth();
-  const progress = useMockProgress();
+  const { displayName } = useAuth();
+  const progress = useProgress();
   const { articles: newsArticles } = useNews('all');
+  const dailyGoal = useDailyGoal();
+  const { leaderboard, refresh: refreshLeaderboard } = useLeaderboard();
+  const refreshDailyGoal = dailyGoal.refresh;
+
+  // Rank and goal progress change while the user is off in lessons/quizzes —
+  // re-sync (silently) every time the home tab regains focus so the cards
+  // never show stale numbers.
+  useFocusEffect(
+    useCallback(() => {
+      refreshLeaderboard();
+      refreshDailyGoal();
+    }, [refreshLeaderboard, refreshDailyGoal]),
+  );
 
   const {
     courses,
@@ -44,10 +60,8 @@ export default function HomeScreen() {
     retry: retryCourse,
   } = useCourse(firstCourseId);
 
-  // Concept summaries in course order, used by the learning cards.
   const conceptSummaries = course ? course.modules.flatMap((m) => m.concepts) : [];
 
-  // Resume card: first concept whose lesson is in progress.
   const resumeSummary = conceptSummaries.find(
     (c) => progress.getConceptProgress(c.id).lessonStatus === 'in_progress',
   );
@@ -57,15 +71,13 @@ export default function HomeScreen() {
     retry: retryResume,
   } = useConcept(resumeSummary?.slug ?? null);
   const resumeProgress =
-    resumeConcept && resumeConcept.cards.length > 0
-      ? progress.getConceptProgress(resumeConcept.id).lessonCardIndex / resumeConcept.cards.length
+    resumeConcept && resumeConcept.card_count > 0
+      ? progress.getConceptProgress(resumeConcept.id).lessonCardIndex / resumeConcept.card_count
       : 0;
 
-  // Daily challenge: first concept the learner hasn't started, else the first.
-  const challengeSummary =
-    conceptSummaries.find(
-      (c) => progress.getConceptProgress(c.id).lessonStatus === 'not_started',
-    ) ?? conceptSummaries[0];
+  const challengeSummary = conceptSummaries.find(
+    (c) => progress.getConceptProgress(c.id).lessonStatus === 'completed',
+  );
 
   const learningError = coursesError || courseError || resumeError;
   const retryLearning = () => {
@@ -85,11 +97,10 @@ export default function HomeScreen() {
   }
 
   const topNews = newsArticles.find((n) => !progress.readNewsIds.includes(n.id));
-  const currentRank = MOCK_LEAGUE.users.find((u) => u.is_current_user)?.rank ?? 0;
-  const daysUntilReset = Math.max(
-    Math.ceil((new Date(MOCK_LEAGUE.week_end).getTime() - Date.now()) / 86_400_000),
-    0,
-  );
+
+  const currentRank = leaderboard?.current_user_rank ?? 0;
+  const tier = leaderboard?.current_user_tier ?? 'Bronze';
+  const totalUsers = leaderboard?.users.length ?? 0;
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -116,7 +127,12 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.stack}>
-          <DailyGoalCard completed={progress.dailyGoalCompleted} target={progress.dailyGoalTarget} />
+          <DailyGoalCard
+            completed={dailyGoal.completed}
+            target={dailyGoal.target}
+            xpEarned={dailyGoal.xpEarned}
+            loading={dailyGoal.loading}
+          />
 
           {learningError ? (
             <ErrorState onRetry={retryLearning} />
@@ -139,18 +155,17 @@ export default function HomeScreen() {
           ) : null}
 
           <LeagueCard
-            tier={MOCK_LEAGUE.tier}
+            tier={tier}
             rank={currentRank}
-            totalUsers={MOCK_LEAGUE.users.length}
-            daysUntilReset={daysUntilReset}
+            totalUsers={totalUsers}
             onPress={() => router.push('/league')}
           />
 
           {!learningError && !progress.dailyChallengeCompleted && challengeSummary ? (
             <DailyChallengeCard
               lessonTitle={challengeSummary.title}
-              xpReward={MOCK_DAILY_CHALLENGE.xp_reward}
-              onStart={() => router.push(`/lesson/${challengeSummary.slug}?challenge=1`)}
+              xpReward={DAILY_CHALLENGE_XP}
+              onStart={() => router.push(`/quiz/${challengeSummary.slug}`)}
             />
           ) : null}
         </View>

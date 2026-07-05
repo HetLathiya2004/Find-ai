@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { API_V1 } from '@/constants/api';
 import { MOCK_NEWS, MockNewsArticle } from '@/constants/mock-data';
+import { apiFetch } from '@/lib/api';
 
 interface NewsFeedResponse {
   status: string;
@@ -20,8 +20,9 @@ async function fetchPage(category: NewsCategory, page: number): Promise<NewsFeed
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const base = category === 'all' ? `${API_V1}/news` : `${API_V1}/news/${category}`;
-    const res = await fetch(`${base}?page=${page}&limit=20`, { signal: controller.signal });
+    const base = category === 'all' ? '/news' : `/news/${category}`;
+    // apiFetch attaches the Bearer token — the news API requires auth now.
+    const res = await apiFetch(`${base}?page=${page}&limit=20`, { signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json()) as NewsFeedResponse;
   } finally {
