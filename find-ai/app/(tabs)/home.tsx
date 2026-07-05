@@ -75,10 +75,9 @@ export default function HomeScreen() {
       ? progress.getConceptProgress(resumeConcept.id).lessonCardIndex / resumeConcept.card_count
       : 0;
 
-  const challengeSummary =
-    conceptSummaries.find(
-      (c) => progress.getConceptProgress(c.id).lessonStatus === 'not_started',
-    ) ?? conceptSummaries[0];
+  const challengeSummary = conceptSummaries.find(
+    (c) => progress.getConceptProgress(c.id).lessonStatus === 'completed',
+  );
 
   const learningError = coursesError || courseError || resumeError;
   const retryLearning = () => {
@@ -166,7 +165,7 @@ export default function HomeScreen() {
             <DailyChallengeCard
               lessonTitle={challengeSummary.title}
               xpReward={DAILY_CHALLENGE_XP}
-              onStart={() => router.push(`/lesson/${challengeSummary.slug}?challenge=1`)}
+              onStart={() => router.push(`/quiz/${challengeSummary.slug}`)}
             />
           ) : null}
         </View>
