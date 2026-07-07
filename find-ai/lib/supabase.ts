@@ -12,7 +12,9 @@ const SUPABASE_URL =
 
 // Publishable anon key — safe to ship in the app binary. Set via
 // EXPO_PUBLIC_SUPABASE_ANON_KEY in .env (see .env.example).
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+const SUPABASE_ANON_KEY =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcm1hdnRkaHJicnJoZXVxYnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNDc0MDcsImV4cCI6MjA5ODcyMzQwN30.Wd6370I6ns_KQfaVg_Xc-tjDLN7GZH80MR9wnbKhXQk';
 
 if (!SUPABASE_ANON_KEY) {
   console.warn(

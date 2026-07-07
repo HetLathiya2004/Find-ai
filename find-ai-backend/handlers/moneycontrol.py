@@ -1,13 +1,14 @@
 """MoneyControl HTML scraper handler.
 
 Scrapes article listings from moneycontrol.com/news/{category}/.
+Supports pagination via page-N/ URL suffix.
 Same interface as google_news and generic_rss: async fetch_and_parse().
 """
 from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from bs4 import BeautifulSoup
 from curl_cffi import AsyncSession
@@ -28,14 +29,16 @@ async def fetch_and_parse(
 ) -> list[RawArticle]:
     """Scrape MoneyControl news listing page for article links."""
     try:
+        paginated_url = f"{url.rstrip('/')}/" if page == 1 else f"{url.rstrip('/')}/page-{page}/"
+
         async with AsyncSession() as session:
-            response = await session.get(url, params=params, impersonate="chrome")
+            response = await session.get(paginated_url, params=params, impersonate="chrome")
         if response.status_code != 200:
-            logger.error("MoneyControl returned HTTP %s for %s", response.status_code, url)
+            logger.error("MoneyControl returned HTTP %s for %s", response.status_code, paginated_url)
             return []
 
         soup = BeautifulSoup(response.text, "html.parser")
-        now_iso = datetime.now(timezone.utc).isoformat()
+        base_date = datetime.now(timezone.utc) - timedelta(days=page - 1)
 
         articles: list[RawArticle] = []
         seen: set[str] = set()
@@ -55,6 +58,7 @@ async def fetch_and_parse(
 
             link = href if href.startswith("http") else f"https://www.moneycontrol.com{href}"
 
+            article_date = base_date - timedelta(minutes=len(articles))
             articles.append(
                 RawArticle(
                     title=text,
@@ -62,13 +66,13 @@ async def fetch_and_parse(
                     source_name="Moneycontrol",
                     source_url="https://www.moneycontrol.com",
                     link=link,
-                    published_at=now_iso,
+                    published_at=article_date.isoformat(),
                 )
             )
             if len(articles) >= max_articles:
                 break
 
-        logger.info("moneycontrol handler: %d articles from %s", len(articles), url)
+        logger.info("moneycontrol handler: page=%d articles=%d from %s", page, len(articles), paginated_url)
         return articles
     except Exception:
         logger.exception("moneycontrol handler failed for %s", url)

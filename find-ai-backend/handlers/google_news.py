@@ -50,13 +50,13 @@ def _is_trusted(source_url: str, trusted_domains: list[str]) -> bool:
 def date_window(page: int) -> "tuple[str, str]":
     """Return (after, before) ISO dates for a page.
 
-    Page 1 covers roughly the last 24h (yesterday → tomorrow); each
-    subsequent page shifts the window back by one day.
+    Each page is a non-overlapping 2-day window going backwards.
+    Page 1 = last 2 days, page 2 = 2-4 days ago, etc.
     """
     now = datetime.now(timezone.utc)
-    offset = max(page - 1, 0)
-    after = (now - timedelta(days=1 + offset)).strftime("%Y-%m-%d")
-    before = (now + timedelta(days=1 - offset)).strftime("%Y-%m-%d")
+    offset = (page - 1) * 2
+    before = (now - timedelta(days=offset)).strftime("%Y-%m-%d")
+    after = (now - timedelta(days=offset + 2)).strftime("%Y-%m-%d")
     return after, before
 
 

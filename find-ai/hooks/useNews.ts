@@ -36,7 +36,7 @@ function mergeDeduped(
 ): MockNewsArticle[] {
   const seen = new Set(existing.map((a) => a.id));
   const fresh = incoming.filter((a) => !seen.has(a.id));
-  return fresh.length > 0 ? [...existing, ...fresh] : existing;
+  return [...existing, ...fresh];
 }
 
 /**
@@ -137,9 +137,17 @@ export function useNews(category: NewsCategory = 'all') {
       const data = await fetchPage(category, nextPage);
       if (data.status === 'ok') {
         pageRef.current = nextPage;
-        setArticles((prev) => mergeDeduped(prev, data.articles));
-        setHasMore(data.has_more);
-        hasMoreRef.current = data.has_more;
+        let addedNew = false;
+        if (data.articles.length > 0) {
+          setArticles((prev) => {
+            const merged = mergeDeduped(prev, data.articles);
+            addedNew = merged.length > prev.length;
+            return merged;
+          });
+        }
+        const more = data.has_more && addedNew;
+        setHasMore(more);
+        hasMoreRef.current = more;
       }
     } catch {
       // Keep hasMore as-is; the next onEndReached will retry this page.

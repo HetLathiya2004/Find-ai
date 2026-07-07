@@ -37,7 +37,7 @@ logger = logging.getLogger("find-ai-backend")
 
 # Each page shifts the fetch window one day into the past; cap how far back
 # infinite scroll can go.
-MAX_PAGES = 30
+MAX_PAGES = 5
 
 # Fail fast at import time if config or handlers are broken.
 registry.load_config()
