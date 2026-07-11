@@ -7,6 +7,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
+import { Colors } from '@/constants/colors';
 
 const PARTICLE_COUNT = 36;
 const DURATION = 1600;
@@ -36,7 +37,12 @@ function Particle({ index, startX, screenHeight }: ParticleProps) {
     opacity: progress.value < 0.9 ? 1 : (1 - progress.value) * 10,
   }));
 
-  return <Animated.View style={[styles.particle, { left: startX }, animatedStyle]} />;
+  const colors = [Colors.accent, Colors.warm, Colors.accentBlue, Colors.danger];
+  return (
+    <Animated.View
+      style={[styles.particle, { left: startX, backgroundColor: colors[index % colors.length] }, animatedStyle]}
+    />
+  );
 }
 
 export function Confetti() {
@@ -62,7 +68,6 @@ const styles = StyleSheet.create({
     top: 0,
     width: 4,
     height: 12,
-    backgroundColor: '#FFFFFF',
     borderRadius: 1,
   },
 });

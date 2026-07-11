@@ -7,7 +7,7 @@ import { AppText } from '@/components/ui/AppText';
 import { BackRow } from '@/components/ui/BackRow';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { MasteryDots } from '@/components/ui/MasteryDots';
 import { Colors } from '@/constants/colors';
@@ -88,7 +88,7 @@ export default function ConceptDetailScreen() {
           <BackRow />
         </View>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );

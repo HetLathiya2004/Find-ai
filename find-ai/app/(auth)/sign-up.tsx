@@ -70,7 +70,7 @@ export default function SignUpScreen() {
               Create your account
             </AppText>
             <AppText size="sm" color={Colors.textSecondary} style={styles.subtitle}>
-              Meet Fin and build a money habit that sticks.
+              Start learning in 30 seconds.
             </AppText>
           </View>
           <View style={styles.form}>
@@ -159,8 +159,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.gap.md,
     height: 52,
     borderRadius: Spacing.radius.button,
-    borderWidth: 1,
-    borderColor: Colors.borderStrong,
+    borderWidth: 2,
+    borderColor: Colors.borderDefault,
     backgroundColor: Colors.surface2,
     flexDirection: 'row',
     alignItems: 'center',

@@ -31,5 +31,5 @@ export default function Root({ children }: { children: ReactNode }) {
 // Find.ai is dark-only — match the softened app canvas to avoid a web flash.
 const responsiveBackground = `
 body {
-  background-color: #07110F;
+  background-color: #10140F;
 }`;

@@ -1,50 +1,52 @@
 export const Colors = {
   // Backgrounds
-  bg: '#07110F',
-  surface1: '#0E1B18',
-  surface2: '#142520',
-  surfaceRaised: '#193029',
-  surfaceWarm: '#211D16',
+  bg: '#10140F',
+  surface1: '#171C15',
+  surface2: '#20271D',
+  surfaceRaised: '#293224',
+  surfaceWarm: '#2B2414',
 
   // Borders
-  borderDefault: '#213A33',
-  borderStrong: '#315247',
+  borderDefault: '#303A2C',
+  borderStrong: '#45533E',
 
   // Text
-  textPrimary: '#F7FBF8',
-  textSecondary: '#A8BCB4',
-  textMuted: '#6F8980',
-  textFaint: '#466158',
+  textPrimary: '#F7F9F5',
+  textSecondary: '#AEB8A9',
+  textMuted: '#788373',
+  textFaint: '#505B4B',
 
   // Accent Colors
-  accent: '#10B981', // Emerald green — XP, success, primary CTA
-  accentMuted: '#065F46', // Dark emerald — accent backgrounds
-  accentSoft: '#D7F8EA',
-  accentGlow: '#6EE7B7',
-  inkOnAccent: '#03261C',
-  warm: '#F7C66A',
-  warmMuted: '#57401D',
-  danger: '#EF4444', // Red — hearts lost, errors
-  dangerMuted: '#7F1D1D', // Dark red — danger backgrounds
-  warning: '#F59E0B', // Amber — in-progress, streaks
-  warningMuted: '#78350F', // Dark amber — warning backgrounds
+  accent: '#58CC02', // Buck green — XP, success, primary CTA
+  accentMuted: '#58A700', // 3D button rim / deep green
+  accentSoft: '#DFF8CC',
+  accentGlow: '#86E83D',
+  inkOnAccent: '#FFFFFF',
+  accentBlue: '#1CB0F6',
+  accentBlueDark: '#1899D6',
+  warm: '#FFC800',
+  warmMuted: '#E5A700',
+  danger: '#FF4B4B', // Red — hearts lost, errors
+  dangerMuted: '#E63F3F', // Dark red — danger backgrounds
+  warning: '#FFC800', // Gold — in-progress, streaks
+  warningMuted: '#E5A700', // Dark gold — warning backgrounds
 
   // Domain Colors (for concept categorization)
-  domainMarkets: '#3B82F6', // Blue
-  domainInvesting: '#10B981', // Green
+  domainMarkets: '#1CB0F6', // Blue
+  domainInvesting: '#58CC02', // Green
   domainMacro: '#F97316', // Orange
   domainCorporate: '#8B5CF6', // Purple
 
   // Semantic
-  correct: '#10B981',
-  incorrect: '#EF4444',
-  locked: '#333333',
+  correct: '#58CC02',
+  incorrect: '#FF4B4B',
+  locked: '#505B4B',
 } as const;
 
 // Gradients (as tuple pairs for LinearGradient)
 export const Gradients = {
-  hero: ['#132A23', '#07110F'] as const,
-  success: ['#0B4F3B', '#07110F'] as const,
-  xp: ['#34D399', '#059669'] as const,
-  warm: ['#3B301B', '#0E1B18'] as const,
+  hero: ['#1E2A16', '#10140F'] as const,
+  success: ['#274E12', '#10140F'] as const,
+  xp: ['#86E83D', '#58A700'] as const,
+  warm: ['#3D3311', '#171C15'] as const,
 };

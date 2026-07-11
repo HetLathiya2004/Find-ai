@@ -16,13 +16,13 @@ interface ChipProps {
 /** Small rounded status/category chip, e.g. concept names, "In Progress", "Passed — 85%" */
 export function Chip({
   children,
-  color = Colors.textSecondary,
-  backgroundColor = Colors.surface2,
+  color = Colors.accentGlow,
+  backgroundColor = Colors.accent + '22',
   style,
 }: ChipProps) {
   return (
     <View style={[styles.chip, { backgroundColor }, style]}>
-      <AppText size="xs" color={color}>
+      <AppText size="xs" weight="medium" color={color}>
         {children}
       </AppText>
     </View>

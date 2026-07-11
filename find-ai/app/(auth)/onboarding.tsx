@@ -65,9 +65,9 @@ export default function OnboardingScreen() {
 
           <View style={styles.content}>
             <Mascot
-              pose={step === 0 ? 'thinking' : step === 1 ? 'encourage' : 'idle'}
-              size={104}
-              animate="entrance"
+              pose={step === 0 ? 'think' : step === 1 ? 'wave' : 'cheer'}
+              size={110}
+              animate={step === 2 ? 'pop' : 'bounce'}
               style={styles.mascot}
             />
             {step === 0 ? (

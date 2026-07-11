@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Tag } from '@/components/ui/Tag';
 import { Colors } from '@/constants/colors';
@@ -94,7 +94,7 @@ export default function PracticeScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );

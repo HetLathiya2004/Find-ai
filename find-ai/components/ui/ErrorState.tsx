@@ -20,7 +20,7 @@ export function ErrorState({ message = DEFAULT_MESSAGE, onRetry }: ErrorStatePro
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.center}>
-        <Mascot pose="thinking" size={132} animate="entrance" />
+        <Mascot pose="think" size={132} animate="bounce" />
         <AppText size="xl" weight="medium" center style={styles.heading}>
           Oops! Something went wrong
         </AppText>

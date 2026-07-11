@@ -1,12 +1,13 @@
-# Fin mascot assets
+# Buck mascot assets
 
-Fin is rendered as a resolution-independent SVG component in
-`components/ui/Mascot.tsx`. The component includes five consistent poses:
-`idle`, `celebrate`, `encourage`, `sad`, and `thinking`.
+These five Buck the Bull PNG poses are exported from the corrected Lovable
+reference repository, `patelchaitany/find-ai-v2`:
 
-Keeping the vectors in the component avoids an additional Metro SVG
-transformer and lets the existing Expo SDK render every pose through
-`react-native-svg`.
+- `buck-idle.png`
+- `buck-wave.png`
+- `buck-cheer.png`
+- `buck-think.png`
+- `buck-sad.png`
 
-TODO: Pixel-match these vectors if the missing `Mascot-Find/src` UI and
-exported Lovable mascot artwork become available.
+`components/ui/Mascot.tsx` maps these static Expo assets to the shared pose
+and Reanimated motion API.

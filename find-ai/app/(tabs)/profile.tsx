@@ -8,7 +8,7 @@ import { StatsGrid } from '@/components/profile/StatsGrid';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { FormInput } from '@/components/ui/FormInput';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Tag } from '@/components/ui/Tag';
 import { Colors } from '@/constants/colors';
@@ -105,7 +105,7 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );
@@ -120,7 +120,7 @@ export default function ProfileScreen() {
         {/* Avatar */}
         <View style={styles.avatarSection}>
           <View style={styles.avatar}>
-            <AppText size="2xl" weight="bold" color={Colors.inkOnAccent}>
+            <AppText size="2xl" weight="bold" color={Colors.textPrimary}>
               {displayName.charAt(0).toUpperCase()}
             </AppText>
           </View>
@@ -260,9 +260,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.accentSoft,
-    borderWidth: 3,
-    borderColor: Colors.accent,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.gap.md,

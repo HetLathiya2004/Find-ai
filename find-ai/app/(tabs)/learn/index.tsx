@@ -6,7 +6,7 @@ import { ComingSoonCard } from '@/components/learn/ComingSoonCard';
 import { ConceptCard } from '@/components/learn/ConceptCard';
 import { DomainFilter, DomainFilterValue } from '@/components/learn/DomainFilter';
 import { AppText } from '@/components/ui/AppText';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Mascot } from '@/components/ui/Mascot';
 import { Colors } from '@/constants/colors';
@@ -124,7 +124,7 @@ export default function LearnScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );
@@ -137,12 +137,12 @@ export default function LearnScreen() {
           Learn
         </AppText>
         <View style={styles.empty}>
-          <Mascot pose="thinking" size={132} animate="entrance" />
+          <Mascot pose="think" size={132} animate="bounce" />
           <AppText size="base" weight="bold" center>
             Your next course is being polished
           </AppText>
           <AppText size="sm" color={Colors.textSecondary} center style={styles.emptyCopy}>
-            Fin will let you know when it&apos;s ready.
+            Buck will let you know when it&apos;s ready.
           </AppText>
         </View>
       </SafeAreaView>

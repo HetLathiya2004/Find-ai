@@ -15,7 +15,7 @@ interface ProgressBarProps {
 
 export function ProgressBar({
   progress,
-  height = 6,
+  height = 12,
   color = Colors.accent,
   trackColor = Colors.borderDefault,
   style,
@@ -34,7 +34,9 @@ export function ProgressBar({
   }));
 
   return (
-    <View style={[styles.track, { height, backgroundColor: trackColor }, style]}>
+    <View
+      style={[styles.track, { height, backgroundColor: trackColor, borderWidth: height >= 8 ? 1 : 0 }, style]}
+    >
       <Animated.View style={[styles.fill, { backgroundColor: color }, fillStyle]} />
     </View>
   );
@@ -45,6 +47,8 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: Spacing.radius.full,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.borderDefault,
   },
   fill: {
     height: '100%',

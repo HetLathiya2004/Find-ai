@@ -46,7 +46,7 @@ export function DailyGoalCard({ completed, target, xpEarned = 0, loading }: Dail
     <Card padding="large">
       <View style={styles.row}>
         {done ? (
-          <Mascot pose="celebrate" size={72} animate="entrance" />
+          <Mascot pose="cheer" size={72} animate="pop" />
         ) : (
           <CircularProgress
             progress={target > 0 ? completed / target : 0}

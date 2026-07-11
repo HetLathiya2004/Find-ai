@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { LessonCard } from '@/components/lesson/LessonCard';
 import { AppText } from '@/components/ui/AppText';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -101,7 +101,7 @@ export default function LessonPlayerScreen() {
   if (loading || !concept) {
     return (
       <View style={styles.loader}>
-        <DollarLoader />
+        <LoadingScene fullscreen={false} />
       </View>
     );
   }

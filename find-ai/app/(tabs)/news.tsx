@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { Colors } from '@/constants/colors';
 import { MockNewsArticle, getConceptById } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
@@ -77,7 +77,7 @@ export default function NewsScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );

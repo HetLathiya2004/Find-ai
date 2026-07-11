@@ -44,9 +44,9 @@ export function QuestionCard({ question, selectedIndex, onSelect }: QuestionCard
       {answered ? (
         <Animated.View entering={FadeIn.duration(200)} style={styles.explanation}>
           <Mascot
-            pose={wasCorrect ? 'celebrate' : 'encourage'}
+            pose={wasCorrect ? 'cheer' : 'wave'}
             size={72}
-            animate="entrance"
+            animate="pop"
             style={styles.feedbackMascot}
           />
           <View style={styles.feedbackCopy}>

@@ -8,7 +8,7 @@ import { LeagueCard } from '@/components/home/LeagueCard';
 import { NewsCard } from '@/components/home/NewsCard';
 import { ResumeCard } from '@/components/home/ResumeCard';
 import { AppText } from '@/components/ui/AppText';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Mascot } from '@/components/ui/Mascot';
 import { StatPill } from '@/components/ui/StatPill';
@@ -91,7 +91,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );
@@ -120,21 +120,21 @@ export default function HomeScreen() {
             <StatPill
               emoji="🔥"
               value={progress.streakCount}
-              valueColor={Colors.warning}
+              valueColor={Colors.danger}
               onPress={() => router.push('/streak')}
             />
-            <StatPill emoji="⚡" value={formatXP(progress.xp)} valueColor={Colors.accent} />
+            <StatPill emoji="⚡" value={formatXP(progress.xp)} valueColor={Colors.textPrimary} />
           </View>
         </View>
 
         <View style={styles.coachCard}>
-          <Mascot pose="encourage" size={84} animate="entrance" />
+          <Mascot pose="wave" size={90} animate="wave" />
           <View style={styles.coachCopy}>
             <AppText size="base" weight="bold">
-              Ready for a quick money win?
+              Hey {displayName}!
             </AppText>
             <AppText size="sm" color={Colors.textSecondary} style={styles.coachSubtitle}>
-              Pick up where you left off or finish today&apos;s goal.
+              Ready for today&apos;s lesson?
             </AppText>
           </View>
         </View>
@@ -217,9 +217,11 @@ const styles = StyleSheet.create({
     gap: Spacing.gap.md,
     marginTop: Spacing.gap.lg,
     paddingRight: Spacing.padding.card,
-    backgroundColor: Colors.surface2,
-    borderWidth: 1,
-    borderColor: Colors.borderStrong,
+    backgroundColor: Colors.surface1,
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    borderColor: Colors.accent,
+    borderBottomColor: Colors.accentMuted,
     borderRadius: Spacing.radius.card,
     overflow: 'hidden',
   },

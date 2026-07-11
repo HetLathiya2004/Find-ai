@@ -45,9 +45,9 @@ export function XPReward({ xp, subtitle, buttonTitle = 'Continue', onContinue, c
       {!isRepeat && <Confetti />}
       <View style={styles.center}>
         <Mascot
-          pose={isRepeat ? 'encourage' : 'celebrate'}
-          size={150}
-          animate="entrance"
+          pose={isRepeat ? 'wave' : 'cheer'}
+          size={180}
+          animate="pop"
           style={styles.mascot}
         />
         <Animated.View style={scaleStyle}>

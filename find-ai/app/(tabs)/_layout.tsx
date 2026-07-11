@@ -8,7 +8,7 @@ import { Spacing } from '@/constants/spacing';
 import { Typography } from '@/constants/typography';
 import { useHaptics } from '@/hooks/useHaptics';
 
-const ICON_SIZE = 24;
+const ICON_SIZE = 22;
 
 export default function TabLayout() {
   const haptics = useHaptics();
@@ -23,8 +23,8 @@ export default function TabLayout() {
         tabBarStyle: {
           height: Spacing.tabBarHeight + (Platform.OS === 'ios' ? 0 : insets.bottom),
           backgroundColor: Colors.surface1,
-          borderTopWidth: 1,
-          borderTopColor: Colors.borderStrong,
+          borderTopWidth: 2,
+          borderTopColor: Colors.borderDefault,
           elevation: 0,
           shadowOpacity: 0,
           paddingTop: 8,
@@ -37,7 +37,7 @@ export default function TabLayout() {
               color,
             }}
           >
-            {children}
+            {String(children).toUpperCase()}
           </Text>
         ),
         sceneStyle: { backgroundColor: Colors.bg },
@@ -107,13 +107,13 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   iconShell: {
-    width: 42,
-    height: 32,
-    borderRadius: Spacing.radius.full,
+    width: 48,
+    height: 36,
+    borderRadius: Spacing.radius.button,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconShellActive: {
-    backgroundColor: Colors.accentMuted + '55',
+    backgroundColor: Colors.accent + '22',
   },
 });

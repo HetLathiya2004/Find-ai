@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { QuestionCard } from '@/components/quiz/QuestionCard';
 import { AppText } from '@/components/ui/AppText';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { HeartDisplay } from '@/components/ui/HeartDisplay';
@@ -56,7 +56,7 @@ export default function QuizPlayerScreen() {
   if (loading || !concept) {
     return (
       <View style={styles.loader}>
-        <DollarLoader />
+        <LoadingScene fullscreen={false} />
       </View>
     );
   }
@@ -101,7 +101,7 @@ export default function QuizPlayerScreen() {
     return (
       <SafeAreaView style={styles.screen}>
         <View style={styles.center}>
-          <Mascot pose="sad" size={156} animate="entrance" />
+          <Mascot pose="sad" size={160} animate="bounce" />
           <AppText size="2xl" weight="medium" center style={styles.outTitle}>
             Out of hearts
           </AppText>
@@ -130,7 +130,7 @@ export default function QuizPlayerScreen() {
     return (
       <SafeAreaView style={styles.screen}>
         <View style={styles.center}>
-          <Mascot pose={passed ? 'celebrate' : 'encourage'} size={140} animate="entrance" />
+          <Mascot pose={passed ? 'cheer' : 'sad'} size={160} animate="pop" />
           <AppText
             weight="medium"
             color={passed ? Colors.accent : Colors.danger}

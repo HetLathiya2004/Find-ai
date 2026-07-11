@@ -4,9 +4,12 @@ This document is the **source of truth for how Find.ai should look, feel, and be
 
 ---
 
-## Decision 1: Dark-first with accent colors
+## Decision 1: Dark-first with Buck green
 
-**What:** Pure black (`#000000`) base with layered surfaces (`#0D0D0D`, `#141414`). Emerald green (`#10B981`) as primary accent.
+**What:** Soft black-green (`#10140F`) base with layered surfaces
+(`#171C15`, `#20271D`). Buck green (`#58CC02`) is the primary accent,
+matching the corrected `find-ai-v2` reference while preserving the required
+dark-first finance shell.
 
 **Why:** Finance apps signal trust with dark themes (Robinhood, Bloomberg). Black makes accents pop. Green signals growth/profit.
 
@@ -21,16 +24,16 @@ This document is the **source of truth for how Find.ai should look, feel, and be
 
 ---
 
-## Decision 2: Nunito font, three weights
+## Decision 2: Nunito font, four weights
 
-**What:** Nunito Regular (400), SemiBold (600), and Bold (700).
+**What:** Nunito Regular (400), Bold (700), ExtraBold (800), and Black (900).
 
 **Why:** The rounded forms support the coach-led learning experience while
 remaining highly legible for finance content.
 
 **Rules:**
 - Load via `expo-font` in `app/_layout.tsx`; hold splash until ready
-- Headings: Nunito SemiBold/Bold, 20–48px
+- Headings: Nunito ExtraBold/Black, 20–48px
 - Body: Nunito Regular, 14–16px
 - Labels: Nunito Regular, 10px, uppercase, `tracking.wider` (1.1px), `textMuted`
 
@@ -66,7 +69,7 @@ remaining highly legible for finance content.
 
 **Specs:**
 - Height: 80px + safe area
-- Background: `#000000`, top border `1px #1F1F1F`
+- Background: `surface1`, top border `2px borderDefault`
 - Icons: `@expo/vector-icons` (Ionicons), 24px
 - Active: emerald icon + Nunito Bold 10px label
 - Inactive: muted icon + Nunito SemiBold 10px label
@@ -85,13 +88,13 @@ remaining highly legible for finance content.
 
 | Variant | Border | Use |
 |---------|--------|-----|
-| `default` | `#1F1F1F` | Normal content |
-| `strong` | `#2A2A2A` | Stats, interactive emphasis |
-| `highlighted` | `#FFFFFF` | Selected / highlighted |
+| `default` | `borderDefault` | Normal content |
+| `strong` | `borderStrong` | Stats, interactive emphasis |
+| `highlighted` | `accent` | Selected / highlighted |
 
 **Specs:**
 - Background: `surface1`
-- Border radius: 12px
+- Border radius: 16px
 - Padding: 20px (`normal`) or 24px (`large`)
 - Press: `scale(0.98)` spring, 100ms, if `onPress` provided
 
@@ -108,7 +111,7 @@ remaining highly legible for finance content.
 | **Progress bar** | 6px height, rounded, accent fill, animated 600ms |
 | **Mastery dots** | 5 × 8px circles, staggered fill animation |
 | **Hearts** | 3 × Lucide-style icons via Ionicons; loss = scale up then fade |
-| **Confetti** | 36 white rectangles, staggered 40ms, 1600ms fall |
+| **Confetti** | 36 Buck-green/gold/blue/red rectangles, staggered 40ms, 1600ms fall |
 | **Badge** | 48px emoji, earned = full opacity + `borderStrong`; unearned = 30% + `borderDefault` |
 | **League rank** | Large rank number + "of N" muted suffix; promotion/demotion zone dots |
 
@@ -170,8 +173,8 @@ remaining highly legible for finance content.
 
 | Domain | Hex | Usage |
 |--------|-----|-------|
-| Markets | `#3B82F6` | Filter pill, concept left border, label |
-| Investing | `#10B981` | Same |
+| Markets | `#1CB0F6` | Filter pill, concept left border, label |
+| Investing | `#58CC02` | Same |
 | Macro | `#F97316` | Same |
 | Corporate Finance | `#8B5CF6` | Same |
 | All (filter) | White border + text when active | |
@@ -264,16 +267,18 @@ import { Spacing } from '@/constants/spacing';
 
 ## Mascot redesign (2026-07)
 
-The visual layer now uses Nunito (400/600/700), warmer green-black surfaces,
-larger rounded cards, and **Fin**, a reusable `react-native-svg` finance coach
-with idle, celebrate, encourage, sad, and thinking poses. Fin appears at
-high-value moments only: welcome/onboarding, the home coach prompt, quiz
-feedback, XP rewards, API/empty states, and streaks. Reanimated entrance and
-bounce motion reuse the existing three-tier motion strategy.
+The visual layer now uses Nunito (400/700/800/900), green-black surfaces,
+3D learning controls, and **Buck the Bull**, using the five PNG poses exported
+from the corrected `patelchaitany/find-ai-v2` Lovable repository: idle, wave,
+cheer, think, and sad. Buck appears at high-value moments only:
+welcome/onboarding, the home coach prompt, loading, quiz feedback, XP rewards,
+API/empty states, and streaks. Reanimated wave, pop, and bounce motion reuse
+the existing three-tier motion strategy.
 
 The redesign is presentation-only. Expo Router structure and all
 `useAuth`/`useProgress`/course/news/leaderboard/daily-goal/streak hooks remain
 unchanged; app data still flows through the authenticated FastAPI gateway.
-The `Mascot-Find` reference repository had no exported `src/`, CSS, screens,
-or artwork at implementation time, so `assets/mascot/README.md` records the
-TODO to pixel-match Fin once Lovable source becomes available.
+The original reference was incorrect. The corrected repository contains the
+full UI source and Lovable asset metadata; its Buck PNGs are now bundled in
+`assets/mascot/`. Its light palette is adapted to dark surfaces because this
+brain's dark-only product decision remains authoritative.

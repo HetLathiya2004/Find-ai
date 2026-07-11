@@ -1,9 +1,8 @@
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Gradients } from '@/constants/colors';
+import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { Typography } from '@/constants/typography';
 import { AppText } from '@/components/ui/AppText';
@@ -16,18 +15,17 @@ export default function WelcomeScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <LinearGradient colors={Gradients.hero} style={StyleSheet.absoluteFill} />
       <View style={styles.inner}>
         <View style={styles.top}>
           <AppText size="base" weight="bold" color={Colors.accentSoft} center style={styles.brand}>
             Find.ai
           </AppText>
-          <Mascot pose="idle" size={190} animate="entrance" style={styles.mascot} />
+          <Mascot pose="wave" size={200} animate="wave" style={styles.mascot} />
           <AppText center weight="bold" style={styles.hero}>
-            Learn finance.{'\n'}In 5 minutes a day.
+            Learn finance.{'\n'}5 minutes a day.
           </AppText>
           <AppText size="base" color={Colors.textSecondary} center style={styles.subtitle}>
-            Your new money coach makes markets, investing, macro, and corporate finance click.
+            Bite-sized lessons for markets, investing, and economics — with Buck.
           </AppText>
         </View>
         <View style={styles.bottom}>

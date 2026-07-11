@@ -19,7 +19,9 @@ export function SegmentBar({ total, completed, color = Colors.accent, style }: S
           key={i}
           style={[
             styles.segment,
-            { backgroundColor: i < completed ? color : Colors.borderDefault },
+            i < completed
+              ? { backgroundColor: color, borderColor: color }
+              : { backgroundColor: Colors.surface2, borderColor: Colors.borderDefault },
           ]}
         />
       ))}
@@ -35,7 +37,8 @@ const styles = StyleSheet.create({
   },
   segment: {
     flex: 1,
-    height: 4,
+    height: 10,
     borderRadius: Spacing.radius.full,
+    borderWidth: 1,
   },
 });

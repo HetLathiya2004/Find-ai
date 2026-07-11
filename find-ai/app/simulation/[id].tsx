@@ -6,7 +6,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { AppText } from '@/components/ui/AppText';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -53,7 +53,7 @@ export default function SimulationPlayerScreen() {
   if (loading || !concept) {
     return (
       <View style={styles.loader}>
-        <DollarLoader />
+        <LoadingScene fullscreen={false} />
       </View>
     );
   }

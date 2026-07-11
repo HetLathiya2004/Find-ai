@@ -31,15 +31,13 @@ export function Card({ variant = 'default', padding = 'normal', onPress, style, 
 
   const base: ViewStyle = {
     backgroundColor: Colors.surface1,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: BORDER_COLORS[variant],
+    borderBottomWidth: 4,
+    borderBottomColor:
+      variant === 'highlighted' ? Colors.accentMuted : Colors.borderDefault,
     borderRadius: Spacing.radius.card,
     padding: padding === 'none' ? 0 : padding === 'large' ? Spacing.padding.cardLg : Spacing.padding.card,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 18,
-    elevation: 2,
   };
 
   if (!onPress) {

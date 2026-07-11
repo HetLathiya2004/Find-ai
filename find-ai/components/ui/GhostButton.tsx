@@ -20,10 +20,10 @@ interface GhostButtonProps {
 
 export function GhostButton({ title, onPress, disabled = false, icon, style }: GhostButtonProps) {
   const haptics = useHaptics();
-  const scale = useSharedValue(1);
+  const scale = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ translateY: scale.value }],
   }));
 
   return (
@@ -32,10 +32,10 @@ export function GhostButton({ title, onPress, disabled = false, icon, style }: G
       disabled={disabled}
       style={[styles.button, disabled && styles.disabled, animatedStyle, StyleSheet.flatten(style)]}
       onPressIn={() => {
-        scale.value = withSpring(0.98, { damping: 15, stiffness: 400 });
+        scale.value = withSpring(2, { damping: 18, stiffness: 450 });
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+        scale.value = withSpring(0, { damping: 18, stiffness: 450 });
       }}
       onPress={() => {
         haptics.light();
@@ -44,7 +44,7 @@ export function GhostButton({ title, onPress, disabled = false, icon, style }: G
     >
       {icon ? <Feather name={icon} size={18} color={Colors.textPrimary} /> : null}
       <AppText size="base" weight="medium" color={Colors.textPrimary}>
-        {title}
+        {title.toUpperCase()}
       </AppText>
     </AnimatedPressable>
   );
@@ -52,11 +52,13 @@ export function GhostButton({ title, onPress, disabled = false, icon, style }: G
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 54,
+    minHeight: 50,
     borderRadius: Spacing.radius.button,
     backgroundColor: Colors.surface1,
     borderWidth: 1,
     borderColor: Colors.borderStrong,
+    borderBottomWidth: 4,
+    borderBottomColor: Colors.borderDefault,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

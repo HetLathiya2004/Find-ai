@@ -17,10 +17,10 @@ interface PrimaryButtonProps {
 
 export function PrimaryButton({ title, onPress, disabled = false, style }: PrimaryButtonProps) {
   const haptics = useHaptics();
-  const scale = useSharedValue(1);
+  const scale = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ translateY: scale.value }],
   }));
 
   return (
@@ -29,10 +29,10 @@ export function PrimaryButton({ title, onPress, disabled = false, style }: Prima
       disabled={disabled}
       style={[styles.button, disabled && styles.disabled, animatedStyle, StyleSheet.flatten(style)]}
       onPressIn={() => {
-        scale.value = withSpring(0.98, { damping: 15, stiffness: 400 });
+        scale.value = withSpring(2, { damping: 18, stiffness: 450 });
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+        scale.value = withSpring(0, { damping: 18, stiffness: 450 });
       }}
       onPress={() => {
         haptics.light();
@@ -40,7 +40,7 @@ export function PrimaryButton({ title, onPress, disabled = false, style }: Prima
       }}
     >
       <AppText size="base" weight="bold" color={Colors.inkOnAccent}>
-        {title}
+        {title.toUpperCase()}
       </AppText>
     </AnimatedPressable>
   );
@@ -48,7 +48,7 @@ export function PrimaryButton({ title, onPress, disabled = false, style }: Prima
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 54,
+    minHeight: 50,
     borderRadius: Spacing.radius.button,
     backgroundColor: Colors.accent,
     borderBottomWidth: 4,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.padding.card,
-    paddingTop: 2,
+    paddingTop: 1,
   },
   disabled: {
     opacity: 0.4,

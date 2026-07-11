@@ -10,9 +10,9 @@ interface TagProps {
 }
 
 /** Uppercase section label, e.g. "DAILY CHALLENGE" */
-export function Tag({ children, color = Colors.textMuted, style }: TagProps) {
+export function Tag({ children, color = Colors.accent, style }: TagProps) {
   return (
-    <AppText size="caption" label color={color} style={StyleSheet.flatten([styles.tag, style])}>
+    <AppText size="caption" weight="bold" label color={color} style={StyleSheet.flatten([styles.tag, style])}>
       {children}
     </AppText>
   );

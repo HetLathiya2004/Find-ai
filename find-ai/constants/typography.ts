@@ -2,8 +2,9 @@ export const Typography = {
   // Font Family
   fontFamily: {
     regular: 'Nunito-Regular',
-    medium: 'Nunito-SemiBold',
-    bold: 'Nunito-Bold',
+    medium: 'Nunito-Bold',
+    bold: 'Nunito-ExtraBold',
+    black: 'Nunito-Black',
   },
 
   // Font Sizes (matching the web app scale)

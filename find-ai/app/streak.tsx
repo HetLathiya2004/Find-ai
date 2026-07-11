@@ -40,7 +40,11 @@ export default function StreakScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Hero */}
         <View style={styles.hero}>
-          <Mascot pose={streakCount > 0 ? 'celebrate' : 'encourage'} size={150} animate="entrance" />
+          <Mascot
+            pose={streakCount > 0 ? 'cheer' : 'wave'}
+            size={150}
+            animate={streakCount > 0 ? 'pop' : 'bounce'}
+          />
           <AppText weight="medium" color={Colors.warning} center style={styles.count}>
             {streakCount}
           </AppText>

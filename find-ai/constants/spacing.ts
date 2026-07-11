@@ -1,16 +1,16 @@
 export const Spacing = {
   // Radii
   radius: {
-    card: 20,
-    button: 16,
-    tag: 10,
+    card: 16,
+    button: 12,
+    tag: 8,
     full: 9999, // progress bars, pills
-    xl: 24, // lesson content cards
+    xl: 16, // lesson content cards
   },
 
   // Padding
   padding: {
-    screen: 18, // horizontal screen padding
+    screen: 16, // horizontal screen padding
     card: 20, // card internal padding (p-5)
     cardLg: 24, // large card padding (p-6)
   },
