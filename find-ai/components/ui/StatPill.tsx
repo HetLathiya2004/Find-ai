@@ -49,11 +49,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: Colors.surface1,
+    backgroundColor: Colors.surface2,
     borderWidth: 1,
     borderColor: Colors.borderStrong,
     borderRadius: Spacing.radius.full,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
   },
 });

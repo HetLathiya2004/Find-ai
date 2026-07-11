@@ -17,8 +17,8 @@ export function FormInput(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   input: {
-    height: 48,
-    backgroundColor: Colors.surface1,
+    height: 54,
+    backgroundColor: Colors.surface2,
     borderWidth: 1,
     borderColor: Colors.borderDefault,
     borderRadius: Spacing.radius.button,

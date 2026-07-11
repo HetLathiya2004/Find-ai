@@ -5,6 +5,7 @@ import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import type { MockQuizQuestion } from '@/constants/mock-data';
 import { AppText } from '@/components/ui/AppText';
+import { Mascot } from '@/components/ui/Mascot';
 import { OptionButton, OptionState } from './OptionButton';
 
 interface QuestionCardProps {
@@ -42,12 +43,20 @@ export function QuestionCard({ question, selectedIndex, onSelect }: QuestionCard
       </View>
       {answered ? (
         <Animated.View entering={FadeIn.duration(200)} style={styles.explanation}>
-          <AppText size="caption" label color={wasCorrect ? Colors.accent : Colors.danger}>
-            {wasCorrect ? 'Correct' : 'Not quite'}
-          </AppText>
-          <AppText size="sm" color={Colors.textSecondary} leading="normal" style={styles.explanationText}>
-            {question.explanation}
-          </AppText>
+          <Mascot
+            pose={wasCorrect ? 'celebrate' : 'encourage'}
+            size={72}
+            animate="entrance"
+            style={styles.feedbackMascot}
+          />
+          <View style={styles.feedbackCopy}>
+            <AppText size="caption" label color={wasCorrect ? Colors.accent : Colors.danger}>
+              {wasCorrect ? 'Nice work' : 'Let’s learn from it'}
+            </AppText>
+            <AppText size="sm" color={Colors.textSecondary} leading="normal" style={styles.explanationText}>
+              {question.explanation}
+            </AppText>
+          </View>
         </Animated.View>
       ) : null}
     </View>
@@ -62,12 +71,21 @@ const styles = StyleSheet.create({
     gap: Spacing.gap.md,
   },
   explanation: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: Spacing.gap.xl,
-    backgroundColor: Colors.surface1,
+    backgroundColor: Colors.surface2,
     borderWidth: 1,
     borderColor: Colors.borderDefault,
     borderRadius: Spacing.radius.card,
     padding: 16,
+  },
+  feedbackMascot: {
+    marginLeft: -8,
+    marginRight: Spacing.gap.sm,
+  },
+  feedbackCopy: {
+    flex: 1,
   },
   explanationText: {
     marginTop: 6,

@@ -1,5 +1,6 @@
 import { Redirect } from 'expo-router';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Mascot } from '@/components/ui/Mascot';
 import { Colors } from '@/constants/colors';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -9,7 +10,11 @@ export default function Index() {
 
   // Wait for the persisted session to restore before deciding where to go.
   if (loading) {
-    return <View style={{ flex: 1, backgroundColor: Colors.bg }} />;
+    return (
+      <View style={styles.loading}>
+        <Mascot pose="thinking" size={120} animate="bounce" />
+      </View>
+    );
   }
   if (!isAuthenticated) {
     return <Redirect href="/(auth)/welcome" />;
@@ -19,3 +24,12 @@ export default function Index() {
   }
   return <Redirect href="/(tabs)/home" />;
 }
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.bg,
+  },
+});

@@ -25,7 +25,7 @@ export function OptionButton({ text, state, onPress }: OptionButtonProps) {
     state === 'selected-correct' || state === 'revealed-correct'
       ? Colors.accent
       : state === 'selected-wrong'
-        ? '#555555'
+        ? Colors.danger
         : Colors.borderDefault;
 
   const borderWidth = state === 'selected-correct' || state === 'revealed-correct' ? 2 : 1;
@@ -37,6 +37,8 @@ export function OptionButton({ text, state, onPress }: OptionButtonProps) {
       style={[
         styles.option,
         { borderColor, borderWidth },
+        state === 'selected-correct' && styles.correct,
+        state === 'selected-wrong' && styles.wrong,
         state === 'disabled' && styles.dimmed,
       ]}
     >
@@ -68,5 +70,11 @@ const styles = StyleSheet.create({
   },
   dimmed: {
     opacity: 0.7,
+  },
+  correct: {
+    backgroundColor: Colors.accentMuted + '55',
+  },
+  wrong: {
+    backgroundColor: Colors.dangerMuted + '44',
   },
 });

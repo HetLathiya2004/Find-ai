@@ -10,6 +10,7 @@ import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { HeartDisplay } from '@/components/ui/HeartDisplay';
+import { Mascot } from '@/components/ui/Mascot';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { XPReward } from '@/components/ui/XPReward';
@@ -100,9 +101,7 @@ export default function QuizPlayerScreen() {
     return (
       <SafeAreaView style={styles.screen}>
         <View style={styles.center}>
-          <AppText size="6xl" center>
-            💔
-          </AppText>
+          <Mascot pose="sad" size={156} animate="entrance" />
           <AppText size="2xl" weight="medium" center style={styles.outTitle}>
             Out of hearts
           </AppText>
@@ -131,6 +130,7 @@ export default function QuizPlayerScreen() {
     return (
       <SafeAreaView style={styles.screen}>
         <View style={styles.center}>
+          <Mascot pose={passed ? 'celebrate' : 'encourage'} size={140} animate="entrance" />
           <AppText
             weight="medium"
             color={passed ? Colors.accent : Colors.danger}

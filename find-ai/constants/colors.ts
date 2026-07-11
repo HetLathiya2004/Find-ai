@@ -1,22 +1,29 @@
 export const Colors = {
   // Backgrounds
-  bg: '#000000',
-  surface1: '#0D0D0D',
-  surface2: '#141414',
+  bg: '#07110F',
+  surface1: '#0E1B18',
+  surface2: '#142520',
+  surfaceRaised: '#193029',
+  surfaceWarm: '#211D16',
 
   // Borders
-  borderDefault: '#1F1F1F',
-  borderStrong: '#2A2A2A',
+  borderDefault: '#213A33',
+  borderStrong: '#315247',
 
   // Text
-  textPrimary: '#FFFFFF',
-  textSecondary: '#999999',
-  textMuted: '#444444',
-  textFaint: '#333333',
+  textPrimary: '#F7FBF8',
+  textSecondary: '#A8BCB4',
+  textMuted: '#6F8980',
+  textFaint: '#466158',
 
   // Accent Colors
   accent: '#10B981', // Emerald green — XP, success, primary CTA
   accentMuted: '#065F46', // Dark emerald — accent backgrounds
+  accentSoft: '#D7F8EA',
+  accentGlow: '#6EE7B7',
+  inkOnAccent: '#03261C',
+  warm: '#F7C66A',
+  warmMuted: '#57401D',
   danger: '#EF4444', // Red — hearts lost, errors
   dangerMuted: '#7F1D1D', // Dark red — danger backgrounds
   warning: '#F59E0B', // Amber — in-progress, streaks
@@ -36,7 +43,8 @@ export const Colors = {
 
 // Gradients (as tuple pairs for LinearGradient)
 export const Gradients = {
-  hero: ['#000000', '#0D1117'] as const,
-  success: ['#065F46', '#000000'] as const,
-  xp: ['#10B981', '#059669'] as const,
+  hero: ['#132A23', '#07110F'] as const,
+  success: ['#0B4F3B', '#07110F'] as const,
+  xp: ['#34D399', '#059669'] as const,
+  warm: ['#3B301B', '#0E1B18'] as const,
 };

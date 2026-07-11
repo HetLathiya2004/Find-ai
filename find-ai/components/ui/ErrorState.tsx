@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from './AppText';
+import { Mascot } from './Mascot';
 import { PrimaryButton } from './PrimaryButton';
 
 const DEFAULT_MESSAGE =
@@ -20,7 +20,7 @@ export function ErrorState({ message = DEFAULT_MESSAGE, onRetry }: ErrorStatePro
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.center}>
-        <Ionicons name="alert-circle-outline" size={48} color={Colors.textMuted} />
+        <Mascot pose="thinking" size={132} animate="entrance" />
         <AppText size="xl" weight="medium" center style={styles.heading}>
           Oops! Something went wrong
         </AppText>

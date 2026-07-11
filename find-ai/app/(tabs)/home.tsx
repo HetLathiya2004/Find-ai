@@ -10,6 +10,7 @@ import { ResumeCard } from '@/components/home/ResumeCard';
 import { AppText } from '@/components/ui/AppText';
 import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Mascot } from '@/components/ui/Mascot';
 import { StatPill } from '@/components/ui/StatPill';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
@@ -126,6 +127,18 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        <View style={styles.coachCard}>
+          <Mascot pose="encourage" size={84} animate="entrance" />
+          <View style={styles.coachCopy}>
+            <AppText size="base" weight="bold">
+              Ready for a quick money win?
+            </AppText>
+            <AppText size="sm" color={Colors.textSecondary} style={styles.coachSubtitle}>
+              Pick up where you left off or finish today&apos;s goal.
+            </AppText>
+          </View>
+        </View>
+
         <View style={styles.stack}>
           <DailyGoalCard
             completed={dailyGoal.completed}
@@ -198,8 +211,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.gap.sm,
   },
+  coachCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.gap.md,
+    marginTop: Spacing.gap.lg,
+    paddingRight: Spacing.padding.card,
+    backgroundColor: Colors.surface2,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
+    borderRadius: Spacing.radius.card,
+    overflow: 'hidden',
+  },
+  coachCopy: {
+    flex: 1,
+  },
+  coachSubtitle: {
+    marginTop: 2,
+  },
   stack: {
-    marginTop: Spacing.gap.xl,
+    marginTop: Spacing.gap.md,
     gap: Spacing.gap.md,
   },
 });

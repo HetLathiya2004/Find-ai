@@ -7,6 +7,7 @@ import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
 import { FormInput } from '@/components/ui/FormInput';
+import { Mascot } from '@/components/ui/Mascot';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -63,6 +64,12 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={styles.content}>
+            <Mascot
+              pose={step === 0 ? 'thinking' : step === 1 ? 'encourage' : 'idle'}
+              size={104}
+              animate="entrance"
+              style={styles.mascot}
+            />
             {step === 0 ? (
               <Animated.View entering={FadeIn.duration(250)}>
                 <AppText size="2xl" weight="medium">
@@ -180,6 +187,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     marginTop: 32,
+  },
+  mascot: {
+    alignSelf: 'center',
+    marginBottom: Spacing.gap.sm,
   },
   subtitle: {
     marginTop: 6,

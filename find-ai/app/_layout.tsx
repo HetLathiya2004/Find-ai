@@ -1,4 +1,9 @@
 import { useFonts } from 'expo-font';
+import {
+  Nunito_400Regular,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+} from '@expo-google-fonts/nunito';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -33,8 +38,9 @@ const FindAiTheme = {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    'Inter-Regular': require('../assets/fonts/Inter-Regular.ttf'),
-    'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
+    'Nunito-Regular': Nunito_400Regular,
+    'Nunito-SemiBold': Nunito_600SemiBold,
+    'Nunito-Bold': Nunito_700Bold,
   });
 
   useEffect(() => {

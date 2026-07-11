@@ -1,8 +1,9 @@
 export const Typography = {
   // Font Family
   fontFamily: {
-    regular: 'Inter-Regular',
-    medium: 'Inter-Medium',
+    regular: 'Nunito-Regular',
+    medium: 'Nunito-SemiBold',
+    bold: 'Nunito-Bold',
   },
 
   // Font Sizes (matching the web app scale)
@@ -30,7 +31,7 @@ export const Typography = {
 
   // Letter Spacing
   tracking: {
-    wider: 1.5, // uppercase labels
+    wider: 1.1, // uppercase labels
     normal: 0,
   },
 } as const;

@@ -18,7 +18,7 @@ interface CardProps {
 const BORDER_COLORS = {
   default: Colors.borderDefault,
   strong: Colors.borderStrong,
-  highlighted: Colors.textPrimary,
+  highlighted: Colors.accent,
 } as const;
 
 export function Card({ variant = 'default', padding = 'normal', onPress, style, children }: CardProps) {
@@ -35,6 +35,11 @@ export function Card({ variant = 'default', padding = 'normal', onPress, style, 
     borderColor: BORDER_COLORS[variant],
     borderRadius: Spacing.radius.card,
     padding: padding === 'none' ? 0 : padding === 'large' ? Spacing.padding.cardLg : Spacing.padding.card,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 18,
+    elevation: 2,
   };
 
   if (!onPress) {

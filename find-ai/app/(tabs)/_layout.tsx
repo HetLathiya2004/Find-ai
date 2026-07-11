@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
-import { Platform, Text } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
@@ -18,13 +18,13 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.textPrimary,
+        tabBarActiveTintColor: Colors.accent,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarStyle: {
           height: Spacing.tabBarHeight + (Platform.OS === 'ios' ? 0 : insets.bottom),
-          backgroundColor: Colors.bg,
+          backgroundColor: Colors.surface1,
           borderTopWidth: 1,
-          borderTopColor: Colors.borderDefault,
+          borderTopColor: Colors.borderStrong,
           elevation: 0,
           shadowOpacity: 0,
           paddingTop: 8,
@@ -33,7 +33,7 @@ export default function TabLayout() {
           <Text
             style={{
               fontSize: Typography.size.caption,
-              fontFamily: focused ? Typography.fontFamily.medium : Typography.fontFamily.regular,
+              fontFamily: focused ? Typography.fontFamily.bold : Typography.fontFamily.medium,
               color,
             }}
           >
@@ -50,37 +50,70 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Feather name="home" size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconShell, focused && styles.iconShellActive]}>
+              <Feather name="home" size={ICON_SIZE} color={color} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="learn"
         options={{
           title: 'Learn',
-          tabBarIcon: ({ color }) => <Feather name="book-open" size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconShell, focused && styles.iconShellActive]}>
+              <Feather name="book-open" size={ICON_SIZE} color={color} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="practice"
         options={{
           title: 'Practice',
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="dumbbell" size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconShell, focused && styles.iconShellActive]}>
+              <MaterialCommunityIcons name="dumbbell" size={ICON_SIZE} color={color} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="news"
         options={{
           title: 'News',
-          tabBarIcon: ({ color }) => <Feather name="file-text" size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconShell, focused && styles.iconShellActive]}>
+              <Feather name="file-text" size={ICON_SIZE} color={color} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <Feather name="user" size={ICON_SIZE} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconShell, focused && styles.iconShellActive]}>
+              <Feather name="user" size={ICON_SIZE} color={color} />
+            </View>
+          ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconShell: {
+    width: 42,
+    height: 32,
+    borderRadius: Spacing.radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconShellActive: {
+    backgroundColor: Colors.accentMuted + '55',
+  },
+});

@@ -8,6 +8,7 @@ import { DomainFilter, DomainFilterValue } from '@/components/learn/DomainFilter
 import { AppText } from '@/components/ui/AppText';
 import { DollarLoader } from '@/components/ui/DollarLoader';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Mascot } from '@/components/ui/Mascot';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { masteryFromActivities } from '@/lib/gamification';
@@ -136,8 +137,12 @@ export default function LearnScreen() {
           Learn
         </AppText>
         <View style={styles.empty}>
-          <AppText size="sm" color={Colors.textSecondary}>
-            No courses available yet. Check back soon.
+          <Mascot pose="thinking" size={132} animate="entrance" />
+          <AppText size="base" weight="bold" center>
+            Your next course is being polished
+          </AppText>
+          <AppText size="sm" color={Colors.textSecondary} center style={styles.emptyCopy}>
+            Fin will let you know when it&apos;s ready.
           </AppText>
         </View>
       </SafeAreaView>
@@ -204,6 +209,11 @@ const styles = StyleSheet.create({
   },
   empty: {
     paddingHorizontal: Spacing.padding.screen,
+    alignItems: 'center',
+    paddingTop: Spacing.gap['2xl'],
+  },
+  emptyCopy: {
+    marginTop: Spacing.gap.xs,
   },
   coursePicker: {
     paddingHorizontal: Spacing.padding.screen,

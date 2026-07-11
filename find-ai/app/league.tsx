@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { BackRow } from '@/components/ui/BackRow';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Mascot } from '@/components/ui/Mascot';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
@@ -79,9 +80,7 @@ export default function LeagueScreen() {
           <>
             <BackRow label="back" />
             <View style={styles.header}>
-              <AppText style={styles.trophy} center>
-                🏆
-              </AppText>
+              <Mascot pose="celebrate" size={128} animate="entrance" />
               <AppText size="2xl" weight="medium" center>
                 {tier} League
               </AppText>
@@ -136,11 +135,6 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginTop: Spacing.gap.xl,
-  },
-  trophy: {
-    fontSize: 36,
-    lineHeight: 44,
-    marginBottom: Spacing.gap.sm,
   },
   subtitle: {
     marginTop: 4,

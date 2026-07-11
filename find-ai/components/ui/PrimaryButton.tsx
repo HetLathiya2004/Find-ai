@@ -39,7 +39,7 @@ export function PrimaryButton({ title, onPress, disabled = false, style }: Prima
         onPress();
       }}
     >
-      <AppText size="base" weight="medium" color="#000000">
+      <AppText size="base" weight="bold" color={Colors.inkOnAccent}>
         {title}
       </AppText>
     </AnimatedPressable>
@@ -48,12 +48,15 @@ export function PrimaryButton({ title, onPress, disabled = false, style }: Prima
 
 const styles = StyleSheet.create({
   button: {
-    height: 52,
+    minHeight: 54,
     borderRadius: Spacing.radius.button,
     backgroundColor: Colors.accent,
+    borderBottomWidth: 4,
+    borderBottomColor: Colors.accentMuted,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.padding.card,
+    paddingTop: 2,
   },
   disabled: {
     opacity: 0.4,

@@ -52,11 +52,11 @@ export function GhostButton({ title, onPress, disabled = false, icon, style }: G
 
 const styles = StyleSheet.create({
   button: {
-    height: 52,
+    minHeight: 54,
     borderRadius: Spacing.radius.button,
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.surface1,
     borderWidth: 1,
-    borderColor: Colors.textPrimary,
+    borderColor: Colors.borderStrong,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

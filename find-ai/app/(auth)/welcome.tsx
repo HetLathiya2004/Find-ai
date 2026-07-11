@@ -1,12 +1,14 @@
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '@/constants/colors';
+import { Colors, Gradients } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { Typography } from '@/constants/typography';
 import { AppText } from '@/components/ui/AppText';
 import { GhostButton } from '@/components/ui/GhostButton';
+import { Mascot } from '@/components/ui/Mascot';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 
 export default function WelcomeScreen() {
@@ -14,22 +16,18 @@ export default function WelcomeScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
+      <LinearGradient colors={Gradients.hero} style={StyleSheet.absoluteFill} />
       <View style={styles.inner}>
         <View style={styles.top}>
-          <AppText size="caption" label color={Colors.textMuted} center style={styles.brand}>
+          <AppText size="base" weight="bold" color={Colors.accentSoft} center style={styles.brand}>
             Find.ai
           </AppText>
-          <AppText center weight="medium" style={styles.hero}>
-            Learn finance.
-          </AppText>
-          <AppText center weight="medium" style={styles.hero}>
-            In 5 minutes
-          </AppText>
-          <AppText center weight="medium" style={styles.hero}>
-            a day.
+          <Mascot pose="idle" size={190} animate="entrance" style={styles.mascot} />
+          <AppText center weight="bold" style={styles.hero}>
+            Learn finance.{'\n'}In 5 minutes a day.
           </AppText>
           <AppText size="base" color={Colors.textSecondary} center style={styles.subtitle}>
-            Master markets, investing, and economics with bite-sized lessons
+            Your new money coach makes markets, investing, macro, and corporate finance click.
           </AppText>
         </View>
         <View style={styles.bottom}>
@@ -59,14 +57,19 @@ const styles = StyleSheet.create({
   },
   top: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   brand: {
-    marginBottom: Spacing.gap.md,
+    marginBottom: Spacing.gap.sm,
+    letterSpacing: 0.3,
+  },
+  mascot: {
+    marginBottom: Spacing.gap.sm,
   },
   hero: {
-    fontSize: 40,
-    lineHeight: 40 * Typography.lineHeight.tight,
+    fontSize: 36,
+    lineHeight: 36 * Typography.lineHeight.tight,
     color: Colors.textPrimary,
   },
   subtitle: {
@@ -75,8 +78,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   bottom: {
-    paddingTop: Spacing.gap['2xl'] * 2,
-    paddingBottom: 48,
+    paddingTop: Spacing.gap.xl,
+    paddingBottom: 32,
   },
   ghost: {
     marginTop: Spacing.gap.md,

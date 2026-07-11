@@ -120,7 +120,7 @@ export default function ProfileScreen() {
         {/* Avatar */}
         <View style={styles.avatarSection}>
           <View style={styles.avatar}>
-            <AppText size="2xl" weight="medium" color="#000000">
+            <AppText size="2xl" weight="bold" color={Colors.inkOnAccent}>
               {displayName.charAt(0).toUpperCase()}
             </AppText>
           </View>
@@ -260,7 +260,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.textPrimary,
+    backgroundColor: Colors.accentSoft,
+    borderWidth: 3,
+    borderColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.gap.md,

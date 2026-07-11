@@ -70,7 +70,7 @@ export default function SignInScreen() {
               Welcome back
             </AppText>
             <AppText size="sm" color={Colors.textSecondary} style={styles.subtitle}>
-              Start your financial learning journey
+              Fin saved your spot. Let&apos;s keep building.
             </AppText>
           </View>
           <View style={styles.form}>
@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: Spacing.radius.button,
     borderWidth: 1,
-    borderColor: Colors.borderDefault,
-    backgroundColor: Colors.surface1,
+    borderColor: Colors.borderStrong,
+    backgroundColor: Colors.surface2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

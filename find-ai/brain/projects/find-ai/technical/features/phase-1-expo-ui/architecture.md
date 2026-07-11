@@ -21,17 +21,18 @@ This document is the **source of truth for how Find.ai should look, feel, and be
 
 ---
 
-## Decision 2: Inter font only, two weights
+## Decision 2: Nunito font, three weights
 
-**What:** Inter Regular (400) and Medium (500). No bold, light, or italic.
+**What:** Nunito Regular (400), SemiBold (600), and Bold (700).
 
-**Why:** Screen-optimized; sufficient hierarchy with two weights only.
+**Why:** The rounded forms support the coach-led learning experience while
+remaining highly legible for finance content.
 
 **Rules:**
 - Load via `expo-font` in `app/_layout.tsx`; hold splash until ready
-- Headings: Inter-Medium, 20–48px
-- Body: Inter-Regular, 14–16px
-- Labels: Inter-Regular, 10px, uppercase, `tracking.wider` (1.5px), `textMuted`
+- Headings: Nunito SemiBold/Bold, 20–48px
+- Body: Nunito Regular, 14–16px
+- Labels: Nunito Regular, 10px, uppercase, `tracking.wider` (1.1px), `textMuted`
 
 **Implementation:** `components/ui/AppText.tsx` with `weight`, `size`, `label` props.
 
@@ -67,8 +68,8 @@ This document is the **source of truth for how Find.ai should look, feel, and be
 - Height: 80px + safe area
 - Background: `#000000`, top border `1px #1F1F1F`
 - Icons: `@expo/vector-icons` (Ionicons), 24px
-- Active: white icon + Inter-Medium 10px label
-- Inactive: `#444444` icon + Inter-Regular 10px label
+- Active: emerald icon + Nunito Bold 10px label
+- Inactive: muted icon + Nunito SemiBold 10px label
 - No elevation, shadow, or blur
 - Haptic: light impact on tab press
 
@@ -258,3 +259,21 @@ import { Spacing } from '@/constants/spacing';
 2. **New data:** Extend `mock-data.ts` first; later swap provider internals for Supabase.
 3. **New gamification UI:** Add primitive in `components/ui/`, document visual treatment in this file.
 4. **Breaking design change:** Update tokens in `constants/`, then primitives, then screens — never invert order.
+
+---
+
+## Mascot redesign (2026-07)
+
+The visual layer now uses Nunito (400/600/700), warmer green-black surfaces,
+larger rounded cards, and **Fin**, a reusable `react-native-svg` finance coach
+with idle, celebrate, encourage, sad, and thinking poses. Fin appears at
+high-value moments only: welcome/onboarding, the home coach prompt, quiz
+feedback, XP rewards, API/empty states, and streaks. Reanimated entrance and
+bounce motion reuse the existing three-tier motion strategy.
+
+The redesign is presentation-only. Expo Router structure and all
+`useAuth`/`useProgress`/course/news/leaderboard/daily-goal/streak hooks remain
+unchanged; app data still flows through the authenticated FastAPI gateway.
+The `Mascot-Find` reference repository had no exported `src/`, CSS, screens,
+or artwork at implementation time, so `assets/mascot/README.md` records the
+TODO to pixel-match Fin once Lovable source becomes available.

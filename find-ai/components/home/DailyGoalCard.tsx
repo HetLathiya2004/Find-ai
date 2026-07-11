@@ -6,6 +6,7 @@ import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { CircularProgress } from '@/components/ui/CircularProgress';
+import { Mascot } from '@/components/ui/Mascot';
 
 interface DailyGoalCardProps {
   completed: number;
@@ -44,12 +45,16 @@ export function DailyGoalCard({ completed, target, xpEarned = 0, loading }: Dail
   return (
     <Card padding="large">
       <View style={styles.row}>
-        <CircularProgress
-          progress={target > 0 ? completed / target : 0}
-          size={64}
-          strokeWidth={5}
-          label={`${Math.min(completed, target)}/${target}`}
-        />
+        {done ? (
+          <Mascot pose="celebrate" size={72} animate="entrance" />
+        ) : (
+          <CircularProgress
+            progress={target > 0 ? completed / target : 0}
+            size={64}
+            strokeWidth={5}
+            label={`${Math.min(completed, target)}/${target}`}
+          />
+        )}
         <View style={styles.info}>
           <AppText size="sm" label color={Colors.textMuted}>
             Daily Goal

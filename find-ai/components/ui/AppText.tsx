@@ -5,7 +5,7 @@ import { Typography } from '@/constants/typography';
 
 interface AppTextProps extends TextProps {
   size?: keyof typeof Typography.size;
-  weight?: 'regular' | 'medium';
+  weight?: 'regular' | 'medium' | 'bold';
   color?: string;
   center?: boolean;
   /** Line height multiplier key */

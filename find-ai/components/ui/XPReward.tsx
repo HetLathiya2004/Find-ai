@@ -11,6 +11,7 @@ import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from './AppText';
 import { Confetti } from './Confetti';
+import { Mascot } from './Mascot';
 import { PrimaryButton } from './PrimaryButton';
 
 interface XPRewardProps {
@@ -43,6 +44,12 @@ export function XPReward({ xp, subtitle, buttonTitle = 'Continue', onContinue, c
     <View style={styles.container}>
       {!isRepeat && <Confetti />}
       <View style={styles.center}>
+        <Mascot
+          pose={isRepeat ? 'encourage' : 'celebrate'}
+          size={150}
+          animate="entrance"
+          style={styles.mascot}
+        />
         <Animated.View style={scaleStyle}>
           {isRepeat ? (
             <AppText size="5xl" weight="medium" color={Colors.accent} center>
@@ -81,6 +88,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: Spacing.gap.md,
+  },
+  mascot: {
+    marginBottom: Spacing.gap.md,
   },
   extra: {
     marginTop: Spacing.gap['2xl'],

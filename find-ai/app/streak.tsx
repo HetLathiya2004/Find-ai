@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
+import { Mascot } from '@/components/ui/Mascot';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -39,9 +40,7 @@ export default function StreakScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Hero */}
         <View style={styles.hero}>
-          <AppText style={styles.fire} center>
-            🔥
-          </AppText>
+          <Mascot pose={streakCount > 0 ? 'celebrate' : 'encourage'} size={150} animate="entrance" />
           <AppText weight="medium" color={Colors.warning} center style={styles.count}>
             {streakCount}
           </AppText>
@@ -156,14 +155,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
-  fire: {
-    fontSize: 60,
-    lineHeight: 72,
-  },
   count: {
     fontSize: 48,
     lineHeight: 56,
-    marginTop: Spacing.gap.sm,
+    marginTop: -Spacing.gap.sm,
   },
   loadingGrid: {
     width: COLUMNS * CELL_SIZE + (COLUMNS - 1) * 6,
