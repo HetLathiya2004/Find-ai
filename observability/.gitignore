@@ -1,0 +1,17 @@
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.swo
+
+# Logs / local Foundry / compose dumps
+*.log
+.cache/
+pours/
+casting.yaml.lock

@@ -1,0 +1,25 @@
+[Unit]
+Description=Find.ai CloakBrowser Scraping Service
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=phinex
+Group=phinex
+WorkingDirectory=/home/phinex/scrapping-service
+EnvironmentFile=-/home/phinex/scrapping-service/.env
+ExecStart=/home/phinex/scrapping-service/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8100
+Restart=always
+RestartSec=5
+# Crash / hang visibility
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=scrapping-service
+
+# Chromium needs these often on headless Linux
+Environment=HOME=/home/phinex
+Environment=SCRAPE_HEADLESS=true
+
+[Install]
+WantedBy=multi-user.target

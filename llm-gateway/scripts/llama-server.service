@@ -1,0 +1,20 @@
+[Unit]
+Description=llama.cpp Inference Server (Qwen3-8B-Q4_K_M) — localhost only
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/phinex/server/llama.cpp/build/bin/llama-server \
+    --model /home/phinex/server/models/Qwen3-8B-Q4_K_M.gguf \
+    --host 127.0.0.1 \
+    --port 18080 \
+    --threads 6 \
+    --ctx-size 4096 \
+    --metrics
+Restart=on-failure
+RestartSec=5
+WorkingDirectory=/home/phinex/server
+
+[Install]
+WantedBy=default.target

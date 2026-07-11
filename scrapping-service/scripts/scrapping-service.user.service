@@ -1,0 +1,24 @@
+[Unit]
+Description=Find.ai CloakBrowser Scraping Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/phinex/scrapping-service
+Environment=PATH=/home/phinex/scrapping-service/.venv/bin:/home/phinex/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=HOME=/home/phinex
+Environment=SCRAPE_HEADLESS=true
+Environment=OTEL_ENABLED=true
+Environment=OTEL_SERVICE_NAME=scrapping-service
+Environment=OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4317
+Environment=OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+EnvironmentFile=-/home/phinex/scrapping-service/.env
+ExecStart=/home/phinex/scrapping-service/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8100
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=scrapping-service
+
+[Install]
+WantedBy=default.target

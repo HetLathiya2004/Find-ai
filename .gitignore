@@ -36,3 +36,20 @@ dist-ssr
 *.sln
 *.sw?
 find-ai-format/
+
+# Python / uv (scrapping-service, llm-gateway, etc.)
+**/.venv/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Scraper artifacts / accidental sync dumps
+scrapping-service/out/
+**/phinex@*/
+
+# find-ai local APK builds / run helper
+find-ai/run.sh
+find-ai/build-*.apk
