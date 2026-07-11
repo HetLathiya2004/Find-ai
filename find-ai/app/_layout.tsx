@@ -1,9 +1,7 @@
 import { useFonts } from 'expo-font';
-import {
-  Nunito_400Regular,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-} from '@expo-google-fonts/nunito';
+import { Nunito_400Regular } from '@expo-google-fonts/nunito/400Regular';
+import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
+import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
