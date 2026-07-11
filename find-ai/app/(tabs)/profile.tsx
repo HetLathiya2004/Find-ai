@@ -5,13 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BadgeGrid } from '@/components/profile/BadgeGrid';
 import { MasteryList } from '@/components/profile/MasteryList';
 import { StatsGrid } from '@/components/profile/StatsGrid';
+import { ThemeSettingRow } from '@/components/profile/ThemeSettingRow';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { FormInput } from '@/components/ui/FormInput';
 import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Tag } from '@/components/ui/Tag';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { deriveBadges } from '@/lib/badges';
 import { formatXP, levelForXP, masteryFromActivities, xpForNextLevel } from '@/lib/gamification';
@@ -20,6 +20,7 @@ import { useCourses } from '@/hooks/useCourses';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useAuth } from '@/hooks/useAuth';
 import { useProgress } from '@/hooks/useProgress';
+import { type ColorPalette, useColors } from '@/theme';
 import { toMockConcept } from '@/types/api';
 
 const GOAL_LABELS: Record<string, string> = {
@@ -28,9 +29,73 @@ const GOAL_LABELS: Record<string, string> = {
   learn_basics: 'Learning the basics',
 };
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    content: {
+      padding: Spacing.padding.screen,
+      paddingBottom: Spacing.bottomOffset,
+    },
+    avatarSection: {
+      alignItems: 'center',
+      marginBottom: Spacing.gap['2xl'],
+    },
+    avatar: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: colors.accent,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: Spacing.gap.md,
+    },
+    name: {
+      marginBottom: 2,
+    },
+    levelCard: {
+      marginTop: Spacing.gap.md,
+    },
+    levelBar: {
+      marginTop: Spacing.gap.md,
+      marginBottom: Spacing.gap.sm,
+    },
+    sectionTag: {
+      marginTop: Spacing.gap['2xl'],
+    },
+    settingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: Spacing.padding.card,
+      paddingVertical: 16,
+      gap: Spacing.gap.md,
+    },
+    settingDivider: {
+      borderTopWidth: 1,
+      borderTopColor: colors.borderDefault,
+    },
+    nameInput: {
+      flex: 1,
+      maxWidth: 200,
+      height: 40,
+    },
+  });
+}
+
 export default function ProfileScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { displayName, goal, dailyGoalMinutes, updateDisplayName, cycleDailyGoal, signOut } =
     useAuth();
   const { xp, streakCount, streakBest, getConceptProgress } = useProgress();
@@ -38,7 +103,6 @@ export default function ProfileScreen() {
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(displayName);
 
-  // Mastery is derived from real course concepts + server-backed progress.
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const { courses, loading: coursesLoading } = useCourses();
   useEffect(() => {
@@ -68,7 +132,6 @@ export default function ProfileScreen() {
       .sort((a, b) => b.mastery_level - a.mastery_level);
   }, [course, getConceptProgress]);
 
-  // Badges are earned from real progress, not mock flags.
   const badges = useMemo(() => {
     let lessonsCompleted = 0;
     let bestQuizScore = 0;
@@ -117,22 +180,20 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Avatar */}
         <View style={styles.avatarSection}>
           <View style={styles.avatar}>
-            <AppText size="2xl" weight="bold" color={Colors.textPrimary}>
+            <AppText size="2xl" weight="bold" color={colors.textPrimary}>
               {displayName.charAt(0).toUpperCase()}
             </AppText>
           </View>
           <AppText size="xl" weight="medium" style={styles.name}>
             {displayName}
           </AppText>
-          <AppText size="sm" color={Colors.textSecondary}>
+          <AppText size="sm" color={colors.textSecondary}>
             {GOAL_LABELS[goal] ?? goal}
           </AppText>
         </View>
 
-        {/* Stats */}
         <StatsGrid
           stats={[
             { label: 'XP', value: formatXP(xp) },
@@ -141,39 +202,34 @@ export default function ProfileScreen() {
           ]}
         />
 
-        {/* Level progress */}
         <Card style={styles.levelCard}>
           <AppText size="base" weight="medium">
             Level {level}
           </AppText>
           <ProgressBar progress={levelInfo.progress} height={4} style={styles.levelBar} />
-          <AppText size="xs" color={Colors.textSecondary}>
+          <AppText size="xs" color={colors.textSecondary}>
             {levelInfo.toNext} XP to Level {level + 1}
           </AppText>
         </Card>
 
-        {/* Badges */}
         <Tag style={styles.sectionTag}>Badges</Tag>
         <BadgeGrid badges={badges} />
 
-        {/* Mastery */}
         <Tag style={styles.sectionTag}>Concept mastery</Tag>
         {masteredConcepts.length > 0 ? (
           <MasteryList concepts={masteredConcepts.slice(0, 6)} />
         ) : (
           <Card>
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               Start learning to build concept mastery.
             </AppText>
           </Card>
         )}
 
-        {/* Settings */}
         <Tag style={styles.sectionTag}>Settings</Tag>
         <Card padding="none">
-          {/* Display name */}
           <View style={styles.settingRow}>
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               Display name
             </AppText>
             {editingName ? (
@@ -204,7 +260,6 @@ export default function ProfileScreen() {
             )}
           </View>
 
-          {/* Daily goal */}
           <Pressable
             style={[styles.settingRow, styles.settingDivider]}
             onPress={() => {
@@ -212,13 +267,14 @@ export default function ProfileScreen() {
               cycleDailyGoal();
             }}
           >
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               Daily goal
             </AppText>
             <AppText size="base">{dailyGoalMinutes} min/day</AppText>
           </Pressable>
 
-          {/* Sign out */}
+          <ThemeSettingRow style={styles.settingDivider} />
+
           <Pressable
             style={[styles.settingRow, styles.settingDivider]}
             onPress={() => {
@@ -227,7 +283,7 @@ export default function ProfileScreen() {
               router.replace('/(auth)/welcome');
             }}
           >
-            <AppText size="base" color={Colors.danger}>
+            <AppText size="base" color={colors.danger}>
               Sign out
             </AppText>
           </Pressable>
@@ -236,63 +292,3 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  content: {
-    padding: Spacing.padding.screen,
-    paddingBottom: Spacing.bottomOffset,
-  },
-  avatarSection: {
-    alignItems: 'center',
-    marginBottom: Spacing.gap['2xl'],
-  },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.gap.md,
-  },
-  name: {
-    marginBottom: 2,
-  },
-  levelCard: {
-    marginTop: Spacing.gap.md,
-  },
-  levelBar: {
-    marginTop: Spacing.gap.md,
-    marginBottom: Spacing.gap.sm,
-  },
-  sectionTag: {
-    marginTop: Spacing.gap['2xl'],
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.padding.card,
-    paddingVertical: 16,
-    gap: Spacing.gap.md,
-  },
-  settingDivider: {
-    borderTopWidth: 1,
-    borderTopColor: Colors.borderDefault,
-  },
-  nameInput: {
-    flex: 1,
-    maxWidth: 200,
-    height: 40,
-  },
-});

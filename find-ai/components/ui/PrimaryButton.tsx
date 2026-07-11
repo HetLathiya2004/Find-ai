@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
 import { AppText } from './AppText';
+import { type ColorPalette, useColors } from '@/theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -15,7 +15,28 @@ interface PrimaryButtonProps {
   style?: ViewStyle | ViewStyle[];
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    button: {
+      minHeight: 50,
+      borderRadius: Spacing.radius.button,
+      backgroundColor: colors.accent,
+      borderBottomWidth: 4,
+      borderBottomColor: colors.accentMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: Spacing.padding.card,
+      paddingTop: 1,
+    },
+    disabled: {
+      opacity: 0.4,
+    },
+  });
+}
+
 export function PrimaryButton({ title, onPress, disabled = false, style }: PrimaryButtonProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const haptics = useHaptics();
   const scale = useSharedValue(0);
 
@@ -39,26 +60,9 @@ export function PrimaryButton({ title, onPress, disabled = false, style }: Prima
         onPress();
       }}
     >
-      <AppText size="base" weight="bold" color={Colors.inkOnAccent}>
+      <AppText size="base" weight="bold" color={colors.inkOnAccent}>
         {title.toUpperCase()}
       </AppText>
     </AnimatedPressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    minHeight: 50,
-    borderRadius: Spacing.radius.button,
-    backgroundColor: Colors.accent,
-    borderBottomWidth: 4,
-    borderBottomColor: Colors.accentMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.padding.card,
-    paddingTop: 1,
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-});

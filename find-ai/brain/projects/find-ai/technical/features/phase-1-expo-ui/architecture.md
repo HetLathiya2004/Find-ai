@@ -4,23 +4,30 @@ This document is the **source of truth for how Find.ai should look, feel, and be
 
 ---
 
-## Decision 1: Dark-first with Buck green
+## Decision 1: Dark-first theming with Buck green
 
-**What:** Soft black-green (`#10140F`) base with layered surfaces
-(`#171C15`, `#20271D`). Buck green (`#58CC02`) is the primary accent,
-matching the corrected `find-ai-v2` reference while preserving the required
-dark-first finance shell.
+**What:** Dark remains the default finance shell — soft black-green
+(`#10140F`) with layered surfaces (`#171C15`, `#20271D`). Buck green
+(`#58CC02`) is the primary accent in both schemes. Users can also choose
+**Light** or **System** from Profile → Settings → Theme.
 
-**Why:** Finance apps signal trust with dark themes (Robinhood, Bloomberg). Black makes accents pop. Green signals growth/profit.
+**Why:** Finance apps signal trust with dark themes (Robinhood, Bloomberg).
+Green signals growth/profit. Optional light mode and system follow-OS keep
+the Buck brand while matching device preference.
 
 **Rules:**
-- Root views use `Colors.bg` — never system background
+- UI reads live tokens via `useColors()` / `useTheme()` from `@/theme` — never bake scheme-specific hex into module-level StyleSheets
+- Root views use `colors.bg` — never the raw system background
 - Cards: `surface1`; nested elements: `surface2`
-- Primary CTAs: emerald fill, **black text** on button
+- Primary CTAs: emerald fill, **white** (`inkOnAccent`) label text
 - Success/correct: `accent`; errors/hearts: `danger`; in-progress/streak: `warning`
-- Never use raw white as background — only for text and avatar circles
+- Brand / domain accents are shared across schemes (`theme/brand.ts`)
+- Preference persists in MMKV/memory under `theme-preference` (`lib/storage.ts`)
 
-**Tokens:** `constants/colors.ts`
+**Tokens:** `theme/` module (public API `@/theme`). Compatibility shims:
+`constants/colors.ts`, `hooks/useTheme.tsx`.
+
+**See also:** `../theme-system/`
 
 ---
 
@@ -214,13 +221,24 @@ remaining highly legible for finance content.
 
 **What:** StyleSheet + design tokens, not Tailwind/NativeWind.
 
-**Why:** Original spec listed NativeWind; implementation uses explicit tokens for Expo SDK 54 stability and type safety. All spacing/color/type values import from `constants/`.
+**Why:** Original spec listed NativeWind; implementation uses explicit tokens for Expo SDK 54 stability and type safety. Spacing/type stay in `constants/`; colors come from the live theme palette.
 
 **Pattern:**
 ```typescript
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
-// StyleSheet.create({ ... })
+import { type ColorPalette, useColors } from '@/theme';
+
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: { backgroundColor: colors.bg },
+  });
+}
+
+export function Screen() {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  // ...
+}
 ```
 
 ---
@@ -261,13 +279,14 @@ import { Spacing } from '@/constants/spacing';
 1. **New screen:** Add route under `app/`, use existing primitives, follow token imports.
 2. **New data:** Extend `mock-data.ts` first; later swap provider internals for Supabase.
 3. **New gamification UI:** Add primitive in `components/ui/`, document visual treatment in this file.
-4. **Breaking design change:** Update tokens in `constants/`, then primitives, then screens — never invert order.
+4. **Breaking design change:** Update tokens in `theme/` (colors) or `constants/` (type/spacing), then primitives, then screens — never invert order.
+5. **Theme change:** Extend `theme/palettes.ts` / `theme/gradients.ts`; keep brand accents in `theme/brand.ts`; UI must keep using `useColors()`.
 
 ---
 
 ## Mascot redesign (2026-07)
 
-The visual layer now uses Nunito (400/700/800/900), green-black surfaces,
+The visual layer now uses Nunito (400/700/800/900), Buck green accents,
 3D learning controls, and **Buck the Bull**, using the five PNG poses exported
 from the corrected `patelchaitany/find-ai-v2` Lovable repository: idle, wave,
 cheer, think, and sad. Buck appears at high-value moments only:
@@ -280,5 +299,8 @@ The redesign is presentation-only. Expo Router structure and all
 unchanged; app data still flows through the authenticated FastAPI gateway.
 The original reference was incorrect. The corrected repository contains the
 full UI source and Lovable asset metadata; its Buck PNGs are now bundled in
-`assets/mascot/`. Its light palette is adapted to dark surfaces because this
-brain's dark-only product decision remains authoritative.
+`assets/mascot/`.
+
+**Appearance (follow-up):** The product is no longer dark-only. Dark remains
+the default shell; light and system preferences are first-class via the
+`theme/` module and Profile → Theme. See `../theme-system/`.

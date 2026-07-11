@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import type { Domain } from '@/constants/mock-data';
 import { domainColor, domainLabel } from '@/lib/gamification';
 import { useHaptics } from '@/hooks/useHaptics';
 import { AppText } from '@/components/ui/AppText';
+import { type ColorPalette, useColors } from '@/theme';
 
 export type DomainFilterValue = Domain | 'all';
 
@@ -16,7 +16,32 @@ interface DomainFilterProps {
   onSelect: (value: DomainFilterValue) => void;
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      paddingHorizontal: Spacing.padding.screen,
+      gap: Spacing.gap.sm,
+    },
+    pill: {
+      borderRadius: Spacing.radius.full,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderWidth: 1,
+    },
+    allActive: {
+      backgroundColor: 'transparent',
+      borderColor: colors.textPrimary,
+    },
+    inactive: {
+      backgroundColor: colors.surface1,
+      borderColor: colors.borderDefault,
+    },
+  });
+}
+
 export function DomainFilter({ selected, onSelect }: DomainFilterProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const haptics = useHaptics();
 
   return (
@@ -48,7 +73,7 @@ export function DomainFilter({ selected, onSelect }: DomainFilterProps) {
             <AppText
               size="sm"
               weight={isActive ? 'medium' : 'regular'}
-              color={isActive ? Colors.textPrimary : Colors.textSecondary}
+              color={isActive ? colors.textPrimary : colors.textSecondary}
             >
               {isAll ? 'All' : domainLabel(filter)}
             </AppText>
@@ -58,24 +83,3 @@ export function DomainFilter({ selected, onSelect }: DomainFilterProps) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: Spacing.padding.screen,
-    gap: Spacing.gap.sm,
-  },
-  pill: {
-    borderRadius: Spacing.radius.full,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-  },
-  allActive: {
-    backgroundColor: 'transparent',
-    borderColor: Colors.textPrimary,
-  },
-  inactive: {
-    backgroundColor: Colors.surface1,
-    borderColor: Colors.borderDefault,
-  },
-});

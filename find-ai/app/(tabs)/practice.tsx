@@ -9,7 +9,6 @@ import { Chip } from '@/components/ui/Chip';
 import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Tag } from '@/components/ui/Tag';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { domainLabel, masteryFromActivities, masteryLabel } from '@/lib/gamification';
 import { useCourse } from '@/hooks/useCourse';
@@ -17,6 +16,7 @@ import { useCourses } from '@/hooks/useCourses';
 import { useHaptics } from '@/hooks/useHaptics';
 import { type ActivityStatus, useProgress } from '@/hooks/useProgress';
 import type { Domain } from '@/constants/mock-data';
+import { type ColorPalette, useColors } from '@/theme';
 
 const REVIEW_XP = 15;
 
@@ -31,9 +31,67 @@ interface PracticeConcept {
   simulationCompleted: boolean;
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    content: {
+      padding: Spacing.padding.screen,
+      paddingBottom: Spacing.bottomOffset,
+    },
+    title: {
+      marginBottom: Spacing.gap.xl,
+    },
+    sectionCard: {
+      marginBottom: Spacing.gap.sm,
+    },
+    sectionTag: {
+      marginTop: Spacing.gap.lg,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.md,
+      paddingHorizontal: Spacing.padding.card,
+      paddingVertical: 16,
+    },
+    rowTitle: {
+      flex: 1,
+    },
+    divider: {
+      borderTopWidth: 1,
+      borderTopColor: colors.borderDefault,
+    },
+    simRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.md,
+      paddingHorizontal: Spacing.padding.card,
+      paddingVertical: 16,
+    },
+    simInfo: {
+      flex: 1,
+      gap: 6,
+    },
+    simTitle: {
+      marginBottom: 2,
+    },
+  });
+}
+
 export default function PracticeScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
   const {
@@ -135,18 +193,18 @@ export default function PracticeScreen() {
                   router.push(`/(tabs)/learn/${concept.slug}`);
                 }}
               >
-                <Feather name="book-open" size={16} color={Colors.accent} />
+                <Feather name="book-open" size={16} color={colors.accent} />
                 <AppText size="base" style={styles.rowTitle}>
                   {concept.title}
                 </AppText>
                 <Chip>{domainLabel(concept.domain)}</Chip>
-                <Feather name="chevron-right" size={16} color={Colors.textMuted} />
+                <Feather name="chevron-right" size={16} color={colors.textMuted} />
               </Pressable>
             ))}
           </Card>
         ) : (
           <Card style={styles.sectionCard}>
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               All lessons completed. Great progress!
             </AppText>
           </Card>
@@ -168,7 +226,7 @@ export default function PracticeScreen() {
                 <AppText size="base" style={styles.rowTitle}>
                   {concept.title}
                 </AppText>
-                <AppText size="xs" color={Colors.warning}>
+                <AppText size="xs" color={colors.warning}>
                   {masteryLabel(concept.mastery)} · lvl {concept.mastery}
                 </AppText>
               </Pressable>
@@ -176,7 +234,7 @@ export default function PracticeScreen() {
           </Card>
         ) : (
           <Card style={styles.sectionCard}>
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               No weak concepts right now. Nice work!
             </AppText>
           </Card>
@@ -198,16 +256,16 @@ export default function PracticeScreen() {
                 <AppText size="base" style={styles.rowTitle}>
                   {concept.title}
                 </AppText>
-                <AppText size="xs" color={Colors.accent}>
+                <AppText size="xs" color={colors.accent}>
                   Review · +{REVIEW_XP} XP
                 </AppText>
-                <Feather name="chevron-right" size={16} color={Colors.textMuted} />
+                <Feather name="chevron-right" size={16} color={colors.textMuted} />
               </Pressable>
             ))}
           </Card>
         ) : (
           <Card style={styles.sectionCard}>
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               Nothing due for review. Keep learning!
             </AppText>
           </Card>
@@ -232,13 +290,13 @@ export default function PracticeScreen() {
                   </AppText>
                   <Chip>{domainLabel(concept.domain)}</Chip>
                 </View>
-                <Feather name="chevron-right" size={16} color={Colors.textMuted} />
+                <Feather name="chevron-right" size={16} color={colors.textMuted} />
               </Pressable>
             ))}
           </Card>
         ) : (
           <Card style={styles.sectionCard}>
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               All simulations completed. Impressive!
             </AppText>
           </Card>
@@ -247,57 +305,3 @@ export default function PracticeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  content: {
-    padding: Spacing.padding.screen,
-    paddingBottom: Spacing.bottomOffset,
-  },
-  title: {
-    marginBottom: Spacing.gap.xl,
-  },
-  sectionCard: {
-    marginBottom: Spacing.gap.sm,
-  },
-  sectionTag: {
-    marginTop: Spacing.gap.lg,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.md,
-    paddingHorizontal: Spacing.padding.card,
-    paddingVertical: 16,
-  },
-  rowTitle: {
-    flex: 1,
-  },
-  divider: {
-    borderTopWidth: 1,
-    borderTopColor: Colors.borderDefault,
-  },
-  simRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.md,
-    paddingHorizontal: Spacing.padding.card,
-    paddingVertical: 16,
-  },
-  simInfo: {
-    flex: 1,
-    gap: 6,
-  },
-  simTitle: {
-    marginBottom: 2,
-  },
-});

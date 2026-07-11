@@ -18,7 +18,8 @@ Build **Find.ai** — a Duolingo-style gamified financial literacy mobile app �
 |------|----------|
 | Screens | Welcome, auth, onboarding, home, learn, concept detail, lesson/quiz/simulation players, practice, news, league, streak, profile |
 | Navigation | Expo Router: `(auth)`, `(tabs)`, fullscreen immersive routes |
-| Design system | Colors, typography, spacing tokens; UI primitives; card-based layout |
+| Design system | Colors (theme module), typography, spacing tokens; UI primitives; card-based layout |
+| Appearance | Dark / Light / System preference; Buck green accents; Nunito type |
 | Gamification UI | XP, streaks, hearts, mastery dots, confetti, league, badges |
 | State | Mock auth + progress via React context; in-memory persistence in Expo Go |
 | Animations | Reanimated micro-interactions, progress fills, celebrations |
@@ -40,9 +41,9 @@ Build **Find.ai** — a Duolingo-style gamified financial literacy mobile app �
 - **Repo path:** `/workspace/find-ai` (package at repo root; Lovable web app lives in parent `/workspace`).
 - **EAS project:** `de0490e8-07f0-46e3-a108-c76eeee1b62c`, slug `chaitanya`.
 - **Branch:** `cursor/find-ai-phase-1-dc09`.
-- **Dark-only UI:** No light mode. Pure black base; never use white as a background except avatar circles.
-- **Fonts:** Inter Regular + Medium only. No bold, light, or italic.
-- **Icons:** `@expo/vector-icons` (Ionicons) — not `lucide-react-native` (React 19 peer conflict on SDK 54).
+- **Appearance:** Dark-first with Buck green; Light and System preferences via Profile → Theme (`theme/` module).
+- **Fonts:** Nunito Regular / Bold / ExtraBold / Black (400/700/800/900).
+- **Icons:** `@expo/vector-icons` (Ionicons / Feather / MaterialCommunityIcons) — not `lucide-react-native` (React 19 peer conflict on SDK 54).
 
 ## Success criteria
 
@@ -58,4 +59,5 @@ Build **Find.ai** — a Duolingo-style gamified financial literacy mobile app �
 
 - **Repository:** `/workspace/find-ai`
 - **PR:** `cursor/find-ai-phase-1-dc09` on `HetLathiya2004/Find-ai`
+- **Appearance follow-up:** `../theme-system/`
 - **Next feature:** Phase 2 — Supabase backend integration

@@ -10,7 +10,7 @@ A complete **Find.ai** mobile UI shell at `/workspace/find-ai` — 16 routes, 31
 
 | File | Responsibility |
 |------|----------------|
-| `app/_layout.tsx` | Fonts, providers, stack config, theme |
+| `app/_layout.tsx` | Fonts, AppThemeProvider, auth/progress, stack, StatusBar |
 | `app/index.tsx` | Auth/onboard redirect |
 | `app/(tabs)/_layout.tsx` | 5-tab custom bar |
 | `app/(auth)/_layout.tsx` | Auth stack |
@@ -21,7 +21,7 @@ A complete **Find.ai** mobile UI shell at `/workspace/find-ai` — 16 routes, 31
 |------|----------------|
 | `hooks/useMockAuth.tsx` | Session, onboarding fields, sign out |
 | `hooks/useMockProgress.tsx` | XP, concept statuses, daily goal, news read |
-| `lib/storage.ts` | JSON persist (MMKV or memory) |
+| `lib/storage.ts` | JSON persist (MMKV or memory); keys: auth, progress, theme |
 | `lib/gamification.ts` | Pure XP/level/mastery/domain logic |
 
 ### Data
@@ -34,11 +34,15 @@ A complete **Find.ai** mobile UI shell at `/workspace/find-ai` — 16 routes, 31
 
 | File | Responsibility |
 |------|----------------|
-| `constants/colors.ts` | Color tokens |
-| `constants/typography.ts` | Type scale |
+| `theme/` (`@/theme`) | Color palettes, preference, provider, hooks |
+| `constants/typography.ts` | Type scale (Nunito) |
 | `constants/spacing.ts` | Layout tokens |
 | `components/ui/AppText.tsx` | Typography component |
 | `components/ui/Card.tsx` | Layout primitive |
+| `components/ui/Mascot.tsx` | Buck pose + motion |
+| `components/profile/ThemeSettingRow.tsx` | Appearance setting |
+
+Compatibility shims (re-export only): `constants/colors.ts`, `hooks/useTheme.tsx`.
 
 ## Implementation choices & rationale
 

@@ -1,5 +1,5 @@
 // Pure gamification logic — no backend calls. Phase 1 uses MMKV for persistence.
-import { Colors } from '@/constants/colors';
+import { Colors } from '@/theme';
 
 // Level thresholds (13 tiers)
 const LEVEL_THRESHOLDS = [0, 200, 500, 900, 1400, 2000, 2700, 3500, 4500, 5700, 7000, 8500, 10100];

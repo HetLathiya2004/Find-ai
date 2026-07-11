@@ -1,9 +1,9 @@
 import React from 'react';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useColors } from '@/theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -15,13 +15,8 @@ interface CardProps {
   children: React.ReactNode;
 }
 
-const BORDER_COLORS = {
-  default: Colors.borderDefault,
-  strong: Colors.borderStrong,
-  highlighted: Colors.accent,
-} as const;
-
 export function Card({ variant = 'default', padding = 'normal', onPress, style, children }: CardProps) {
+  const colors = useColors();
   const haptics = useHaptics();
   const scale = useSharedValue(1);
 
@@ -29,13 +24,19 @@ export function Card({ variant = 'default', padding = 'normal', onPress, style, 
     transform: [{ scale: scale.value }],
   }));
 
+  const borderColors = {
+    default: colors.borderDefault,
+    strong: colors.borderStrong,
+    highlighted: colors.accent,
+  } as const;
+
   const base: ViewStyle = {
-    backgroundColor: Colors.surface1,
+    backgroundColor: colors.surface1,
     borderWidth: 2,
-    borderColor: BORDER_COLORS[variant],
+    borderColor: borderColors[variant],
     borderBottomWidth: 4,
     borderBottomColor:
-      variant === 'highlighted' ? Colors.accentMuted : Colors.borderDefault,
+      variant === 'highlighted' ? colors.accentMuted : colors.borderDefault,
     borderRadius: Spacing.radius.card,
     padding: padding === 'none' ? 0 : padding === 'large' ? Spacing.padding.cardLg : Spacing.padding.card,
   };

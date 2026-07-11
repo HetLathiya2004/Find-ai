@@ -7,16 +7,16 @@ Find.ai Phase 1 is a **client-only** Expo app. All data lives in `constants/mock
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  app/_layout.tsx                                        │
-│  MockAuthProvider → MockProgressProvider → Expo Router  │
+│  AppThemeProvider → AuthProvider → ProgressProvider     │
+│                     → Expo Router                       │
 └─────────────────────────────────────────────────────────┘
-         │                              │
-         ▼                              ▼
-   useMockAuth()                  useMockProgress()
-   (auth, onboarding)             (XP, concepts, daily goal)
-         │                              │
-         ▼                              ▼
-   constants/mock-data.ts        lib/storage.ts (MMKV / memory)
-   lib/gamification.ts
+         │                    │                    │
+         ▼                    ▼                    ▼
+   useTheme()/useColors()  useAuth()          useProgress()
+   (@/theme)               (session)          (XP, concepts)
+         │
+         ▼
+   theme/  +  lib/storage.ts (theme-preference)
 ```
 
 ## Repository layout
@@ -33,14 +33,17 @@ find-ai/
 │   ├── streak.tsx                # Modal streak calendar
 │   └── league.tsx                # Leaderboard
 ├── components/
-│   ├── ui/                       # Design primitives (15+)
+│   ├── ui/                       # Design primitives (Mascot, LoadingScene, …)
 │   ├── home/ learn/ lesson/ quiz/ profile/
-├── constants/                    # colors, typography, spacing, mock-data
-├── hooks/                        # useMockAuth, useMockProgress, useHaptics, useMockLoading
-├── lib/                          # gamification.ts, storage.ts
-├── assets/fonts/                 # Inter-Regular, Inter-Medium
+├── theme/                        # Appearance module (types, palettes, provider)
+├── constants/                    # typography, spacing, mock-data (+ colors shim)
+├── hooks/                        # auth, progress, haptics, loaders (+ useTheme shim)
+├── lib/                          # gamification.ts, storage.ts, api, supabase
+├── assets/
+│   ├── fonts/                    # (Nunito via @expo-google-fonts)
+│   └── mascot/                   # Buck PNG poses
 ├── app.json / eas.json
-└── brain/                        # This documentation (Developer Brain)
+└── brain/                        # Developer Brain
 ```
 
 ## Navigation flow

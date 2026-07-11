@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,21 +12,94 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Tag } from '@/components/ui/Tag';
 import { XPReward } from '@/components/ui/XPReward';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useProgress } from '@/hooks/useProgress';
+import { type ColorPalette, useColors } from '@/theme';
 
-const OUTCOME_META = {
-  strategic: { label: 'Strategic', color: Colors.accent },
-  balanced: { label: 'Balanced', color: Colors.warning },
-  risky: { label: 'Risky', color: Colors.danger },
-} as const;
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: Spacing.padding.screen,
+      paddingVertical: Spacing.gap.md,
+    },
+    topBarSpacer: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.padding.screen,
+      paddingBottom: Spacing.gap['2xl'],
+    },
+    title: {
+      marginBottom: Spacing.gap.lg,
+    },
+    scenarioBox: {
+      backgroundColor: colors.surface1,
+      borderWidth: 1,
+      borderColor: colors.borderDefault,
+      borderRadius: Spacing.radius.xl,
+      padding: Spacing.padding.card,
+      marginBottom: Spacing.gap['2xl'],
+    },
+    choices: {
+      gap: Spacing.gap.md,
+    },
+    choice: {
+      backgroundColor: colors.surface2,
+      borderRadius: Spacing.radius.card,
+      padding: 16,
+    },
+    distribution: {
+      marginTop: Spacing.gap.md,
+    },
+    distributionLabel: {
+      marginTop: 6,
+    },
+    feedbackBox: {
+      marginTop: Spacing.gap.xl,
+      backgroundColor: colors.surface1,
+      borderWidth: 1,
+      borderColor: colors.borderDefault,
+      borderRadius: Spacing.radius.card,
+      padding: 16,
+    },
+    feedbackText: {
+      marginTop: 6,
+    },
+    bottom: {
+      padding: Spacing.padding.screen,
+      paddingBottom: 24,
+    },
+  });
+}
 
 export default function SimulationPlayerScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const outcomeMeta = useMemo(
+    () =>
+      ({
+        strategic: { label: 'Strategic', color: colors.accent },
+        balanced: { label: 'Balanced', color: colors.warning },
+        risky: { label: 'Risky', color: colors.danger },
+      }) as const,
+    [colors],
+  );
   // The route param is the concept slug — simulation content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
   const { concept, loading, error, retry } = useConcept(id ?? null, 'choices');
@@ -94,10 +167,10 @@ export default function SimulationPlayerScreen() {
             else setShowExitModal(true);
           }}
         >
-          <Feather name="x" size={24} color={Colors.textSecondary} />
+          <Feather name="x" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={styles.topBarSpacer} />
-        <AppText size="xs" weight="medium" color={Colors.accent}>
+        <AppText size="xs" weight="medium" color={colors.accent}>
           +{concept.sim_xp} XP
         </AppText>
       </View>
@@ -108,7 +181,7 @@ export default function SimulationPlayerScreen() {
           {concept.sim_title}
         </AppText>
         <View style={styles.scenarioBox}>
-          <AppText size="base" color={Colors.textSecondary} leading="relaxed">
+          <AppText size="base" color={colors.textSecondary} leading="relaxed">
             {concept.sim_scenario}
           </AppText>
         </View>
@@ -116,7 +189,7 @@ export default function SimulationPlayerScreen() {
         <View style={styles.choices}>
           {concept.choices.map((choice, i) => {
             const isChosen = choiceIndex === i;
-            const meta = OUTCOME_META[choice.outcome];
+            const meta = outcomeMeta[choice.outcome];
             return (
               <Pressable
                 key={choice.id}
@@ -124,7 +197,7 @@ export default function SimulationPlayerScreen() {
                 style={[
                   styles.choice,
                   {
-                    borderColor: isChosen ? meta.color : Colors.borderDefault,
+                    borderColor: isChosen ? meta.color : colors.borderDefault,
                     borderWidth: isChosen ? 2 : 1,
                     opacity: answered && !isChosen ? 0.5 : 1,
                   },
@@ -139,9 +212,9 @@ export default function SimulationPlayerScreen() {
                     <ProgressBar
                       progress={choice.learner_pct / 100}
                       height={4}
-                      color={isChosen ? meta.color : Colors.borderStrong}
+                      color={isChosen ? meta.color : colors.borderStrong}
                     />
-                    <AppText size="xs" color={Colors.textMuted} style={styles.distributionLabel}>
+                    <AppText size="xs" color={colors.textMuted} style={styles.distributionLabel}>
                       {choice.learner_pct}% of learners chose this
                     </AppText>
                   </Animated.View>
@@ -153,10 +226,10 @@ export default function SimulationPlayerScreen() {
 
         {answered && chosen ? (
           <Animated.View entering={FadeIn.duration(250).delay(150)} style={styles.feedbackBox}>
-            <AppText size="caption" label color={OUTCOME_META[chosen.outcome].color}>
-              {OUTCOME_META[chosen.outcome].label}
+            <AppText size="caption" label color={outcomeMeta[chosen.outcome].color}>
+              {outcomeMeta[chosen.outcome].label}
             </AppText>
-            <AppText size="sm" color={Colors.textSecondary} leading="normal" style={styles.feedbackText}>
+            <AppText size="sm" color={colors.textSecondary} leading="normal" style={styles.feedbackText}>
               {chosen.feedback}
             </AppText>
           </Animated.View>
@@ -180,69 +253,3 @@ export default function SimulationPlayerScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.padding.screen,
-    paddingVertical: Spacing.gap.md,
-  },
-  topBarSpacer: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.padding.screen,
-    paddingBottom: Spacing.gap['2xl'],
-  },
-  title: {
-    marginBottom: Spacing.gap.lg,
-  },
-  scenarioBox: {
-    backgroundColor: Colors.surface1,
-    borderWidth: 1,
-    borderColor: Colors.borderDefault,
-    borderRadius: Spacing.radius.xl,
-    padding: Spacing.padding.card,
-    marginBottom: Spacing.gap['2xl'],
-  },
-  choices: {
-    gap: Spacing.gap.md,
-  },
-  choice: {
-    backgroundColor: Colors.surface2,
-    borderRadius: Spacing.radius.card,
-    padding: 16,
-  },
-  distribution: {
-    marginTop: Spacing.gap.md,
-  },
-  distributionLabel: {
-    marginTop: 6,
-  },
-  feedbackBox: {
-    marginTop: Spacing.gap.xl,
-    backgroundColor: Colors.surface1,
-    borderWidth: 1,
-    borderColor: Colors.borderDefault,
-    borderRadius: Spacing.radius.card,
-    padding: 16,
-  },
-  feedbackText: {
-    marginTop: 6,
-  },
-  bottom: {
-    padding: Spacing.padding.screen,
-    paddingBottom: 24,
-  },
-});

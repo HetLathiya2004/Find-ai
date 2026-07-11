@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from './AppText';
 import { Mascot } from './Mascot';
 import { PrimaryButton } from './PrimaryButton';
+import { type ColorPalette, useColors } from '@/theme';
 
 const DEFAULT_MESSAGE =
   "We couldn't load the content. Please check your connection and try again.";
@@ -15,8 +15,36 @@ interface ErrorStateProps {
   onRetry: () => void;
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: Spacing.padding.cardLg,
+    },
+    heading: {
+      marginTop: Spacing.gap.lg,
+    },
+    message: {
+      marginTop: Spacing.gap.sm,
+    },
+    button: {
+      marginTop: Spacing.gap['2xl'],
+      alignSelf: 'stretch',
+    },
+  });
+}
+
 /** Full-screen API failure state with a retry action. No mock fallback. */
 export function ErrorState({ message = DEFAULT_MESSAGE, onRetry }: ErrorStateProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.center}>
@@ -26,7 +54,7 @@ export function ErrorState({ message = DEFAULT_MESSAGE, onRetry }: ErrorStatePro
         </AppText>
         <AppText
           size="sm"
-          color={Colors.textSecondary}
+          color={colors.textSecondary}
           center
           leading="normal"
           style={styles.message}
@@ -38,26 +66,3 @@ export function ErrorState({ message = DEFAULT_MESSAGE, onRetry }: ErrorStatePro
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.padding.cardLg,
-  },
-  heading: {
-    marginTop: Spacing.gap.lg,
-  },
-  message: {
-    marginTop: Spacing.gap.sm,
-  },
-  button: {
-    marginTop: Spacing.gap['2xl'],
-    alignSelf: 'stretch',
-  },
-});

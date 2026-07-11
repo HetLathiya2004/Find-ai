@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TextProps, TextStyle } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
+import { useColors } from '@/theme';
 
 interface AppTextProps extends TextProps {
   size?: keyof typeof Typography.size;
@@ -17,7 +17,7 @@ interface AppTextProps extends TextProps {
 export function AppText({
   size = 'sm',
   weight = 'regular',
-  color = Colors.textPrimary,
+  color,
   center = false,
   leading,
   label = false,
@@ -25,11 +25,12 @@ export function AppText({
   children,
   ...rest
 }: AppTextProps) {
+  const colors = useColors();
   const fontSize = Typography.size[size];
   const composed: TextStyle = {
     fontFamily: Typography.fontFamily[weight],
     fontSize,
-    color,
+    color: color ?? colors.textPrimary,
     ...(center ? { textAlign: 'center' as const } : null),
     ...(leading ? { lineHeight: fontSize * Typography.lineHeight[leading] } : null),
     ...(label

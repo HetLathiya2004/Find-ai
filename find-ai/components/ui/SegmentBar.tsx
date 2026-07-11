@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
+import { useColors } from '@/theme';
 
 interface SegmentBarProps {
   total: number;
@@ -11,7 +11,10 @@ interface SegmentBarProps {
   style?: ViewStyle;
 }
 
-export function SegmentBar({ total, completed, color = Colors.accent, style }: SegmentBarProps) {
+export function SegmentBar({ total, completed, color, style }: SegmentBarProps) {
+  const colors = useColors();
+  const segmentColor = color ?? colors.accent;
+
   return (
     <View style={[styles.row, style]}>
       {Array.from({ length: total }).map((_, i) => (
@@ -20,8 +23,8 @@ export function SegmentBar({ total, completed, color = Colors.accent, style }: S
           style={[
             styles.segment,
             i < completed
-              ? { backgroundColor: color, borderColor: color }
-              : { backgroundColor: Colors.surface2, borderColor: Colors.borderDefault },
+              ? { backgroundColor: segmentColor, borderColor: segmentColor }
+              : { backgroundColor: colors.surface2, borderColor: colors.borderDefault },
           ]}
         />
       ))}

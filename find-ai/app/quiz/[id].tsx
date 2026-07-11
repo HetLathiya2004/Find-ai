@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
@@ -14,19 +14,74 @@ import { Mascot } from '@/components/ui/Mascot';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { XPReward } from '@/components/ui/XPReward';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useProgress } from '@/hooks/useProgress';
+import { type ColorPalette, useColors } from '@/theme';
 
 const TOTAL_HEARTS = 3;
 
 type Phase = 'question' | 'out-of-hearts' | 'score' | 'reward';
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: Spacing.padding.cardLg,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.lg,
+      paddingHorizontal: Spacing.padding.screen,
+      paddingVertical: Spacing.gap.md,
+    },
+    segments: {
+      flex: 1,
+    },
+    content: {
+      flexGrow: 1,
+      padding: Spacing.padding.screen,
+      paddingTop: Spacing.gap.xl,
+    },
+    bottom: {
+      padding: Spacing.padding.screen,
+      paddingBottom: 24,
+    },
+    outTitle: {
+      marginTop: Spacing.gap.lg,
+    },
+    outSubtitle: {
+      marginTop: Spacing.gap.sm,
+    },
+    scoreText: {
+      fontSize: 60,
+      lineHeight: 66,
+    },
+    retryButton: {
+      marginBottom: Spacing.gap.md,
+    },
+  });
+}
+
 export default function QuizPlayerScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   // The route param is the concept slug — quiz content lives on the concept.
   const { id } = useLocalSearchParams<{ id: string }>();
   const { concept, loading, error, retry } = useConcept(id ?? null, 'questions');
@@ -105,7 +160,7 @@ export default function QuizPlayerScreen() {
           <AppText size="2xl" weight="medium" center style={styles.outTitle}>
             Out of hearts
           </AppText>
-          <AppText size="sm" color={Colors.textSecondary} center style={styles.outSubtitle}>
+          <AppText size="sm" color={colors.textSecondary} center style={styles.outSubtitle}>
             Review the lesson and run it back. You've got this.
           </AppText>
         </View>
@@ -133,7 +188,7 @@ export default function QuizPlayerScreen() {
           <Mascot pose={passed ? 'cheer' : 'sad'} size={160} animate="pop" />
           <AppText
             weight="medium"
-            color={passed ? Colors.accent : Colors.danger}
+            color={passed ? colors.accent : colors.danger}
             center
             style={styles.scoreText}
           >
@@ -142,7 +197,7 @@ export default function QuizPlayerScreen() {
           <AppText size="xl" weight="medium" center style={styles.outTitle}>
             {passed ? 'Quiz passed!' : 'Not quite there'}
           </AppText>
-          <AppText size="sm" color={Colors.textSecondary} center style={styles.outSubtitle}>
+          <AppText size="sm" color={colors.textSecondary} center style={styles.outSubtitle}>
             {correctCount} of {questions.length} right · {concept.title}
           </AppText>
         </View>
@@ -181,7 +236,7 @@ export default function QuizPlayerScreen() {
             setShowExitModal(true);
           }}
         >
-          <Feather name="x" size={24} color={Colors.textSecondary} />
+          <Feather name="x" size={24} color={colors.textSecondary} />
         </Pressable>
         <SegmentBar total={questions.length} completed={questionIndex + 1} style={styles.segments} />
         <HeartDisplay hearts={hearts} size={18} />
@@ -208,54 +263,3 @@ export default function QuizPlayerScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.padding.cardLg,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.lg,
-    paddingHorizontal: Spacing.padding.screen,
-    paddingVertical: Spacing.gap.md,
-  },
-  segments: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    padding: Spacing.padding.screen,
-    paddingTop: Spacing.gap.xl,
-  },
-  bottom: {
-    padding: Spacing.padding.screen,
-    paddingBottom: 24,
-  },
-  outTitle: {
-    marginTop: Spacing.gap.lg,
-  },
-  outSubtitle: {
-    marginTop: Spacing.gap.sm,
-  },
-  scoreText: {
-    fontSize: 60,
-    lineHeight: 66,
-  },
-  retryButton: {
-    marginBottom: Spacing.gap.md,
-  },
-});

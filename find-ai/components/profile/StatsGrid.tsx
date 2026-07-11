@@ -1,15 +1,17 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
+import { useColors } from '@/theme';
 
 interface StatsGridProps {
   stats: { label: string; value: string | number }[];
 }
 
 export function StatsGrid({ stats }: StatsGridProps) {
+  const colors = useColors();
+
   return (
     <View style={styles.grid}>
       {stats.map((stat) => (
@@ -17,7 +19,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
           <AppText size="2xl" weight="medium" center>
             {String(stat.value)}
           </AppText>
-          <AppText size="caption" label color={Colors.textMuted} center style={styles.label}>
+          <AppText size="caption" label color={colors.textMuted} center style={styles.label}>
             {stat.label}
           </AppText>
         </Card>

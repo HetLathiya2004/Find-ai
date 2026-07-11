@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -7,9 +7,9 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
+import { type ColorPalette, useColors } from '@/theme';
 
 export type OptionState =
   | 'default'
@@ -26,7 +26,37 @@ interface OptionButtonProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    option: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.gap.sm,
+      backgroundColor: colors.surface2,
+      borderRadius: Spacing.radius.card,
+      borderBottomWidth: 4,
+      paddingHorizontal: 16,
+      paddingVertical: 16,
+    },
+    text: {
+      flex: 1,
+    },
+    dimmed: {
+      opacity: 0.7,
+    },
+    correct: {
+      backgroundColor: colors.accentMuted + '55',
+    },
+    wrong: {
+      backgroundColor: colors.dangerMuted + '44',
+    },
+  });
+}
+
 export function OptionButton({ text, state, onPress }: OptionButtonProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const interactive = state === 'default';
   const shake = useSharedValue(0);
 
@@ -48,10 +78,10 @@ export function OptionButton({ text, state, onPress }: OptionButtonProps) {
 
   const borderColor =
     state === 'selected-correct' || state === 'revealed-correct'
-      ? Colors.accent
+      ? colors.accent
       : state === 'selected-wrong'
-        ? Colors.danger
-        : Colors.borderDefault;
+        ? colors.danger
+        : colors.borderDefault;
 
   const borderWidth = 2;
 
@@ -72,36 +102,10 @@ export function OptionButton({ text, state, onPress }: OptionButtonProps) {
         {text}
       </AppText>
       {state === 'selected-correct' || state === 'revealed-correct' ? (
-        <Feather name="check" size={20} color={Colors.accent} />
+        <Feather name="check" size={20} color={colors.accent} />
       ) : state === 'selected-wrong' ? (
-        <Feather name="x" size={20} color={Colors.danger} />
+        <Feather name="x" size={20} color={colors.danger} />
       ) : null}
     </AnimatedPressable>
   );
 }
-
-const styles = StyleSheet.create({
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.gap.sm,
-    backgroundColor: Colors.surface2,
-    borderRadius: Spacing.radius.card,
-    borderBottomWidth: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  text: {
-    flex: 1,
-  },
-  dimmed: {
-    opacity: 0.7,
-  },
-  correct: {
-    backgroundColor: Colors.accentMuted + '55',
-  },
-  wrong: {
-    backgroundColor: Colors.dangerMuted + '44',
-  },
-});

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { useColors } from '@/theme';
 
 interface ExitModalProps {
   visible: boolean;
@@ -14,6 +14,8 @@ interface ExitModalProps {
 
 /** Confirmation before abandoning an in-progress lesson/quiz/simulation. */
 export function ExitModal({ visible, onExit, onKeepLearning }: ExitModalProps) {
+  const colors = useColors();
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onKeepLearning}>
       <View style={styles.overlay}>
@@ -21,7 +23,7 @@ export function ExitModal({ visible, onExit, onKeepLearning }: ExitModalProps) {
           <AppText size="xl" weight="medium" center>
             Lose your progress?
           </AppText>
-          <AppText size="sm" color={Colors.textSecondary} center style={styles.subtitle}>
+          <AppText size="sm" color={colors.textSecondary} center style={styles.subtitle}>
             If you exit now, you'll lose your progress in this session.
           </AppText>
           <PrimaryButton title="Exit" onPress={onExit} style={styles.exitButton} />

@@ -47,6 +47,7 @@ Automated unit/integration tests deferred to Phase 2 when business logic moves s
 | Progress | Resume lesson | `lessonCardIndex` persisted in context |
 | Learn | Quiz/sim locked | 40% opacity, lock icon, no press |
 | Profile | Sign out | Clears auth storage, redirect welcome |
+| Profile | Theme setting | Cycles System / Light / Dark; persists `theme-preference` |
 | Storage | MMKV unavailable | Silent fallback to in-memory Map |
 | Daily goal | Exceeds target | `Math.min` caps display |
 

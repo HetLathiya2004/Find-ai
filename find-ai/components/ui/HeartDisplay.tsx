@@ -7,8 +7,8 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
+import { useColors } from '@/theme';
 
 interface HeartDisplayProps {
   /** Hearts remaining */
@@ -18,13 +18,22 @@ interface HeartDisplayProps {
   style?: ViewStyle;
 }
 
-function AnimatedHeart({ full, size }: { full: boolean; size: number }) {
+function AnimatedHeart({
+  full,
+  size,
+  faintColor,
+  dangerColor,
+}: {
+  full: boolean;
+  size: number;
+  faintColor: string;
+  dangerColor: string;
+}) {
   const scale = useSharedValue(1);
   const wasFull = useRef(full);
 
   useEffect(() => {
     if (wasFull.current && !full) {
-      // Heart lost: scale up, then shrink away while the faint outline remains
       scale.value = withSequence(withTiming(1.3, { duration: 200 }), withTiming(0, { duration: 300 }));
     } else if (full) {
       scale.value = withTiming(1, { duration: 150 });
@@ -39,22 +48,29 @@ function AnimatedHeart({ full, size }: { full: boolean; size: number }) {
 
   return (
     <View style={{ width: size, height: size }}>
-      {/* Lost-heart outline underneath */}
       <View style={StyleSheet.absoluteFill}>
-        <MaterialCommunityIcons name="heart-outline" size={size} color={Colors.textFaint} />
+        <MaterialCommunityIcons name="heart-outline" size={size} color={faintColor} />
       </View>
       <Animated.View style={[StyleSheet.absoluteFill, filledStyle]}>
-        <MaterialCommunityIcons name="heart" size={size} color={Colors.danger} />
+        <MaterialCommunityIcons name="heart" size={size} color={dangerColor} />
       </Animated.View>
     </View>
   );
 }
 
 export function HeartDisplay({ hearts, total = 3, size = 20, style }: HeartDisplayProps) {
+  const colors = useColors();
+
   return (
     <View style={[styles.row, style]}>
       {Array.from({ length: total }).map((_, i) => (
-        <AnimatedHeart key={i} full={i < hearts} size={size} />
+        <AnimatedHeart
+          key={i}
+          full={i < hearts}
+          size={size}
+          faintColor={colors.textFaint}
+          dangerColor={colors.danger}
+        />
       ))}
     </View>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TextStyle } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { AppText } from './AppText';
+import { useColors } from '@/theme';
 
 interface TagProps {
   children: string;
@@ -10,9 +10,10 @@ interface TagProps {
 }
 
 /** Uppercase section label, e.g. "DAILY CHALLENGE" */
-export function Tag({ children, color = Colors.accent, style }: TagProps) {
+export function Tag({ children, color, style }: TagProps) {
+  const colors = useColors();
   return (
-    <AppText size="caption" weight="bold" label color={color} style={StyleSheet.flatten([styles.tag, style])}>
+    <AppText size="caption" weight="bold" label color={color ?? colors.accent} style={StyleSheet.flatten([styles.tag, style])}>
       {children}
     </AppText>
   );
