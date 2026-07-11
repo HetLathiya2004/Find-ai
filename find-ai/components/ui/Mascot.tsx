@@ -1,5 +1,11 @@
 import React, { useEffect } from 'react';
-import { Image, ImageSourcePropType, StyleSheet, ViewStyle } from 'react-native';
+import {
+  Image,
+  ImageSourcePropType,
+  ImageStyle,
+  StyleProp,
+  StyleSheet,
+} from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -18,7 +24,7 @@ interface MascotProps {
   pose?: MascotPose;
   size?: number;
   animate?: MascotAnimation;
-  style?: ViewStyle;
+  style?: StyleProp<ImageStyle>;
 }
 
 const POSES: Record<MascotPose, ImageSourcePropType> = {
