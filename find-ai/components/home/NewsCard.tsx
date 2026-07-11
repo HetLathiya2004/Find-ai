@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
 import { Tag } from '@/components/ui/Tag';
+import { useColors } from '@/theme';
 
 interface NewsCardProps {
   headline: string;
@@ -15,6 +15,8 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ headline, conceptTitle, xpReward, onPress }: NewsCardProps) {
+  const colors = useColors();
+
   return (
     <Card onPress={onPress}>
       <Tag>From today's news</Tag>
@@ -23,7 +25,7 @@ export function NewsCard({ headline, conceptTitle, xpReward, onPress }: NewsCard
       </AppText>
       <View style={styles.bottomRow}>
         <Chip>{conceptTitle}</Chip>
-        <AppText size="xs" color={Colors.accent}>
+        <AppText size="xs" color={colors.accent}>
           Learn this → +{xpReward} XP
         </AppText>
       </View>

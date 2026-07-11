@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import type { MockConcept } from '@/constants/mock-data';
 import { domainColor, domainLabel, masteryLabel } from '@/lib/gamification';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { useColors } from '@/theme';
 
 interface ConceptCardProps {
   concept: MockConcept;
@@ -15,7 +15,9 @@ interface ConceptCardProps {
 }
 
 export function ConceptCard({ concept, masteryLevel, onPress }: ConceptCardProps) {
+  const colors = useColors();
   const color = domainColor(concept.domain);
+
   return (
     <Card onPress={onPress} style={{ borderLeftWidth: 3, borderLeftColor: color }}>
       <AppText size="caption" label color={color} style={styles.domain}>
@@ -25,7 +27,7 @@ export function ConceptCard({ concept, masteryLevel, onPress }: ConceptCardProps
         {concept.title}
       </AppText>
       <ProgressBar progress={masteryLevel / 5} height={4} style={styles.bar} />
-      <AppText size="xs" color={Colors.textSecondary}>
+      <AppText size="xs" color={colors.textSecondary}>
         Lvl {masteryLevel} · {masteryLabel(masteryLevel)}
       </AppText>
     </Card>

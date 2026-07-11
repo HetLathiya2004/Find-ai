@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
+import { type ColorPalette, useColors } from '@/theme';
 
 interface ProgressBarProps {
   /** 0 to 1 */
@@ -13,13 +13,33 @@ interface ProgressBarProps {
   style?: ViewStyle;
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    track: {
+      width: '100%',
+      borderRadius: Spacing.radius.full,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: colors.borderDefault,
+    },
+    fill: {
+      height: '100%',
+      borderRadius: Spacing.radius.full,
+    },
+  });
+}
+
 export function ProgressBar({
   progress,
-  height = 6,
-  color = Colors.accent,
-  trackColor = Colors.borderDefault,
+  height = 12,
+  color,
+  trackColor,
   style,
 }: ProgressBarProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const fillColor = color ?? colors.accent;
+  const resolvedTrackColor = trackColor ?? colors.borderDefault;
   const width = useSharedValue(0);
 
   useEffect(() => {
@@ -34,20 +54,10 @@ export function ProgressBar({
   }));
 
   return (
-    <View style={[styles.track, { height, backgroundColor: trackColor }, style]}>
-      <Animated.View style={[styles.fill, { backgroundColor: color }, fillStyle]} />
+    <View
+      style={[styles.track, { height, backgroundColor: resolvedTrackColor, borderWidth: height >= 8 ? 1 : 0 }, style]}
+    >
+      <Animated.View style={[styles.fill, { backgroundColor: fillColor }, fillStyle]} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  track: {
-    width: '100%',
-    borderRadius: Spacing.radius.full,
-    overflow: 'hidden',
-  },
-  fill: {
-    height: '100%',
-    borderRadius: Spacing.radius.full,
-  },
-});

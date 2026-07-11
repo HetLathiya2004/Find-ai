@@ -38,6 +38,7 @@ try {
 export const StorageKeys = {
   auth: 'auth-state',
   progress: 'progress-state',
+  theme: 'theme-preference',
 } as const;
 
 export function getString(key: string): string | null {

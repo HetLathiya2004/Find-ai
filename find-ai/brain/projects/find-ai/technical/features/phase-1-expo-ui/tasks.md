@@ -15,10 +15,12 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` deferred
 
 ## 2. Design tokens
 
-- [x] `constants/colors.ts` — backgrounds, accents, domains, gradients
-- [x] `constants/typography.ts` — Inter sizes, line heights, tracking
+- [x] `theme/` module — types, brand, light/dark palettes, gradients, preference, provider
+- [x] Compatibility shims: `constants/colors.ts`, `hooks/useTheme.tsx`
+- [x] `constants/typography.ts` — Nunito sizes, line heights, tracking
 - [x] `constants/spacing.ts` — radii, padding, gaps, tab bar height
-- [x] Load Inter fonts in root `_layout.tsx` with splash gate
+- [x] Load Nunito fonts in root `_layout.tsx` with splash gate
+- [x] Profile → Theme setting (System / Light / Dark)
 
 ## 3. UI primitives (`components/ui/`)
 
@@ -35,7 +37,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` deferred
 - [x] Learn: DomainFilter, ConceptCard
 - [x] Lesson: LessonCard, ExitModal
 - [x] Quiz: QuestionCard, OptionButton
-- [x] Profile: StatsGrid, BadgeGrid, MasteryList
+- [x] Profile: StatsGrid, BadgeGrid, MasteryList, ThemeSettingRow
 
 ## 5. Mock data & state
 
@@ -61,7 +63,8 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` deferred
 - [x] learn/index.tsx + learn/[slug].tsx + learn/_layout.tsx
 - [x] practice.tsx — review, weak concepts, simulations
 - [x] news.tsx — article cards with "Learn this" CTA
-- [x] profile.tsx — stats, badges, mastery, settings, sign out
+- [x] profile.tsx — stats, badges, mastery, settings (incl. theme), sign out
+- [x] `ThemeSettingRow` — cycles System → Light → Dark
 
 ## 8. Fullscreen players
 
@@ -76,7 +79,8 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` deferred
 - [x] Skeleton loaders on tab screens
 - [x] Haptics on all interactive elements
 - [x] Reanimated press animations on cards/buttons
-- [x] Dark-only `+html.tsx` web background
+- [x] Themed `+html.tsx` web background (`prefers-color-scheme`)
+- [x] `app.json` `userInterfaceStyle: automatic`
 - [ ] Branded icon + splash assets (still template placeholders)
 
 ## 10. Documentation

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import type { MockQuizQuestion } from '@/constants/mock-data';
 import { AppText } from '@/components/ui/AppText';
+import { Mascot } from '@/components/ui/Mascot';
 import { OptionButton, OptionState } from './OptionButton';
+import { type ColorPalette, useColors } from '@/theme';
 
 interface QuestionCardProps {
   question: MockQuizQuestion;
@@ -21,7 +22,40 @@ function stateFor(question: MockQuizQuestion, selectedIndex: number | null, inde
   return 'disabled';
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    question: {
+      marginBottom: Spacing.gap['2xl'],
+    },
+    options: {
+      gap: Spacing.gap.md,
+    },
+    explanation: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: Spacing.gap.xl,
+      backgroundColor: colors.surface2,
+      borderWidth: 1,
+      borderColor: colors.borderDefault,
+      borderRadius: Spacing.radius.card,
+      padding: 16,
+    },
+    feedbackMascot: {
+      marginLeft: -8,
+      marginRight: Spacing.gap.sm,
+    },
+    feedbackCopy: {
+      flex: 1,
+    },
+    explanationText: {
+      marginTop: 6,
+    },
+  });
+}
+
 export function QuestionCard({ question, selectedIndex, onSelect }: QuestionCardProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const answered = selectedIndex !== null;
   const wasCorrect = answered && selectedIndex === question.correct_index;
 
@@ -42,34 +76,22 @@ export function QuestionCard({ question, selectedIndex, onSelect }: QuestionCard
       </View>
       {answered ? (
         <Animated.View entering={FadeIn.duration(200)} style={styles.explanation}>
-          <AppText size="caption" label color={wasCorrect ? Colors.accent : Colors.danger}>
-            {wasCorrect ? 'Correct' : 'Not quite'}
-          </AppText>
-          <AppText size="sm" color={Colors.textSecondary} leading="normal" style={styles.explanationText}>
-            {question.explanation}
-          </AppText>
+          <Mascot
+            pose={wasCorrect ? 'cheer' : 'wave'}
+            size={72}
+            animate="pop"
+            style={styles.feedbackMascot}
+          />
+          <View style={styles.feedbackCopy}>
+            <AppText size="caption" label color={wasCorrect ? colors.accent : colors.danger}>
+              {wasCorrect ? 'Nice work' : 'Let’s learn from it'}
+            </AppText>
+            <AppText size="sm" color={colors.textSecondary} leading="normal" style={styles.explanationText}>
+              {question.explanation}
+            </AppText>
+          </View>
         </Animated.View>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  question: {
-    marginBottom: Spacing.gap['2xl'],
-  },
-  options: {
-    gap: Spacing.gap.md,
-  },
-  explanation: {
-    marginTop: Spacing.gap.xl,
-    backgroundColor: Colors.surface1,
-    borderWidth: 1,
-    borderColor: Colors.borderDefault,
-    borderRadius: Spacing.radius.card,
-    padding: 16,
-  },
-  explanationText: {
-    marginTop: 6,
-  },
-});

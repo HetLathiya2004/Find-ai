@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { CircularProgress } from '@/components/ui/CircularProgress';
+import { Mascot } from '@/components/ui/Mascot';
+import { type ColorPalette, useColors } from '@/theme';
 
 interface DailyGoalCardProps {
   completed: number;
@@ -26,13 +27,55 @@ const GOAL_IDEAS: { icon: keyof typeof Feather.glyphMap; label: string }[] = [
 
 const MAX_ROWS = 5;
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.xl,
+    },
+    loadingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.md,
+      paddingVertical: Spacing.gap.md,
+    },
+    info: {
+      flex: 1,
+    },
+    count: {
+      marginTop: 4,
+      marginBottom: 2,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: colors.borderDefault,
+      marginVertical: Spacing.gap.lg,
+    },
+    checklist: {
+      gap: Spacing.gap.md,
+    },
+    checkRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.md,
+    },
+    checkedLabel: {
+      textDecorationLine: 'line-through',
+    },
+  });
+}
+
 export function DailyGoalCard({ completed, target, xpEarned = 0, loading }: DailyGoalCardProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   if (loading) {
     return (
       <Card padding="large">
         <View style={styles.loadingRow}>
-          <ActivityIndicator size="small" color={Colors.accent} />
-          <AppText size="sm" color={Colors.textMuted}>Loading daily goal...</AppText>
+          <ActivityIndicator size="small" color={colors.accent} />
+          <AppText size="sm" color={colors.textMuted}>Loading daily goal...</AppText>
         </View>
       </Card>
     );
@@ -44,20 +87,24 @@ export function DailyGoalCard({ completed, target, xpEarned = 0, loading }: Dail
   return (
     <Card padding="large">
       <View style={styles.row}>
-        <CircularProgress
-          progress={target > 0 ? completed / target : 0}
-          size={64}
-          strokeWidth={5}
-          label={`${Math.min(completed, target)}/${target}`}
-        />
+        {done ? (
+          <Mascot pose="cheer" size={72} animate="pop" />
+        ) : (
+          <CircularProgress
+            progress={target > 0 ? completed / target : 0}
+            size={64}
+            strokeWidth={5}
+            label={`${Math.min(completed, target)}/${target}`}
+          />
+        )}
         <View style={styles.info}>
-          <AppText size="sm" label color={Colors.textMuted}>
+          <AppText size="sm" label color={colors.textMuted}>
             Daily Goal
           </AppText>
           <AppText size="lg" weight="medium" style={styles.count}>
             {done ? 'Goal smashed! 🎉' : `${target - completed} to go today`}
           </AppText>
-          <AppText size="sm" color={xpEarned > 0 ? Colors.accent : Colors.textSecondary}>
+          <AppText size="sm" color={xpEarned > 0 ? colors.accent : colors.textSecondary}>
             {xpEarned > 0 ? `+${xpEarned} XP earned today` : 'Any activity counts'}
           </AppText>
         </View>
@@ -74,16 +121,16 @@ export function DailyGoalCard({ completed, target, xpEarned = 0, loading }: Dail
               <Feather
                 name={checked ? 'check-circle' : 'circle'}
                 size={18}
-                color={checked ? Colors.accent : Colors.textMuted}
+                color={checked ? colors.accent : colors.textMuted}
               />
               <Feather
                 name={idea.icon}
                 size={14}
-                color={checked ? Colors.textSecondary : Colors.textMuted}
+                color={checked ? colors.textSecondary : colors.textMuted}
               />
               <AppText
                 size="sm"
-                color={checked ? Colors.textSecondary : Colors.textMuted}
+                color={checked ? colors.textSecondary : colors.textMuted}
                 style={checked ? styles.checkedLabel : undefined}
               >
                 {idea.label}
@@ -95,40 +142,3 @@ export function DailyGoalCard({ completed, target, xpEarned = 0, loading }: Dail
     </Card>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.xl,
-  },
-  loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.md,
-    paddingVertical: Spacing.gap.md,
-  },
-  info: {
-    flex: 1,
-  },
-  count: {
-    marginTop: 4,
-    marginBottom: 2,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.borderDefault,
-    marginVertical: Spacing.gap.lg,
-  },
-  checklist: {
-    gap: Spacing.gap.md,
-  },
-  checkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.md,
-  },
-  checkedLabel: {
-    textDecorationLine: 'line-through',
-  },
-});

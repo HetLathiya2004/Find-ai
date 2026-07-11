@@ -1,4 +1,5 @@
 // Pure gamification logic — no backend calls. Phase 1 uses MMKV for persistence.
+import { Colors } from '@/theme';
 
 // Level thresholds (13 tiers)
 const LEVEL_THRESHOLDS = [0, 200, 500, 900, 1400, 2000, 2700, 3500, 4500, 5700, 7000, 8500, 10100];
@@ -51,12 +52,12 @@ export function domainLabel(domain: string): string {
 
 export function domainColor(domain: string): string {
   const map: Record<string, string> = {
-    markets: '#3B82F6',
-    investing: '#10B981',
-    macro: '#F97316',
-    corporate_finance: '#8B5CF6',
+    markets: Colors.domainMarkets,
+    investing: Colors.domainInvesting,
+    macro: Colors.domainMacro,
+    corporate_finance: Colors.domainCorporate,
   };
-  return map[domain] ?? '#FFFFFF';
+  return map[domain] ?? Colors.textPrimary;
 }
 
 export function greetingForTime(): string {

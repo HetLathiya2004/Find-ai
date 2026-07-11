@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DailyChallengeCard } from '@/components/home/DailyChallengeCard';
@@ -8,10 +8,10 @@ import { LeagueCard } from '@/components/home/LeagueCard';
 import { NewsCard } from '@/components/home/NewsCard';
 import { ResumeCard } from '@/components/home/ResumeCard';
 import { AppText } from '@/components/ui/AppText';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Mascot } from '@/components/ui/Mascot';
 import { StatPill } from '@/components/ui/StatPill';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { formatXP, greetingForTime } from '@/lib/gamification';
 import { useConcept } from '@/hooks/useConcept';
@@ -23,11 +23,75 @@ import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useMockLoading } from '@/hooks/useMockLoading';
 import { useProgress } from '@/hooks/useProgress';
 import { useNews } from '@/hooks/useNews';
+import { type ColorPalette, useColors } from '@/theme';
 
 const DAILY_CHALLENGE_XP = 50;
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    content: {
+      padding: Spacing.padding.screen,
+      paddingBottom: Spacing.bottomOffset,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    pills: {
+      flexDirection: 'row',
+      gap: Spacing.gap.sm,
+    },
+    coachCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.md,
+      marginTop: Spacing.gap.lg,
+      minHeight: 112,
+      paddingVertical: Spacing.gap.md,
+      paddingLeft: Spacing.gap.md,
+      paddingRight: Spacing.padding.card,
+      backgroundColor: colors.surface1,
+      borderWidth: 2,
+      borderBottomWidth: 4,
+      borderColor: colors.accent,
+      borderBottomColor: colors.accentMuted,
+      borderRadius: Spacing.radius.card,
+    },
+    mascotSlot: {
+      width: 104,
+      height: 104,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    coachCopy: {
+      flex: 1,
+      paddingVertical: Spacing.gap.xs,
+    },
+    coachSubtitle: {
+      marginTop: 4,
+    },
+    stack: {
+      marginTop: Spacing.gap.md,
+      gap: Spacing.gap.md,
+    },
+  });
+}
+
 export default function HomeScreen() {
   const router = useRouter();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const loading = useMockLoading();
   const { displayName } = useAuth();
   const progress = useProgress();
@@ -90,7 +154,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );
@@ -108,7 +172,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <AppText size="sm" color={Colors.textSecondary}>
+            <AppText size="sm" color={colors.textSecondary}>
               {greetingForTime()},
             </AppText>
             <AppText size="xl" weight="medium">
@@ -119,10 +183,24 @@ export default function HomeScreen() {
             <StatPill
               emoji="🔥"
               value={progress.streakCount}
-              valueColor={Colors.warning}
+              valueColor={colors.danger}
               onPress={() => router.push('/streak')}
             />
-            <StatPill emoji="⚡" value={formatXP(progress.xp)} valueColor={Colors.accent} />
+            <StatPill emoji="⚡" value={formatXP(progress.xp)} valueColor={colors.textPrimary} />
+          </View>
+        </View>
+
+        <View style={styles.coachCard}>
+          <View style={styles.mascotSlot}>
+            <Mascot pose="wave" size={96} animate="wave" />
+          </View>
+          <View style={styles.coachCopy}>
+            <AppText size="base" weight="bold">
+              Hey {displayName}!
+            </AppText>
+            <AppText size="sm" color={colors.textSecondary} style={styles.coachSubtitle}>
+              Ready for today&apos;s lesson?
+            </AppText>
           </View>
         </View>
 
@@ -173,33 +251,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  content: {
-    padding: Spacing.padding.screen,
-    paddingBottom: Spacing.bottomOffset,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  pills: {
-    flexDirection: 'row',
-    gap: Spacing.gap.sm,
-  },
-  stack: {
-    marginTop: Spacing.gap.xl,
-    gap: Spacing.gap.md,
-  },
-});

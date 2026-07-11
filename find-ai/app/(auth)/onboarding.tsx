@@ -1,16 +1,17 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from '@/components/ui/AppText';
 import { FormInput } from '@/components/ui/FormInput';
+import { Mascot } from '@/components/ui/Mascot';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useAuth, AuthState } from '@/hooks/useAuth';
+import { type ColorPalette, useColors } from '@/theme';
 
 const TOTAL_STEPS = 3;
 
@@ -22,9 +23,91 @@ const GOALS: { id: AuthState['goal']; emoji: string; title: string; subtitle: st
 
 const MINUTES: AuthState['dailyGoalMinutes'][] = [5, 10, 15];
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    flex: {
+      flex: 1,
+    },
+    inner: {
+      flex: 1,
+      paddingHorizontal: Spacing.padding.cardLg,
+      paddingTop: Spacing.gap.lg,
+    },
+    progressRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    stepLabel: {
+      marginLeft: Spacing.gap.md,
+    },
+    content: {
+      flex: 1,
+      marginTop: 32,
+    },
+    mascot: {
+      alignSelf: 'center',
+      marginBottom: Spacing.gap.sm,
+    },
+    subtitle: {
+      marginTop: 6,
+    },
+    goalList: {
+      marginTop: Spacing.gap['2xl'],
+      gap: Spacing.gap.md,
+    },
+    goalCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.lg,
+      backgroundColor: colors.surface1,
+      borderWidth: 1,
+      borderRadius: Spacing.radius.card,
+      padding: Spacing.padding.card,
+    },
+    goalEmoji: {
+      fontSize: 32,
+    },
+    goalInfo: {
+      flex: 1,
+    },
+    goalSubtitle: {
+      marginTop: 2,
+    },
+    timeRow: {
+      flexDirection: 'row',
+      gap: Spacing.gap.md,
+      marginTop: Spacing.gap['2xl'],
+    },
+    timeButton: {
+      flex: 1,
+      height: 56,
+      backgroundColor: colors.surface1,
+      borderWidth: 1,
+      borderRadius: Spacing.radius.button,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    motivation: {
+      marginTop: Spacing.gap.lg,
+    },
+    nameInput: {
+      marginTop: Spacing.gap['2xl'],
+    },
+    bottom: {
+      paddingBottom: 48,
+    },
+  });
+}
+
 export default function OnboardingScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { completeOnboarding } = useAuth();
 
   const [step, setStep] = useState(0);
@@ -57,12 +140,18 @@ export default function OnboardingScreen() {
         <View style={styles.inner}>
           <View style={styles.progressRow}>
             <SegmentBar total={TOTAL_STEPS} completed={step + 1} />
-            <AppText size="xs" color={Colors.textMuted} style={styles.stepLabel}>
+            <AppText size="xs" color={colors.textMuted} style={styles.stepLabel}>
               {step + 1} / {TOTAL_STEPS}
             </AppText>
           </View>
 
           <View style={styles.content}>
+            <Mascot
+              pose={step === 0 ? 'think' : step === 1 ? 'wave' : 'cheer'}
+              size={110}
+              animate={step === 2 ? 'pop' : 'bounce'}
+              style={styles.mascot}
+            />
             {step === 0 ? (
               <Animated.View entering={FadeIn.duration(250)}>
                 <AppText size="2xl" weight="medium">
@@ -74,7 +163,7 @@ export default function OnboardingScreen() {
                     return (
                       <Pressable
                         key={g.id}
-                        style={[styles.goalCard, { borderColor: selected ? Colors.textPrimary : Colors.borderDefault }]}
+                        style={[styles.goalCard, { borderColor: selected ? colors.textPrimary : colors.borderDefault }]}
                         onPress={() => {
                           haptics.light();
                           setGoal(g.id);
@@ -85,7 +174,7 @@ export default function OnboardingScreen() {
                           <AppText size="base" weight="medium">
                             {g.title}
                           </AppText>
-                          <AppText size="sm" color={Colors.textSecondary} style={styles.goalSubtitle}>
+                          <AppText size="sm" color={colors.textSecondary} style={styles.goalSubtitle}>
                             {g.subtitle}
                           </AppText>
                         </View>
@@ -99,7 +188,7 @@ export default function OnboardingScreen() {
                 <AppText size="2xl" weight="medium">
                   How much time per day?
                 </AppText>
-                <AppText size="sm" color={Colors.textSecondary} style={styles.subtitle}>
+                <AppText size="sm" color={colors.textSecondary} style={styles.subtitle}>
                   Even 5 minutes a day builds real knowledge
                 </AppText>
                 <View style={styles.timeRow}>
@@ -110,21 +199,21 @@ export default function OnboardingScreen() {
                         key={m}
                         style={[
                           styles.timeButton,
-                          { borderColor: selected ? Colors.accent : Colors.borderDefault },
+                          { borderColor: selected ? colors.accent : colors.borderDefault },
                         ]}
                         onPress={() => {
                           haptics.light();
                           setMinutes(m);
                         }}
                       >
-                        <AppText size="base" weight="medium" color={selected ? Colors.accent : Colors.textPrimary}>
+                        <AppText size="base" weight="medium" color={selected ? colors.accent : colors.textPrimary}>
                           {m} min
                         </AppText>
                       </Pressable>
                     );
                   })}
                 </View>
-                <AppText size="xs" color={Colors.textMuted} center style={styles.motivation}>
+                <AppText size="xs" color={colors.textMuted} center style={styles.motivation}>
                   Most learners choose 10 minutes
                 </AppText>
               </Animated.View>
@@ -156,77 +245,3 @@ export default function OnboardingScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  flex: {
-    flex: 1,
-  },
-  inner: {
-    flex: 1,
-    paddingHorizontal: Spacing.padding.cardLg,
-    paddingTop: Spacing.gap.lg,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  stepLabel: {
-    marginLeft: Spacing.gap.md,
-  },
-  content: {
-    flex: 1,
-    marginTop: 32,
-  },
-  subtitle: {
-    marginTop: 6,
-  },
-  goalList: {
-    marginTop: Spacing.gap['2xl'],
-    gap: Spacing.gap.md,
-  },
-  goalCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.lg,
-    backgroundColor: Colors.surface1,
-    borderWidth: 1,
-    borderRadius: Spacing.radius.card,
-    padding: Spacing.padding.card,
-  },
-  goalEmoji: {
-    fontSize: 32,
-  },
-  goalInfo: {
-    flex: 1,
-  },
-  goalSubtitle: {
-    marginTop: 2,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    gap: Spacing.gap.md,
-    marginTop: Spacing.gap['2xl'],
-  },
-  timeButton: {
-    flex: 1,
-    height: 56,
-    backgroundColor: Colors.surface1,
-    borderWidth: 1,
-    borderRadius: Spacing.radius.button,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  motivation: {
-    marginTop: Spacing.gap.lg,
-  },
-  nameInput: {
-    marginTop: Spacing.gap['2xl'],
-  },
-  bottom: {
-    paddingBottom: 48,
-  },
-});

@@ -1,17 +1,17 @@
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { DollarLoader } from '@/components/ui/DollarLoader';
-import { Colors } from '@/constants/colors';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { MockNewsArticle, getConceptById } from '@/constants/mock-data';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useProgress } from '@/hooks/useProgress';
 import { useNews } from '@/hooks/useNews';
+import { type ColorPalette, useColors } from '@/theme';
 
 function formatDate(iso: string): string {
   const date = new Date(iso.includes('T') ? iso : `${iso}T00:00:00`);
@@ -20,30 +20,76 @@ function formatDate(iso: string): string {
     .toUpperCase();
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    list: {
+      padding: Spacing.padding.screen,
+      paddingBottom: Spacing.bottomOffset,
+    },
+    title: {
+      marginBottom: Spacing.gap.xl,
+    },
+    articleTitle: {
+      marginTop: Spacing.gap.sm,
+      marginBottom: Spacing.gap.sm,
+    },
+    dividerLine: {
+      height: 1,
+      backgroundColor: colors.borderDefault,
+      marginVertical: Spacing.gap.lg,
+    },
+    whyText: {
+      marginTop: 6,
+    },
+    bottomRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: Spacing.gap.lg,
+    },
+    footerLoader: {
+      paddingVertical: Spacing.gap.xl,
+      alignItems: 'center',
+    },
+  });
+}
+
 function ArticleCard({ article }: { article: MockNewsArticle }) {
   const router = useRouter();
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { markNewsRead } = useProgress();
   const concept = getConceptById(article.concept_id);
 
   return (
     <Card>
-      <AppText size="caption" label color={Colors.textMuted}>
+      <AppText size="caption" label color={colors.textMuted}>
         {formatDate(article.published_at)}
       </AppText>
       <AppText size="lg" weight="medium" style={styles.articleTitle}>
         {article.title}
       </AppText>
-      <AppText size="sm" color={Colors.textSecondary} leading="relaxed">
+      <AppText size="sm" color={colors.textSecondary} leading="relaxed">
         {article.summary}
       </AppText>
       {article.why_it_matters ? (
         <>
           <View style={styles.dividerLine} />
-          <AppText size="xs" label color={Colors.textMuted}>
+          <AppText size="xs" label color={colors.textMuted}>
             Why it matters
           </AppText>
-          <AppText size="sm" color={Colors.textSecondary} leading="normal" style={styles.whyText}>
+          <AppText size="sm" color={colors.textSecondary} leading="normal" style={styles.whyText}>
             {article.why_it_matters}
           </AppText>
         </>
@@ -59,7 +105,7 @@ function ArticleCard({ article }: { article: MockNewsArticle }) {
               router.push(`/(tabs)/learn/${concept.slug}`);
             }}
           >
-            <AppText size="xs" color={Colors.accent}>
+            <AppText size="xs" color={colors.accent}>
               Learn this concept → +{article.xp_reward} XP
             </AppText>
           </Pressable>
@@ -70,6 +116,8 @@ function ArticleCard({ article }: { article: MockNewsArticle }) {
 }
 
 export default function NewsScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { articles, loading, loadingMore, refreshing, hasMore, loadMore, refresh } =
     useNews('all');
 
@@ -77,7 +125,7 @@ export default function NewsScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );
@@ -102,7 +150,7 @@ export default function NewsScreen() {
         ListFooterComponent={
           loadingMore ? (
             <View style={styles.footerLoader}>
-              <ActivityIndicator size="small" color={Colors.textMuted} />
+              <ActivityIndicator size="small" color={colors.textMuted} />
             </View>
           ) : null
         }
@@ -112,45 +160,3 @@ export default function NewsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  list: {
-    padding: Spacing.padding.screen,
-    paddingBottom: Spacing.bottomOffset,
-  },
-  title: {
-    marginBottom: Spacing.gap.xl,
-  },
-  articleTitle: {
-    marginTop: Spacing.gap.sm,
-    marginBottom: Spacing.gap.sm,
-  },
-  dividerLine: {
-    height: 1,
-    backgroundColor: Colors.borderDefault,
-    marginVertical: Spacing.gap.lg,
-  },
-  whyText: {
-    marginTop: 6,
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: Spacing.gap.lg,
-  },
-  footerLoader: {
-    paddingVertical: Spacing.gap.xl,
-    alignItems: 'center',
-  },
-});

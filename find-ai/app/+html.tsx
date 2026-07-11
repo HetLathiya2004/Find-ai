@@ -19,7 +19,7 @@ export default function Root({ children }: { children: ReactNode }) {
         */}
         <ScrollViewStyleReset />
 
-        {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
+        {/* Match system preference on first paint to avoid a theme flash on web. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
         {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
@@ -28,8 +28,12 @@ export default function Root({ children }: { children: ReactNode }) {
   );
 }
 
-// Find.ai is dark-only — the body background is always pure black.
 const responsiveBackground = `
 body {
-  background-color: #000;
+  background-color: #F3F6EF;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #10140F;
+  }
 }`;

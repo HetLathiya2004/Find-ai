@@ -1,9 +1,9 @@
 export const Spacing = {
   // Radii
   radius: {
-    card: 12,
-    button: 8,
-    tag: 6,
+    card: 16,
+    button: 12,
+    tag: 8,
     full: 9999, // progress bars, pills
     xl: 16, // lesson content cards
   },

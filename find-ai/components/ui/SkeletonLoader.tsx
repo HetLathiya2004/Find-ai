@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -6,8 +6,8 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
+import { type ColorPalette, useColors } from '@/theme';
 
 interface SkeletonProps {
   variant?: 'text' | 'card' | 'circle';
@@ -16,8 +16,22 @@ interface SkeletonProps {
   style?: ViewStyle;
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    base: {
+      backgroundColor: colors.surface2,
+    },
+    screen: {
+      flex: 1,
+      padding: Spacing.padding.screen,
+    },
+  });
+}
+
 /** Pulsing placeholder block matching the layout it replaces. */
 export function Skeleton({ variant = 'text', width = '100%', height, style }: SkeletonProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const opacity = useSharedValue(0.5);
 
   useEffect(() => {
@@ -48,6 +62,9 @@ export function Skeleton({ variant = 'text', width = '100%', height, style }: Sk
 
 /** Generic full-screen list skeleton used while a screen's mock data "loads". */
 export function ScreenSkeleton({ rows = 4 }: { rows?: number }) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={styles.screen}>
       <Skeleton variant="text" width={120} height={24} />
@@ -60,13 +77,3 @@ export function ScreenSkeleton({ rows = 4 }: { rows?: number }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    backgroundColor: Colors.surface2,
-  },
-  screen: {
-    flex: 1,
-    padding: Spacing.padding.screen,
-  },
-});

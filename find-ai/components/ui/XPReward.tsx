@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -7,11 +7,12 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { AppText } from './AppText';
 import { Confetti } from './Confetti';
+import { Mascot } from './Mascot';
 import { PrimaryButton } from './PrimaryButton';
+import { type ColorPalette, useColors } from '@/theme';
 
 interface XPRewardProps {
   xp: number;
@@ -21,9 +22,40 @@ interface XPRewardProps {
   children?: React.ReactNode;
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: Spacing.padding.cardLg,
+    },
+    subtitle: {
+      marginTop: Spacing.gap.md,
+    },
+    mascot: {
+      marginBottom: Spacing.gap.md,
+    },
+    extra: {
+      marginTop: Spacing.gap['2xl'],
+      alignSelf: 'stretch',
+    },
+    bottom: {
+      padding: Spacing.padding.screen,
+      paddingBottom: 48,
+    },
+  });
+}
+
 /** Full-screen celebration overlay: "+25 XP", subtitle, confetti, scale-in entrance.
  *  When xp === 0 (repeat completion), shows an inspiring message instead — no confetti. */
 export function XPReward({ xp, subtitle, buttonTitle = 'Continue', onContinue, children }: XPRewardProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const scale = useSharedValue(0);
   const textOpacity = useSharedValue(0);
   const isRepeat = xp === 0;
@@ -43,19 +75,25 @@ export function XPReward({ xp, subtitle, buttonTitle = 'Continue', onContinue, c
     <View style={styles.container}>
       {!isRepeat && <Confetti />}
       <View style={styles.center}>
+        <Mascot
+          pose={isRepeat ? 'wave' : 'cheer'}
+          size={180}
+          animate="pop"
+          style={styles.mascot}
+        />
         <Animated.View style={scaleStyle}>
           {isRepeat ? (
-            <AppText size="5xl" weight="medium" color={Colors.accent} center>
+            <AppText size="5xl" weight="medium" color={colors.accent} center>
               Great Revision!
             </AppText>
           ) : (
-            <AppText size="5xl" weight="medium" color={Colors.accent} center>
+            <AppText size="5xl" weight="medium" color={colors.accent} center>
               +{xp} XP
             </AppText>
           )}
         </Animated.View>
         <Animated.View style={[styles.subtitle, fadeStyle]}>
-          <AppText size="base" color={Colors.textSecondary} center>
+          <AppText size="base" color={colors.textSecondary} center>
             {subtitle}
           </AppText>
         </Animated.View>
@@ -67,27 +105,3 @@ export function XPReward({ xp, subtitle, buttonTitle = 'Continue', onContinue, c
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.padding.cardLg,
-  },
-  subtitle: {
-    marginTop: Spacing.gap.md,
-  },
-  extra: {
-    marginTop: Spacing.gap['2xl'],
-    alignSelf: 'stretch',
-  },
-  bottom: {
-    padding: Spacing.padding.screen,
-    paddingBottom: 48,
-  },
-});

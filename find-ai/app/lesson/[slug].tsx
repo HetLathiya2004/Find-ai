@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import {
   useSharedValue,
@@ -13,25 +13,69 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExitModal } from '@/components/lesson/ExitModal';
 import { LessonCard } from '@/components/lesson/LessonCard';
 import { AppText } from '@/components/ui/AppText';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SegmentBar } from '@/components/ui/SegmentBar';
 import { XPReward } from '@/components/ui/XPReward';
-import { Colors } from '@/constants/colors';
-const DAILY_CHALLENGE_XP = 50;
 import { Spacing } from '@/constants/spacing';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useProgress } from '@/hooks/useProgress';
+import { type ColorPalette, useColors } from '@/theme';
 
+const DAILY_CHALLENGE_XP = 50;
 const SLIDE_DURATION = 250;
 const SLIDE_DISTANCE = 48;
+
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.lg,
+      paddingHorizontal: Spacing.padding.screen,
+      paddingVertical: Spacing.gap.md,
+    },
+    segments: {
+      flex: 1,
+    },
+    content: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      padding: Spacing.padding.screen,
+    },
+    bottom: {
+      flexDirection: 'row',
+      gap: Spacing.gap.md,
+      padding: Spacing.padding.screen,
+      paddingBottom: 24,
+    },
+    backButton: {
+      flex: 3,
+    },
+    continueButton: {
+      flex: 7,
+    },
+  });
+}
 
 export default function LessonPlayerScreen() {
   const router = useRouter();
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { slug, challenge } = useLocalSearchParams<{ slug: string; challenge?: string }>();
   const { concept, loading, error, retry } = useConcept(slug ?? null, 'cards');
   const progress = useProgress();
@@ -101,7 +145,7 @@ export default function LessonPlayerScreen() {
   if (loading || !concept) {
     return (
       <View style={styles.loader}>
-        <DollarLoader />
+        <LoadingScene fullscreen={false} />
       </View>
     );
   }
@@ -159,10 +203,10 @@ export default function LessonPlayerScreen() {
             setShowExitModal(true);
           }}
         >
-          <Feather name="x" size={24} color={Colors.textSecondary} />
+          <Feather name="x" size={24} color={colors.textSecondary} />
         </Pressable>
         <SegmentBar total={concept.cards.length} completed={cardIndex + 1} style={styles.segments} />
-        <AppText size="xs" weight="medium" color={Colors.accent}>
+        <AppText size="xs" weight="medium" color={colors.accent}>
           +{concept.lesson_xp} XP
         </AppText>
       </View>
@@ -204,43 +248,3 @@ export default function LessonPlayerScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.lg,
-    paddingHorizontal: Spacing.padding.screen,
-    paddingVertical: Spacing.gap.md,
-  },
-  segments: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: Spacing.padding.screen,
-  },
-  bottom: {
-    flexDirection: 'row',
-    gap: Spacing.gap.md,
-    padding: Spacing.padding.screen,
-    paddingBottom: 24,
-  },
-  backButton: {
-    flex: 3,
-  },
-  continueButton: {
-    flex: 7,
-  },
-});

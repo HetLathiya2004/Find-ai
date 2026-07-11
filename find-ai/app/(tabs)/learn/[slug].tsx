@@ -1,38 +1,103 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { BackRow } from '@/components/ui/BackRow';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { DollarLoader } from '@/components/ui/DollarLoader';
+import { LoadingScene } from '@/components/ui/LoadingScene';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { MasteryDots } from '@/components/ui/MasteryDots';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { masteryFromActivities, masteryLabel } from '@/lib/gamification';
 import { useConcept } from '@/hooks/useConcept';
 import { useHaptics } from '@/hooks/useHaptics';
 import { ActivityStatus, useProgress } from '@/hooks/useProgress';
+import { type ColorPalette, useColors } from '@/theme';
+
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    content: {
+      padding: Spacing.padding.screen,
+      paddingBottom: Spacing.bottomOffset,
+    },
+    backRow: {
+      paddingHorizontal: Spacing.padding.screen,
+      paddingTop: Spacing.padding.screen,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.bg,
+    },
+    title: {
+      marginTop: Spacing.gap.xl,
+    },
+    description: {
+      marginTop: Spacing.gap.sm,
+    },
+    pathway: {
+      marginTop: Spacing.gap['2xl'],
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: Spacing.padding.card,
+      paddingVertical: 18,
+      gap: Spacing.gap.sm,
+    },
+    rowDivider: {
+      borderTopWidth: 1,
+      borderTopColor: colors.borderDefault,
+    },
+    rowLocked: {
+      opacity: 0.4,
+    },
+    rowLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.md,
+    },
+    rowRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.gap.md,
+    },
+    mastery: {
+      marginTop: Spacing.gap.xl,
+      gap: Spacing.gap.sm,
+    },
+    masteryLabel: {
+      marginTop: 2,
+    },
+  });
+}
 
 function StatusChip({ status, score }: { status: ActivityStatus; score?: number | null }) {
+  const colors = useColors();
   if (status === 'completed') {
     return (
-      <Chip color={Colors.accent} backgroundColor={Colors.accentMuted + '40'}>
+      <Chip color={colors.accent} backgroundColor={colors.accentMuted + '40'}>
         {score != null ? `Passed · ${score}%` : 'Complete'}
       </Chip>
     );
   }
   if (status === 'in_progress') {
     return (
-      <Chip color={Colors.warning} backgroundColor={Colors.warningMuted + '40'}>
+      <Chip color={colors.warning} backgroundColor={colors.warningMuted + '40'}>
         In Progress
       </Chip>
     );
   }
-  return <Chip color={Colors.textSecondary}>Start</Chip>;
+  return <Chip color={colors.textSecondary}>Start</Chip>;
 }
 
 interface PathwayRowProps {
@@ -48,6 +113,8 @@ interface PathwayRowProps {
 
 function PathwayRow({ icon, title, xp, status, score, locked, divider, onPress }: PathwayRowProps) {
   const haptics = useHaptics();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Pressable
       disabled={locked}
@@ -62,10 +129,10 @@ function PathwayRow({ icon, title, xp, status, score, locked, divider, onPress }
         <AppText size="base">{title}</AppText>
       </View>
       <View style={styles.rowRight}>
-        <AppText size="xs" color={Colors.accent}>
+        <AppText size="xs" color={colors.accent}>
           +{xp} XP
         </AppText>
-        {locked ? <Feather name="lock" size={16} color={Colors.textFaint} /> : <StatusChip status={status} score={score} />}
+        {locked ? <Feather name="lock" size={16} color={colors.textFaint} /> : <StatusChip status={status} score={score} />}
       </View>
     </Pressable>
   );
@@ -73,6 +140,8 @@ function PathwayRow({ icon, title, xp, status, score, locked, divider, onPress }
 
 export default function ConceptDetailScreen() {
   const router = useRouter();
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { concept, loading, error, retry } = useConcept(slug ?? null);
   const { getConceptProgress } = useProgress();
@@ -88,7 +157,7 @@ export default function ConceptDetailScreen() {
           <BackRow />
         </View>
         <View style={styles.loader}>
-          <DollarLoader />
+          <LoadingScene fullscreen={false} />
         </View>
       </SafeAreaView>
     );
@@ -104,7 +173,7 @@ export default function ConceptDetailScreen() {
     cp.simulationStatus === 'completed',
   );
 
-  const iconColor = (locked: boolean) => (locked ? Colors.textFaint : Colors.textPrimary);
+  const iconColor = (locked: boolean) => (locked ? colors.textFaint : colors.textPrimary);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -113,7 +182,7 @@ export default function ConceptDetailScreen() {
         <AppText size="2xl" weight="medium" style={styles.title}>
           {concept.title}
         </AppText>
-        <AppText size="sm" color={Colors.textSecondary} style={styles.description} leading="relaxed">
+        <AppText size="sm" color={colors.textSecondary} style={styles.description} leading="relaxed">
           {concept.description}
         </AppText>
 
@@ -150,7 +219,7 @@ export default function ConceptDetailScreen() {
 
         <View style={styles.mastery}>
           <MasteryDots level={mastery} />
-          <AppText size="sm" color={Colors.textSecondary} style={styles.masteryLabel}>
+          <AppText size="sm" color={colors.textSecondary} style={styles.masteryLabel}>
             {masteryLabel(mastery)} · lvl {mastery} of 5
           </AppText>
         </View>
@@ -158,65 +227,3 @@ export default function ConceptDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  content: {
-    padding: Spacing.padding.screen,
-    paddingBottom: Spacing.bottomOffset,
-  },
-  backRow: {
-    paddingHorizontal: Spacing.padding.screen,
-    paddingTop: Spacing.padding.screen,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.bg,
-  },
-  title: {
-    marginTop: Spacing.gap.xl,
-  },
-  description: {
-    marginTop: Spacing.gap.sm,
-  },
-  pathway: {
-    marginTop: Spacing.gap['2xl'],
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.padding.card,
-    paddingVertical: 18,
-    gap: Spacing.gap.sm,
-  },
-  rowDivider: {
-    borderTopWidth: 1,
-    borderTopColor: Colors.borderDefault,
-  },
-  rowLocked: {
-    opacity: 0.4,
-  },
-  rowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.md,
-  },
-  rowRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.gap.md,
-  },
-  mastery: {
-    marginTop: Spacing.gap.xl,
-    gap: Spacing.gap.sm,
-  },
-  masteryLabel: {
-    marginTop: 2,
-  },
-});

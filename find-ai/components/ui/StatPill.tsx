@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
-import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
 import { useHaptics } from '@/hooks/useHaptics';
 import { AppText } from './AppText';
+import { type ColorPalette, useColors } from '@/theme';
 
 interface StatPillProps {
   emoji: string;
@@ -14,14 +14,33 @@ interface StatPillProps {
   style?: ViewStyle;
 }
 
+function createStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    pill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: colors.surface2,
+      borderWidth: 2,
+      borderColor: colors.borderDefault,
+      borderBottomWidth: 4,
+      borderRadius: Spacing.radius.button,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+  });
+}
+
 /** Inline pill: emoji + number (e.g. streak "🔥 7" or XP "⚡ 1,450") */
-export function StatPill({ emoji, value, valueColor = Colors.accent, onPress, style }: StatPillProps) {
+export function StatPill({ emoji, value, valueColor, onPress, style }: StatPillProps) {
+  const colors = useColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const haptics = useHaptics();
 
   const content = (
     <>
       <AppText size="sm">{emoji}</AppText>
-      <AppText size="sm" weight="medium" color={valueColor}>
+      <AppText size="sm" weight="medium" color={valueColor ?? colors.accent}>
         {String(value)}
       </AppText>
     </>
@@ -43,17 +62,3 @@ export function StatPill({ emoji, value, valueColor = Colors.accent, onPress, st
 
   return <View style={[styles.pill, style]}>{content}</View>;
 }
-
-const styles = StyleSheet.create({
-  pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: Colors.surface1,
-    borderWidth: 1,
-    borderColor: Colors.borderStrong,
-    borderRadius: Spacing.radius.full,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-});
